@@ -1,8 +1,8 @@
 // Placeholder for Supabase initialization
 // Will need to be replaced with actual keys later.
 
-import { createClient } from '@supabase/supabase-js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { createClient } from '@supabase/supabase-js'
 
 const ExpoSecureStoreAdapter = {
     getItem: (key) => AsyncStorage.getItem(key),

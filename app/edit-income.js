@@ -1,10 +1,9 @@
-import React from 'react';
-import { Alert, TouchableOpacity, useColorScheme } from 'react-native';
-import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Alert, TouchableOpacity, useColorScheme } from 'react-native';
 import { TransactionForm } from '../src/components/TransactionForm';
-import { useBudgetStore } from '../src/store/useBudgetStore';
 import { colors } from '../src/constants/theme';
+import { useBudgetStore } from '../src/store/useBudgetStore';
 
 export default function EditIncomeRoute() {
   const router = useRouter();

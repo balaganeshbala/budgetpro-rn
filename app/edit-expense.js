@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, TouchableOpacity, useColorScheme } from 'react-native';
-import { TransactionForm } from '../components/TransactionForm';
-import { colors } from '../constants/theme';
-import { useBudgetStore } from '../store/useBudgetStore';
+import { TransactionForm } from '../src/components/TransactionForm';
+import { colors } from '../src/constants/theme';
+import { useBudgetStore } from '../src/store/useBudgetStore';
 
 export default function EditExpenseRoute() {
   const router = useRouter();

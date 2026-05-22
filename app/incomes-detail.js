@@ -2,10 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import { AllTransactionsList } from '../components/common/AllTransactionsList';
-import { getIncomeCategory } from '../constants/categories';
-import { colors, radius, spacing, typography } from '../constants/theme';
-import { useBudgetStore } from '../store/useBudgetStore';
+import { AllTransactionsList } from '../src/components/common/AllTransactionsList';
+import { CardView } from '../src/components/common/CardView';
+import { getIncomeCategory } from '../src/constants/categories';
+import { colors, radius, spacing, typography } from '../src/constants/theme';
+import { useBudgetStore } from '../src/store/useBudgetStore';
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
                  'July', 'August', 'September', 'October', 'November', 'December'];
@@ -50,7 +51,7 @@ export default function IncomesDetailScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Main summary card */}
-        <View style={[styles.card, { backgroundColor: themeColors.cardBackground }]}>
+        <CardView>
           <Text style={[styles.totalLabel, { color: themeColors.secondaryText }]}>Total Income</Text>
           <Text style={[styles.totalAmount, { color: themeColors.text }]}>₹{fmt(totalIncome)}</Text>
 
@@ -96,7 +97,7 @@ export default function IncomesDetailScreen() {
               })}
             </>
           )}
-        </View>
+        </CardView>
 
         {/* All Incomes — shared component */}
         <AllTransactionsList items={incomes} type="income" />

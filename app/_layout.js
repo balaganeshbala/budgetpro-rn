@@ -2,7 +2,7 @@ import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
-import { supabase } from '../services/supabase';
+import { supabase } from '../src/services/supabase';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -11,11 +11,11 @@ export default function RootLayout() {
   const [initialized, setInitialized] = useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
-    'Manrope-Regular':  require('../assets/fonts/Manrope-Regular.ttf'),
-    'Manrope-Light':    require('../assets/fonts/Manrope-Light.ttf'),
-    'Manrope-Medium':   require('../assets/fonts/Manrope-Medium.ttf'),
-    'Manrope-SemiBold': require('../assets/fonts/Manrope-SemiBold.ttf'),
-    'Manrope-Bold':     require('../assets/fonts/Manrope-Bold.ttf'),
+    'Manrope-Regular':  require('../src/assets/fonts/Manrope-Regular.ttf'),
+    'Manrope-Light':    require('../src/assets/fonts/Manrope-Light.ttf'),
+    'Manrope-Medium':   require('../src/assets/fonts/Manrope-Medium.ttf'),
+    'Manrope-SemiBold': require('../src/assets/fonts/Manrope-SemiBold.ttf'),
+    'Manrope-Bold':     require('../src/assets/fonts/Manrope-Bold.ttf'),
   });
   const segments = useSegments();
   const router = useRouter();

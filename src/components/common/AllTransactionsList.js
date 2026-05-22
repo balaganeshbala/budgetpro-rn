@@ -4,8 +4,9 @@ import { useMemo, useState } from 'react';
 import { ActionSheetIOS, Alert, Platform, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { getExpenseCategory, getIncomeCategory } from '../../constants/categories';
 import { colors, radius, spacing, typography } from '../../constants/theme';
-import { TransactionRow } from '../TransactionRow';
 import EmptyDataIndicatorView from '../EmptyDataIndicatorView';
+import { TransactionRow } from '../TransactionRow';
+import { CardView } from './CardView';
 
 const SORT_OPTIONS = [
   { label: 'Date (Newest First)', value: 'date_desc' },
@@ -74,7 +75,7 @@ export function AllTransactionsList({ items = [], type = 'expense' }) {
       </Text>
 
       {/* List card */}
-      <View style={[styles.card, { backgroundColor: themeColors.cardBackground }]}>
+      <CardView padding={0}>
         {sorted.map((item, index) => {
           const category = getCategory(item.category);
           const dateStr = new Date(item.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
@@ -102,7 +103,7 @@ export function AllTransactionsList({ items = [], type = 'expense' }) {
             title={isExpense ? 'No Expenses Yet' : 'No Incomes Yet'}
           />
         )}
-      </View>
+      </CardView>
     </>
   );
 }

@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
-import { TransactionForm } from '../components/TransactionForm';
-import { useBudgetStore } from '../store/useBudgetStore';
+import { TransactionForm } from '../src/components/TransactionForm';
+import { useBudgetStore } from '../src/store/useBudgetStore';
 
 export default function AddExpenseRoute() {
   const router = useRouter();

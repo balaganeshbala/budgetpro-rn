@@ -5,9 +5,9 @@ import {
     Alert, ScrollView,
     StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View
 } from 'react-native';
-import { EXPENSE_CATEGORIES } from '../constants/categories';
-import { colors, radius, spacing, typography } from '../constants/theme';
-import { useBudgetStore } from '../store/useBudgetStore';
+import { EXPENSE_CATEGORIES } from '../src/constants/categories';
+import { colors, radius, spacing, typography } from '../src/constants/theme';
+import { useBudgetStore } from '../src/store/useBudgetStore';
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];

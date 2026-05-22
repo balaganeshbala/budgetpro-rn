@@ -2,10 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import { AllTransactionsList } from '../components/common/AllTransactionsList';
-import { getExpenseCategory } from '../constants/categories';
-import { colors, radius, spacing, typography } from '../constants/theme';
-import { useBudgetStore } from '../store/useBudgetStore';
+import { AllTransactionsList } from '../src/components/common/AllTransactionsList';
+import { CardView } from '../src/components/common/CardView';
+import { getExpenseCategory } from '../src/constants/categories';
+import { colors, radius, spacing, typography } from '../src/constants/theme';
+import { useBudgetStore } from '../src/store/useBudgetStore';
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
                  'July', 'August', 'September', 'October', 'November', 'December'];
@@ -34,7 +35,7 @@ function CategoryCard({ item, totalBudget, themeColors }) {
   const showBudgetRow = status !== 'unplanned';
 
   return (
-    <View style={[styles.categoryCard, { backgroundColor: themeColors.cardBackground }]}>
+    <CardView style={[styles.categoryCard, { backgroundColor: themeColors.cardBackground }]}>
       {/* Header row */}
       <View style={styles.categoryCardHeader}>
         <View style={[styles.categoryIconCircle, { backgroundColor: categoryObj.color + '25' }]}>
@@ -81,7 +82,7 @@ function CategoryCard({ item, totalBudget, themeColors }) {
           <View style={[styles.progressFill, { backgroundColor: progressColor, width: `${Math.min(progress * 100, 100)}%` }]} />
         </View>
       )}
-    </View>
+    </CardView>
   );
 }
 
@@ -171,10 +172,10 @@ export default function ExpensesDetailScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Total Expenses Card */}
-        <View style={[styles.card, { backgroundColor: themeColors.cardBackground }]}>
+        <CardView>
           <Text style={[styles.totalLabel, { color: themeColors.secondaryText }]}>Total Expenses</Text>
           <Text style={[styles.totalAmount, { color: themeColors.text }]}>₹{fmt(totalExpenses)}</Text>
-        </View>
+        </CardView>
 
         {/* Expense by Category — deferred until after animation */}
         {!isReady ? (

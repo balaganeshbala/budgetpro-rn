@@ -8,6 +8,7 @@ export const colors = {
     background: '#FFFFFF',
     cardBackground: '#FFFFFF',
     groupedBackground: '#F2F2F2',
+    toolbarBackground: '#F8F8F8',
     
     white: '#FFFFFF',
     black: '#000000',

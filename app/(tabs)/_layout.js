@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { useColorScheme } from 'react-native';
-import { colors } from '../../constants/theme';
+import { colors } from '../../src/constants/theme';
 
 export default function TabsLayout() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
