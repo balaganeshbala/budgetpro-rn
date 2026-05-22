@@ -1,3 +1,4 @@
+import '../src/polyfills';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -57,8 +58,8 @@ export default function RootLayout() {
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false, title: '' }} />
-      <Stack.Screen name="login" options={{ headerShown: false }} />
-      <Stack.Screen name="signup" options={{ headerShown: false }} />
+      <Stack.Screen name="login" options={{ headerShown: false, title: '' }} />
+      <Stack.Screen name="signup" options={{ title: '' }} />
       <Stack.Screen name="add-expense" options={{ presentation: 'modal', title: 'Add Expense' }} />
       <Stack.Screen name="add-income" options={{ presentation: 'modal', title: 'Add Income' }} />
       <Stack.Screen name="edit-expense" options={{ presentation: 'modal' }} />

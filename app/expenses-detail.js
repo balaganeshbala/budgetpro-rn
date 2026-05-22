@@ -1,15 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { AllTransactionsList } from '../src/components/common/AllTransactionsList';
 import { CardView } from '../src/components/common/CardView';
 import { getExpenseCategory } from '../src/constants/categories';
 import { colors, radius, spacing, typography } from '../src/constants/theme';
 import { useBudgetStore } from '../src/store/useBudgetStore';
 
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
-                 'July', 'August', 'September', 'October', 'November', 'December'];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const SORT_OPTIONS = [
   { label: 'Date (Newest First)', value: 'date_desc' },
@@ -18,7 +18,7 @@ const SORT_OPTIONS = [
   { label: 'Amount (Lowest First)', value: 'amount_asc' },
 ];
 
-function CategoryCard({ item, totalBudget, themeColors }) {
+function CategoryCard({ item, totalBudget, themeColors, onPress }) {
   const { categoryObj, spent, budget, remaining, status, progress } = item;
   const pct = totalBudget > 0 ? Math.round((budget / totalBudget) * 100) : 0;
 
@@ -35,58 +35,61 @@ function CategoryCard({ item, totalBudget, themeColors }) {
   const showBudgetRow = status !== 'unplanned';
 
   return (
-    <CardView style={[styles.categoryCard, { backgroundColor: themeColors.cardBackground }]}>
-      {/* Header row */}
-      <View style={styles.categoryCardHeader}>
-        <View style={[styles.categoryIconCircle, { backgroundColor: categoryObj.color + '25' }]}>
-          <Ionicons name={categoryObj.iconName} size={20} color={categoryObj.color} />
-        </View>
-        <View style={styles.categoryCardMeta}>
-          <Text style={[styles.categoryCardName, { color: themeColors.text }]}>{categoryObj.displayName}</Text>
-          <Text style={[styles.categoryCardPct, { color: themeColors.secondaryText }]}>
-            {status === 'unplanned' ? 'No budget set' : `${pct}% of total budget`}
-          </Text>
-        </View>
-        <View style={[styles.pill, { backgroundColor: pillConfig.bg }]}>
-          <Text style={[styles.pillText, { color: pillConfig.text }]}>{pillConfig.label}</Text>
-        </View>
-      </View>
-
-      {/* Budget / Remaining row — hidden for Unplanned */}
-      {showBudgetRow && (
-        <View style={styles.categoryCardStats}>
-          <View>
-            <Text style={[styles.statLabel, { color: themeColors.secondaryText }]}>Budget</Text>
-            <Text style={[styles.statValue, { color: themeColors.text }]}>₹{fmt(budget)}</Text>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+      <CardView style={[styles.categoryCard, { backgroundColor: themeColors.cardBackground }]}>
+        {/* Header row */}
+        <View style={styles.categoryCardHeader}>
+          <View style={[styles.categoryIconCircle, { backgroundColor: categoryObj.color + '25' }]}>
+            <Ionicons name={categoryObj.iconName} size={20} color={categoryObj.color} />
           </View>
-          <View style={{ alignItems: 'flex-end' }}>
-            <Text style={[styles.statLabel, { color: themeColors.secondaryText }]}>Remaining</Text>
-            <Text style={[styles.statValue, { color: status === 'overspent' ? themeColors.adaptiveRed : themeColors.text }]}>
-              {status === 'overspent' ? '-' : ''}₹{fmt(Math.abs(remaining))}
+          <View style={styles.categoryCardMeta}>
+            <Text style={[styles.categoryCardName, { color: themeColors.text }]}>{categoryObj.displayName}</Text>
+            <Text style={[styles.categoryCardPct, { color: themeColors.secondaryText }]}>
+              {status === 'unplanned' ? 'No budget set' : `${pct}% of total budget`}
             </Text>
           </View>
+          <View style={[styles.pill, { backgroundColor: pillConfig.bg }]}>
+            <Text style={[styles.pillText, { color: pillConfig.text }]}>{pillConfig.label}</Text>
+          </View>
         </View>
-      )}
 
-      {/* Spent row for Unplanned */}
-      {!showBudgetRow && (
-        <View>
-          <Text style={[styles.statLabel, { color: themeColors.secondaryText }]}>Spent</Text>
-          <Text style={[styles.statValue, { color: themeColors.warning }]}>₹{fmt(spent)}</Text>
-        </View>
-      )}
+        {/* Budget / Remaining row — hidden for Unplanned */}
+        {showBudgetRow && (
+          <View style={styles.categoryCardStats}>
+            <View>
+              <Text style={[styles.statLabel, { color: themeColors.secondaryText }]}>Budget</Text>
+              <Text style={[styles.statValue, { color: themeColors.text }]}>₹{fmt(budget)}</Text>
+            </View>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={[styles.statLabel, { color: themeColors.secondaryText }]}>Remaining</Text>
+              <Text style={[styles.statValue, { color: status === 'overspent' ? themeColors.adaptiveRed : themeColors.text }]}>
+                {status === 'overspent' ? '-' : ''}₹{fmt(Math.abs(remaining))}
+              </Text>
+            </View>
+          </View>
+        )}
 
-      {/* Progress bar — only for Overspent / On Track */}
-      {showProgress && (
-        <View style={[styles.progressTrack, { backgroundColor: themeColors.groupedBackground }]}>
-          <View style={[styles.progressFill, { backgroundColor: progressColor, width: `${Math.min(progress * 100, 100)}%` }]} />
-        </View>
-      )}
-    </CardView>
+        {/* Spent row for Unplanned */}
+        {!showBudgetRow && (
+          <View>
+            <Text style={[styles.statLabel, { color: themeColors.secondaryText }]}>Spent</Text>
+            <Text style={[styles.statValue, { color: themeColors.warning }]}>₹{fmt(spent)}</Text>
+          </View>
+        )}
+
+        {/* Progress bar — only for Overspent / On Track */}
+        {showProgress && (
+          <View style={[styles.progressTrack, { backgroundColor: themeColors.groupedBackground }]}>
+            <View style={[styles.progressFill, { backgroundColor: progressColor, width: `${Math.min(progress * 100, 100)}%` }]} />
+          </View>
+        )}
+      </CardView>
+    </TouchableOpacity>
   );
 }
 
 export default function ExpensesDetailScreen() {
+  const router = useRouter();
   const expenses = useBudgetStore(state => state.expenses);
   const budgets = useBudgetStore(state => state.budgets);
   const totalExpenses = useBudgetStore(state => state.totalExpenses);
@@ -191,6 +194,7 @@ export default function ExpensesDetailScreen() {
                 item={item}
                 totalBudget={totalBudget}
                 themeColors={themeColors}
+                onPress={() => router.push({ pathname: '/expense-category-detail', params: { cat: item.cat } })}
               />
             ))}
           </>

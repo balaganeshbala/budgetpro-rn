@@ -66,12 +66,12 @@ export function AllTransactionsList({ items = [], type = 'expense' }) {
           All {isExpense ? 'Expenses' : 'Incomes'}
         </Text>
         <TouchableOpacity onPress={handleSortPress} style={{ padding: spacing.xs }}>
-          <Ionicons name="swap-vertical-outline" size={22} color={themeColors.text} />
+          <Ionicons name="swap-vertical-outline" size={22} color={themeColors.primary} />
         </TouchableOpacity>
       </View>
 
       <Text style={[styles.sortLabel, { color: themeColors.secondaryText }]}>
-        Sorted by: <Text style={{ color: themeColors.primary }}>{currentSortLabel}</Text>
+        Sorted by: <Text style={{ color: themeColors.secondary }}>{currentSortLabel}</Text>
       </Text>
 
       {/* List card */}

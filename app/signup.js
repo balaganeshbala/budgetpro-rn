@@ -1,6 +1,7 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppButton } from '../src/components/common/AppButton';
 import { AppTextField } from '../src/components/common/AppTextField';
@@ -51,8 +52,7 @@ export default function SignUpScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets={true}>
 
           <View style={styles.header}>
             <Text style={[styles.title, { color: themeColors.primary }]}>Create Account</Text>
@@ -88,9 +88,7 @@ export default function SignUpScreen() {
               returnKeyType="next"
               trailingContent={() => (
                 <TouchableOpacity onPress={() => setShowPassword(p => !p)}>
-                  <Text style={[styles.showHide, { color: themeColors.secondaryText }]}>
-                    {showPassword ? 'Hide' : 'Show'}
-                  </Text>
+                  <Ionicons name={ showPassword ? 'eye-off' : 'eye' } size={22} color={ themeColors.secondaryText } />
                 </TouchableOpacity>
               )}
             />
@@ -105,9 +103,7 @@ export default function SignUpScreen() {
               onSubmitEditing={handleSignUp}
               trailingContent={() => (
                 <TouchableOpacity onPress={() => setShowConfirmPassword(p => !p)}>
-                  <Text style={[styles.showHide, { color: themeColors.secondaryText }]}>
-                    {showConfirmPassword ? 'Hide' : 'Show'}
-                  </Text>
+                  <Ionicons name={ showConfirmPassword ? 'eye-off' : 'eye' } size={22} color={ themeColors.secondaryText } />
                 </TouchableOpacity>
               )}
             />
@@ -137,14 +133,13 @@ export default function SignUpScreen() {
           </View>
 
         </ScrollView>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scroll: { flexGrow: 1, padding: spacing.lg, justifyContent: 'center' },
+  scroll: { flexGrow: 1, padding: spacing.lg, justifyContent: 'top' },
   header: { alignItems: 'center', marginBottom: 40 },
   title: { fontSize: 32, fontFamily: 'Manrope-Bold', marginBottom: spacing.xs },
   subtitle: { fontSize: typography.sizes.md, fontFamily: 'Manrope-Regular' },

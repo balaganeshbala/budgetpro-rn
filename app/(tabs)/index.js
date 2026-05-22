@@ -77,11 +77,12 @@ export default function HomeScreen() {
           totalBudget={totalBudget}
           totalSpent={totalExpenses}
           isLoading={isLoading}
+          isPastMonth={selectedYear < CURRENT_YEAR || (selectedYear === CURRENT_YEAR && selectedMonth < CURRENT_MONTH)}
           onCreateBudget={() => router.push('/create-budget')}
           onEditBudget={() => router.push('/edit-budget')}
         />
 
-        {!isLoading && (
+        {!isLoading && totalBudget > 0 && (
           <TransactionsSection
             recentExpenses={expenses}
             recentIncomes={incomes}
@@ -92,7 +93,7 @@ export default function HomeScreen() {
       </ScrollView>
 
       {/* Month Picker Modal */}
-      <Modal visible={pickerVisible} transparent animationType="fade" onRequestClose={() => setPickerVisible(false)}>
+      <Modal visible={pickerVisible} transparent onRequestClose={() => setPickerVisible(false)}>
         <Pressable style={styles.overlay} onPress={() => setPickerVisible(false)}>
           <Pressable style={[styles.pickerCard, { backgroundColor: themeColors.cardBackground }]} onPress={() => {}}>
 

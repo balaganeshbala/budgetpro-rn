@@ -30,7 +30,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-export const BudgetOverviewCard = ({ title = 'Budget', totalBudget, totalSpent, isLoading = false, onCreateBudget, onEditBudget }) => {
+export const BudgetOverviewCard = ({ title = 'Budget', totalBudget, totalSpent, isLoading = false, isPastMonth = false, onCreateBudget, onEditBudget }) => {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const themeColors = colors[scheme];
   const [isExpanded, setIsExpanded] = useState(false);
@@ -89,13 +89,21 @@ export const BudgetOverviewCard = ({ title = 'Budget', totalBudget, totalSpent, 
             <SkeletonBox width="100%" height={8} style={{ borderRadius: 4, marginTop: spacing.sm }} />
           </View>
         ) : totalBudget === 0 ? (
-          <EmptyDataIndicatorView
-            icon="pie-chart-outline"
-            title="No Budget Created Yet"
-            bodyText="Create your budget to track your expenses"
-            actionLabel="Create Budget"
-            onAction={onCreateBudget}
-          />
+          isPastMonth ? (
+            <EmptyDataIndicatorView
+              icon="pie-chart-outline"
+              title="No Budget Data Available"
+              bodyText="Budget data for past months cannot be created. Please select the current month to set a budget."
+            />
+          ) : (
+            <EmptyDataIndicatorView
+              icon="pie-chart-outline"
+              title="No Budget Created Yet"
+              bodyText="Create your budget to track your expenses"
+              actionLabel="Create Budget"
+              onAction={onCreateBudget}
+            />
+          )
         ) : (
           <>
         <TouchableOpacity 
