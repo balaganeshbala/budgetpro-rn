@@ -75,7 +75,7 @@ export default function ProfileScreen() {
             iconName="information-circle"
             iconColor="#007AFF"
             title="About BudgetPro"
-            onPress={() => {}}
+            onPress={() => router.push('/about')}
           />
           <View style={[styles.divider, { backgroundColor: themeColors.separator }]} />
           <SettingsRow

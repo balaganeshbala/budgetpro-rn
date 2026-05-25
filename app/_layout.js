@@ -70,6 +70,7 @@ export default function RootLayout() {
       <Stack.Screen name="incomes-detail" options={{}} />
       <Stack.Screen name="create-budget" options={{}} />
       <Stack.Screen name="edit-budget" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="about" options={{ title: 'About Budget Pro' }} />
     </Stack>
   );
 }
