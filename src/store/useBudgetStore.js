@@ -2,8 +2,8 @@ import { create } from 'zustand';
 import { supabase } from '../services/supabase';
 import { transactionService } from '../services/transactionService';
 
-// Equivalent to @StateObject / @EnvironmentObject in SwiftUI
 export const useBudgetStore = create((set, get) => ({
+  userId: null,
   expenses: [],
   incomes: [],
   budgets: [],
@@ -37,12 +37,12 @@ export const useBudgetStore = create((set, get) => ({
   addExpense: async (expenseData) => {
     set({ isLoading: true, error: null });
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) throw new Error('User not authenticated');
+      const userId = get().userId;
+      if (!userId) throw new Error('User not authenticated');
 
       const newExpense = await transactionService.addExpense({
         ...expenseData,
-        userId: user.id
+        userId
       });
       
       // Update local state instantly without another network fetch
@@ -73,12 +73,12 @@ export const useBudgetStore = create((set, get) => ({
   addIncome: async (incomeData) => {
     set({ isLoading: true, error: null });
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) throw new Error('User not authenticated');
+      const userId = get().userId;
+      if (!userId) throw new Error('User not authenticated');
 
       const newIncome = await transactionService.addIncome({
         ...incomeData,
-        userId: user.id
+        userId
       });
       
       // Update local state instantly without another network fetch
@@ -173,11 +173,11 @@ export const useBudgetStore = create((set, get) => ({
   fetchTransactions: async () => {
     set({ isLoading: true, error: null });
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) throw new Error('User not authenticated');
+      const userId = get().userId;
+      if (!userId) throw new Error('User not authenticated');
 
       const { selectedMonth, selectedYear } = get();
-      const data = await transactionService.fetchTransactions(user.id, selectedMonth, selectedYear);
+      const data = await transactionService.fetchTransactions(userId, selectedMonth, selectedYear);
       const expensesList = data.expenses || [];
       const incomesList = data.incomes || [];
       const budgetsList = data.budgets || [];
@@ -204,10 +204,10 @@ export const useBudgetStore = create((set, get) => ({
   updateBudgets: async (budgetData) => {
     set({ isLoading: true, error: null });
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) throw new Error('User not authenticated');
+      const userId = get().userId;
+      if (!userId) throw new Error('User not authenticated');
       const { selectedMonth, selectedYear } = get();
-      await transactionService.updateBudgets(user.id, selectedMonth, selectedYear, budgetData);
+      await transactionService.updateBudgets(userId, selectedMonth, selectedYear, budgetData);
       await get().fetchTransactions();
     } catch (error) {
       set({ error: error.message, isLoading: false });
@@ -218,10 +218,10 @@ export const useBudgetStore = create((set, get) => ({
   saveBudgets: async (budgetData) => {
     set({ isLoading: true, error: null });
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) throw new Error('User not authenticated');
+      const userId = get().userId;
+      if (!userId) throw new Error('User not authenticated');
       const { selectedMonth, selectedYear } = get();
-      await transactionService.saveBudgets(user.id, selectedMonth, selectedYear, budgetData);
+      await transactionService.saveBudgets(userId, selectedMonth, selectedYear, budgetData);
       await get().fetchTransactions();
     } catch (error) {
       set({ error: error.message, isLoading: false });
@@ -229,3 +229,10 @@ export const useBudgetStore = create((set, get) => ({
     }
   },
 }));
+
+// Keep userId in sync with the Supabase session.
+// onAuthStateChange fires synchronously before navigation, so userId is always
+// set by the time any screen calls fetchTransactions.
+supabase.auth.onAuthStateChange((_event, session) => {
+  useBudgetStore.setState({ userId: session?.user?.id ?? null });
+});

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, LayoutAnimation, Platform, StyleSheet, Text, TouchableOpacity, UIManager, useColorScheme, View } from 'react-native';
+import { Animated, LayoutAnimation, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { colors, radius, spacing, typography } from '../constants/theme';
 import { CardView } from './common/CardView';
 import EmptyDataIndicatorView from './EmptyDataIndicatorView';
@@ -26,9 +26,6 @@ const SkeletonBox = ({ width, height, style }) => {
   );
 };
 
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 export const BudgetOverviewCard = ({ title = 'Budget', totalBudget, totalSpent, isLoading = false, isPastMonth = false, onCreateBudget, onEditBudget }) => {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';

@@ -4,6 +4,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { supabase } from '../src/services/supabase';
+import { useBudgetStore } from '../src/store/useBudgetStore';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -23,6 +24,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
+      useBudgetStore.setState({ userId: session?.user?.id ?? null });
       setSession(session);
       setInitialized(true);
     });

@@ -42,3 +42,6 @@ app-example
 # generated native folders
 /ios
 /android
+
+# Google service account credentials
+budget-pro-483110-8578733e6dad.json

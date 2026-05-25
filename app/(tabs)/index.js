@@ -25,7 +25,7 @@ export default function HomeScreen() {
   const router = useRouter();
 
   const {
-    expenses, incomes, totalExpenses, totalBudget,
+    userId, expenses, incomes, totalExpenses, totalBudget,
     isLoading, selectedMonth, selectedYear,
     setSelectedMonth, setSelectedYear, fetchTransactions,
   } = useBudgetStore();
@@ -34,8 +34,8 @@ export default function HomeScreen() {
   const [pickerYear, setPickerYear] = useState(selectedYear);
 
   useEffect(() => {
-    fetchTransactions();
-  }, []);
+    if (userId) fetchTransactions();
+  }, [userId]);
 
   function openPicker() {
     setPickerYear(selectedYear);
