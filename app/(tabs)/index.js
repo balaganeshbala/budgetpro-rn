@@ -63,7 +63,7 @@ export default function HomeScreen() {
 
       {/* Header */}
       <View style={[styles.header, { backgroundColor: themeColors.cardBackground, borderBottomColor: themeColors.separator }]}>
-        <TouchableOpacity onPress={openPicker} style={[styles.monthButton, { backgroundColor: themeColors.background, borderColor: themeColors.separator }]} activeOpacity={0.7}>
+        <TouchableOpacity onPress={openPicker} style={[styles.monthButton, { backgroundColor: themeColors.cardBackground, borderColor: themeColors.separator }]} activeOpacity={0.7}>
           <Ionicons name="calendar" size={18} color={themeColors.primary} style={styles.calendarIcon} />
           <Text style={[styles.monthLabel, { color: themeColors.primary }]}>
             {MONTHS[selectedMonth]} {selectedYear}

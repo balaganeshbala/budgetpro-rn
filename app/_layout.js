@@ -1,16 +1,20 @@
-import '../src/polyfills';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
+import { useColorScheme } from 'react-native';
+import '../src/polyfills';
 import { supabase } from '../src/services/supabase';
 import { useBudgetStore } from '../src/store/useBudgetStore';
+import { colors } from '../src/constants/theme';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [session, setSession] = useState(null);
   const [initialized, setInitialized] = useState(false);
+  const colorScheme = useColorScheme();
+  const theme = colors[colorScheme === 'dark' ? 'dark' : 'light'];
 
   const [fontsLoaded, fontError] = useFonts({
     'Manrope-Regular':  require('../src/assets/fonts/Manrope-Regular.ttf'),
@@ -58,7 +62,13 @@ export default function RootLayout() {
   if (!initialized || (!fontsLoaded && !fontError)) return null;
 
   return (
-    <Stack>
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: theme.cardBackground },
+        headerTintColor: theme.text,
+        headerTitleStyle: { color: theme.text },
+      }}
+    >
       <Stack.Screen name="(tabs)" options={{ headerShown: false, title: '' }} />
       <Stack.Screen name="login" options={{ headerShown: false, title: '' }} />
       <Stack.Screen name="signup" options={{ title: '' }} />
@@ -70,7 +80,7 @@ export default function RootLayout() {
       <Stack.Screen name="incomes-detail" options={{}} />
       <Stack.Screen name="create-budget" options={{}} />
       <Stack.Screen name="edit-budget" options={{ presentation: 'modal' }} />
-      <Stack.Screen name="about" options={{ title: 'About Budget Pro' }} />
+      <Stack.Screen name="about" options={{ title: 'About Budget Pro', presentation: 'modal' }} />
     </Stack>
   );
 }

@@ -135,6 +135,7 @@ export const TransactionForm = ({
   };
 
   return (
+    <View style={[styles.screen, { backgroundColor: themeColors.groupedBackground }]}>
     <CardView padding={spacing.lg}>
       <View style={styles.container}>
         
@@ -305,10 +306,14 @@ export const TransactionForm = ({
 
       </View>
     </CardView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
   container: {
     gap: spacing.lg,
   },

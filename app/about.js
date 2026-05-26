@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     fontFamily: typography.fonts.medium,
   },
   featureDesc: {
-    fontSize: typography.sizes.xs,
+    fontSize: typography.sizes.sm,
     fontFamily: typography.fonts.regular,
     lineHeight: 18,
   },
