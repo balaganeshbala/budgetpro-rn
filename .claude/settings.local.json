@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(tmutil listlocalsnapshotdates *)",
-      "Bash(keytool -list -v -keystore /Users/balaganesh/Desktop/Personal/Learning/Flutter/budgetpro/android/app/budget_keystore.jks -alias budgetpro -storepass 'Balas@1995')",
-      "Bash(eas build *)"
-    ]
-  }
-}
