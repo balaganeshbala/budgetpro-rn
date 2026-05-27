@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
+    Alert,
     FlatList,
+    Keyboard,
     Modal,
     StyleSheet,
     Text,
@@ -41,6 +43,8 @@ export const TransactionForm = ({
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const themeColors = colors[scheme];
 
+  const nameRef = useRef(null);
+
   const selectedMonth = useBudgetStore(state => state.selectedMonth);
   const selectedYear = useBudgetStore(state => state.selectedYear);
 
@@ -79,9 +83,16 @@ export const TransactionForm = ({
 
   const isSaveEnabled = isFormValid && isDirty;
 
-  const handleSave = () => {
+  const resetForm = () => {
+    setName('');
+    setAmount('');
+    setSelectedCategory(transactionType === 'expense' ? EXPENSE_CATEGORIES[0].value : INCOME_CATEGORIES[0].value);
+    setDate(resolveInitialDate());
+  };
+
+  const handleSave = async () => {
     if (!isFormValid) return;
-    
+
     // Serialise as UTC midnight so timezone offsets don't shift the date back a day.
     const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     const payload = {
@@ -96,7 +107,28 @@ export const TransactionForm = ({
       payload.source = name.trim();
     }
 
-    onSave(payload);
+    await onSave(payload);
+
+    if (!useBudgetStore.getState().error && !initialData && transactionType === 'expense') {
+      Alert.alert(
+        'Expense added successfully!',
+        '',
+        [
+          {
+            text: 'Add Another',
+            onPress: () => {
+              resetForm();
+              setTimeout(() => nameRef.current?.focus(), 100);
+            },
+          },
+          {
+            text: 'Done',
+            style: 'default',
+            onPress: () => onCancel(),
+          },
+        ]
+      );
+    }
   };
 
   const selectedCategoryObj = categories.find(c => c.value === selectedCategory);
@@ -145,11 +177,13 @@ export const TransactionForm = ({
 
         {/* Name Field */}
         <AppTextField
+          ref={nameRef}
           hint={transactionType === 'expense' ? 'Expense Name' : 'Income Source'}
           iconName={transactionType === 'expense' ? 'bag-outline' : 'briefcase-outline'}
           value={name}
           onChangeText={setName}
           autoCapitalize="words"
+          autoFocus={true}
         />
 
         {/* Amount Field */}
@@ -168,7 +202,7 @@ export const TransactionForm = ({
         <TouchableOpacity 
           style={[styles.selectorButton, { backgroundColor: themeColors.inputBackground, borderColor: themeColors.inputBorder }]}
           activeOpacity={0.7}
-          onPress={() => setShowCategoryPicker(true)}
+          onPress={() => { Keyboard.dismiss(); setShowCategoryPicker(true); }}
         >
           <View style={styles.selectorLeft}>
             <Ionicons name="triangle-outline" size={24} color={themeColors.secondaryText} style={styles.icon} />
@@ -186,7 +220,7 @@ export const TransactionForm = ({
         <TouchableOpacity
           style={[styles.selectorButton, { backgroundColor: themeColors.inputBackground, borderColor: themeColors.inputBorder }]}
           activeOpacity={0.7}
-          onPress={() => setShowDatePicker(true)}
+          onPress={() => { Keyboard.dismiss(); setShowDatePicker(true); }}
         >
           <View style={styles.selectorLeft}>
             <Ionicons name="calendar-outline" size={24} color={themeColors.secondaryText} style={styles.icon} />

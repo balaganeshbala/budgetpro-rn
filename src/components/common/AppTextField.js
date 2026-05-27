@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, useColorScheme, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, spacing, radius } from '../../constants/theme';
 
-export const AppTextField = ({
+export const AppTextField = forwardRef(({
   hint,
   iconName,
   iconText,
@@ -16,7 +16,8 @@ export const AppTextField = ({
   isSecure = false,
   trailingContent,
   style,
-}) => {
+  autoFocus = false,
+}, ref) => {
   const [isFocused, setIsFocused] = useState(false);
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const themeColors = colors[scheme];
@@ -37,16 +38,17 @@ export const AppTextField = ({
         <Text style={[styles.iconText, { color: themeColors.secondaryText }]}>{iconText}</Text>
       ) : (
         iconName && (
-          <Ionicons 
-            name={iconName} 
-            size={24} 
-            color={themeColors.secondaryText} 
-            style={styles.icon} 
+          <Ionicons
+            name={iconName}
+            size={24}
+            color={themeColors.secondaryText}
+            style={styles.icon}
           />
         )
       )}
-      
+
       <TextInput
+        ref={ref}
         style={[
           styles.input,
           {
@@ -64,6 +66,7 @@ export const AppTextField = ({
         autoCapitalize={autoCapitalize}
         secureTextEntry={isSecure}
         onSubmitEditing={onSubmitEditing}
+        autoFocus={autoFocus}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
       />
@@ -75,7 +78,7 @@ export const AppTextField = ({
       )}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

@@ -9,9 +9,6 @@ export default function AddExpenseRoute() {
 
   const handleSave = async (payload) => {
     await addExpense(payload);
-    if (!useBudgetStore.getState().error) {
-      router.back();
-    }
   };
 
   return (

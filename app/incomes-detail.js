@@ -57,14 +57,14 @@ export default function IncomesDetailScreen() {
 
           <View style={styles.splitRow}>
             <View style={[styles.splitIcon, { backgroundColor: themeColors.primary + '15' }]}>
-              <Ionicons name="add-circle-outline" size={20} color={themeColors.primary} />
+              <Ionicons name="add-circle-outline" size={20} color={themeColors.secondary} />
             </View>
             <Text style={[styles.splitLabel, { color: themeColors.text }]}>Primary</Text>
             <Text style={[styles.splitAmount, { color: themeColors.adaptiveGreen }]}>{fmt(primaryTotal)}</Text>
           </View>
 
           <View style={styles.splitRow}>
-            <View style={[styles.splitIcon, { backgroundColor: themeColors.secondary + '15' }]}>
+            <View style={[styles.splitIcon, { backgroundColor: themeColors.primary + '15' }]}>
               <Ionicons name="star-outline" size={20} color={themeColors.secondary} />
             </View>
             <Text style={[styles.splitLabel, { color: themeColors.text }]}>Secondary</Text>

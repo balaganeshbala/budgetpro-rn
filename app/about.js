@@ -101,7 +101,7 @@ export default function AboutScreen() {
           <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Developer</Text>
           <Text style={[styles.body, { color: themeColors.secondaryText }]}>Built with ❤️ in India</Text>
           <Text style={[styles.caption, { color: themeColors.secondaryText, marginTop: spacing.sm }]}>
-            © 2025 Clougeon. All rights reserved.
+            © 2026 Clougeon. All rights reserved.
           </Text>
         </CardView>
 

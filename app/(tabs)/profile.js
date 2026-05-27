@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { CardView } from '../../src/components/common/CardView';
 import { colors, spacing, typography } from '../../src/constants/theme';
 import { supabase } from '../../src/services/supabase';
@@ -54,8 +53,7 @@ export default function ProfileScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.groupedBackground }]} edges={['top']}>
-      <Text style={[styles.title, { color: themeColors.text }]}>Profile</Text>
+    <View style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
         {/* User Info */}
@@ -88,7 +86,7 @@ export default function ProfileScreen() {
         </CardView>
 
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
