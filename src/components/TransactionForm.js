@@ -1,16 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRef, useState } from 'react';
 import {
-    Alert,
-    FlatList,
-    Keyboard,
-    Modal,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    useColorScheme,
-    View
+  Alert,
+  FlatList,
+  Keyboard,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  useColorScheme,
+  View
 } from 'react-native';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../constants/categories';
 import { colors, radius, spacing, typography } from '../constants/theme';
@@ -109,9 +109,15 @@ export const TransactionForm = ({
 
     await onSave(payload);
 
-    if (!useBudgetStore.getState().error && !initialData && transactionType === 'expense') {
+    const storeError = useBudgetStore.getState().error;
+    if (storeError) {
+      Alert.alert('Error', storeError);
+      return;
+    }
+
+    if (!initialData) {
       Alert.alert(
-        'Expense added successfully!',
+        transactionType === 'expense' ? 'Expense added successfully!' : 'Income added successfully!',
         '',
         [
           {
@@ -389,7 +395,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(150,150,150,0.4)',
     padding: spacing.xl,
   },
   modalContent: {

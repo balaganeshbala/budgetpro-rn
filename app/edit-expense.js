@@ -28,7 +28,10 @@ export default function EditExpenseRoute() {
           style: 'default',
           onPress: async () => {
             await updateExpense({ id: expense.id, ...payload });
-            if (!useBudgetStore.getState().error) {
+            const err = useBudgetStore.getState().error;
+            if (err) {
+              Alert.alert('Error', err);
+            } else {
               router.back();
             }
           },
@@ -48,7 +51,10 @@ export default function EditExpenseRoute() {
           style: 'destructive',
           onPress: async () => {
             await deleteExpense(expense.id);
-            if (!useBudgetStore.getState().error) {
+            const err = useBudgetStore.getState().error;
+            if (err) {
+              Alert.alert('Error', err);
+            } else {
               router.back();
             }
           },

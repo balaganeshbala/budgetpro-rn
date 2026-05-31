@@ -31,6 +31,7 @@ export default function HomeScreen() {
   } = useBudgetStore();
 
   const [pickerVisible, setPickerVisible] = useState(false);
+  const [selectedTab, setSelectedTab] = useState('Expenses');
   const [pickerYear, setPickerYear] = useState(selectedYear);
 
   useEffect(() => {
@@ -88,6 +89,8 @@ export default function HomeScreen() {
             recentIncomes={incomes}
             selectedMonth={selectedMonth}
             selectedYear={selectedYear}
+            selectedTab={selectedTab}
+            onTabChange={setSelectedTab}
           />
         )}
       </ScrollView>
@@ -192,7 +195,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: 'rgba(150,150,150,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
   },

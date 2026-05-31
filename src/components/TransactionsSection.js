@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import EmptyDataIndicatorView from './EmptyDataIndicatorView';
 import { getExpenseCategory, getIncomeCategory } from '../constants/categories';
@@ -37,9 +36,8 @@ const SegmentedControl = ({ tabs, selectedTab, onTabSelect, themeColors }) => {
     );
 };
 
-export default function TransactionsSection({ recentExpenses = [], recentIncomes = [], selectedMonth, selectedYear }) {
+export default function TransactionsSection({ recentExpenses = [], recentIncomes = [], selectedMonth, selectedYear, selectedTab = 'Expenses', onTabChange }) {
     const router = useRouter();
-    const [selectedTab, setSelectedTab] = useState('Expenses');
     const tabs = ['Expenses', 'Incomes'];
     const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
     const themeColors = colors[scheme];
@@ -162,7 +160,7 @@ export default function TransactionsSection({ recentExpenses = [], recentIncomes
                 <SegmentedControl
                     tabs={tabs}
                     selectedTab={selectedTab}
-                    onTabSelect={setSelectedTab}
+                    onTabSelect={onTabChange}
                     themeColors={themeColors}
                 />
             </View>

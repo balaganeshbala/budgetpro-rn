@@ -21,20 +21,20 @@ export default function SignUpScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
+
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 
   const isFormValid =
     fullName.trim().length > 0 &&
-    email.trim().length > 0 &&
+    isEmailValid &&
     password.length >= 6 &&
     password === confirmPassword;
 
   async function handleSignUp() {
     if (!isFormValid) return;
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
     setIsLoading(true);
     setError('');
     const { error } = await supabase.auth.signUp({
@@ -45,9 +45,52 @@ export default function SignUpScreen() {
     if (error) {
       setError(error.message);
     } else {
-      setSuccess('Account created! Check your email to confirm.');
+      setEmailSent(true);
     }
     setIsLoading(false);
+  }
+
+  async function handleResend() {
+    setResendLoading(true);
+    setResendMessage('');
+    const { error } = await supabase.auth.resend({ type: 'signup', email: email.trim() });
+    setResendMessage(error ? error.message : 'Confirmation email resent!');
+    setResendLoading(false);
+  }
+
+  if (emailSent) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+        <View style={styles.confirmContainer}>
+          <View style={[styles.confirmIcon, { backgroundColor: themeColors.primary + '22' }]}>
+            <Ionicons name="mail-unread-outline" size={48} color={themeColors.primary} />
+          </View>
+          <Text style={[styles.title, { color: themeColors.secondary }]}>Check your email</Text>
+          <Text style={[styles.confirmText, { color: themeColors.secondaryText }]}>
+            We sent a confirmation link to{'\n'}
+            <Text style={{ color: themeColors.text, fontFamily: 'Manrope-SemiBold' }}>{email.trim()}</Text>
+            {'\n\n'}Click the link to activate your account.
+          </Text>
+
+          {resendMessage ? (
+            <Text style={[styles.message, { color: resendMessage.includes('resent') ? themeColors.success : themeColors.error }]}>
+              {resendMessage}
+            </Text>
+          ) : null}
+
+          <TouchableOpacity onPress={handleResend} disabled={resendLoading} style={styles.resendRow}>
+            <Text style={[styles.footerText, { color: themeColors.secondaryText }]}>
+              {resendLoading ? 'Sending…' : "Didn't receive it?"}
+            </Text>
+            {!resendLoading && (
+              <Text style={[styles.footerLink, { color: themeColors.primary }]}> Resend</Text>
+            )}
+          </TouchableOpacity>
+
+          <AppButton title="Back to Sign In" onPress={() => router.replace('/login')} />
+        </View>
+      </SafeAreaView>
+    );
   }
 
   return (
@@ -55,7 +98,7 @@ export default function SignUpScreen() {
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets={true}>
 
           <View style={styles.header}>
-            <Text style={[styles.title, { color: themeColors.primary }]}>Create Account</Text>
+            <Text style={[styles.title, { color: themeColors.secondary }]}>Create Account</Text>
             <Text style={[styles.subtitle, { color: themeColors.secondaryText }]}>Sign up to get started</Text>
           </View>
 
@@ -78,6 +121,9 @@ export default function SignUpScreen() {
               autoCapitalize="none"
               returnKeyType="next"
             />
+            {email.length > 0 && !isEmailValid ? (
+              <Text style={[styles.fieldError, { color: themeColors.error }]}>Enter a valid email address</Text>
+            ) : null}
 
             <AppTextField
               hint="Password"
@@ -110,9 +156,6 @@ export default function SignUpScreen() {
 
             {error ? (
               <Text style={[styles.message, { color: themeColors.error }]}>{error}</Text>
-            ) : null}
-            {success ? (
-              <Text style={[styles.message, { color: themeColors.success }]}>{success}</Text>
             ) : null}
 
             <AppButton
@@ -149,4 +192,9 @@ const styles = StyleSheet.create({
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.xl },
   footerText: { fontSize: typography.sizes.md, fontFamily: 'Manrope-Regular' },
   footerLink: { fontSize: typography.sizes.md, fontFamily: 'Manrope-SemiBold' },
+  fieldError: { fontSize: typography.sizes.sm, fontFamily: 'Manrope-Regular', marginTop: -spacing.xs },
+  confirmContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.lg, gap: spacing.lg },
+  confirmIcon: { width: 96, height: 96, borderRadius: 48, alignItems: 'center', justifyContent: 'center' },
+  confirmText: { fontSize: typography.sizes.md, fontFamily: 'Manrope-Regular', textAlign: 'center', lineHeight: 24 },
+  resendRow: { flexDirection: 'row', alignItems: 'center' },
 });

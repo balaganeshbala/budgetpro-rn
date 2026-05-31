@@ -33,6 +33,8 @@ export default function TabsLayout() {
         options={{
           title: 'Profile',
           headerShown: true,
+          headerStyle: { backgroundColor: themeColors.cardBackground },
+          headerTintColor: themeColors.text,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person" size={size} color={color} />
           ),

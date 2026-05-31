@@ -28,7 +28,10 @@ export default function EditIncomeRoute() {
           style: 'default',
           onPress: async () => {
             await updateIncome({ id: income.id, ...payload });
-            if (!useBudgetStore.getState().error) {
+            const err = useBudgetStore.getState().error;
+            if (err) {
+              Alert.alert('Error', err);
+            } else {
               router.back();
             }
           },
@@ -48,7 +51,10 @@ export default function EditIncomeRoute() {
           style: 'destructive',
           onPress: async () => {
             await deleteIncome(income.id);
-            if (!useBudgetStore.getState().error) {
+            const err = useBudgetStore.getState().error;
+            if (err) {
+              Alert.alert('Error', err);
+            } else {
               router.back();
             }
           },

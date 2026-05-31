@@ -9,9 +9,6 @@ export default function AddIncomeRoute() {
 
   const handleSave = async (payload) => {
     await addIncome(payload);
-    if (!useBudgetStore.getState().error) {
-      router.back();
-    }
   };
 
   return (
