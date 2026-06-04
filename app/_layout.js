@@ -55,8 +55,8 @@ export default function RootLayout() {
   }, [session, initialized, segments]);
 
   useEffect(() => {
-    if (fontsLoaded || fontError) SplashScreen.hideAsync();
-  }, [fontsLoaded, fontError]);
+    if ((fontsLoaded || fontError) && initialized) SplashScreen.hideAsync();
+  }, [fontsLoaded, fontError, initialized]);
 
   if (!initialized || (!fontsLoaded && !fontError)) return null;
 
