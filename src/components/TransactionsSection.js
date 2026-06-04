@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
-import EmptyDataIndicatorView from './EmptyDataIndicatorView';
 import { getExpenseCategory, getIncomeCategory } from '../constants/categories';
 import { colors, radius, spacing, typography } from '../constants/theme';
+import EmptyDataIndicatorView from './EmptyDataIndicatorView';
 import { TransactionRow } from './TransactionRow';
 import { CardView } from './common/CardView';
+import { SectionHeader } from './common/SectionHeader';
 
 const SegmentedControl = ({ tabs, selectedTab, onTabSelect, themeColors }) => {
     return (
@@ -139,7 +140,7 @@ export default function TransactionsSection({ recentExpenses = [], recentIncomes
     return (
         <CardView padding={0}>
             <View style={styles.header}>
-                <Text style={[styles.title, { color: themeColors.text }]}>Transactions</Text>
+                <SectionHeader title="Transactions" />
 
                 <TouchableOpacity
                     style={[styles.addButtonLight, { backgroundColor: themeColors.primary + '15' }]}

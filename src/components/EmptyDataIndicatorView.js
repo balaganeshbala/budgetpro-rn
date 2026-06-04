@@ -1,9 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useColorScheme } from 'react-native';
-import { colors, typography, spacing } from '../constants/theme';
+import { StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { colors, spacing, typography } from '../constants/theme';
 import { AppButton } from './common/AppButton';
+import { SectionHeader } from './common/SectionHeader';
 
 /**
  * Mirrors EmptyDataIndicatorView.swift.
@@ -23,7 +22,7 @@ export default function EmptyDataIndicatorView({ icon, title, bodyText, actionLa
             <View style={[styles.iconCircle, { backgroundColor: themeColors.secondaryText + '20' }]}>
                 <Ionicons name={icon} size={32} color={themeColors.secondaryText} />
             </View>
-            <Text style={[styles.title, { color: themeColors.text }]}>{title}</Text>
+            <SectionHeader title={title} />
             {bodyText ? (
                 <Text style={[styles.bodyText, { color: themeColors.secondaryText }]}>{bodyText}</Text>
             ) : null}

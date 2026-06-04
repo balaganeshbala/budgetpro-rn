@@ -1,6 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, useColorScheme } from 'react-native';
-import { colors, typography, spacing } from '../../constants/theme';
+import { StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { colors, spacing, typography } from '../../constants/theme';
 
 export const SectionHeader = ({ title, subtitle, style }) => {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
@@ -13,8 +12,8 @@ export const SectionHeader = ({ title, subtitle, style }) => {
           styles.title,
           {
             color: themeColors.text,
-            fontSize: typography.sizes.lg,
-            fontFamily: typography.fonts.semibold,
+            fontSize: typography.sizes.xl,
+            fontFamily: typography.fonts.bold,
           },
         ]}
       >
@@ -42,8 +41,6 @@ export const SectionHeader = ({ title, subtitle, style }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    alignItems: 'flex-start',
     marginBottom: spacing.sm,
   },
   title: {

@@ -3,10 +3,9 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
-import '../src/polyfills';
+import { colors } from '../src/constants/theme';
 import { supabase } from '../src/services/supabase';
 import { useBudgetStore } from '../src/store/useBudgetStore';
-import { colors } from '../src/constants/theme';
 
 SplashScreen.preventAutoHideAsync();
 

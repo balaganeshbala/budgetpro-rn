@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, LayoutAnimation, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { colors, radius, spacing, typography } from '../constants/theme';
 import { CardView } from './common/CardView';
+import { SectionHeader } from './common/SectionHeader';
 import EmptyDataIndicatorView from './EmptyDataIndicatorView';
 
 const SkeletonBox = ({ width, height, style }) => {
@@ -56,7 +57,7 @@ export const BudgetOverviewCard = ({ title = 'Budget', totalBudget, totalSpent, 
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.headerRow}>
-          <Text style={[styles.title, { color: themeColors.text }]}>{title}</Text>
+          <SectionHeader title={title} />
           {totalBudget > 0 && (
             <TouchableOpacity
               style={[styles.editButton, { backgroundColor: themeColors.primary + '15' }]}

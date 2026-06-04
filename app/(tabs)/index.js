@@ -6,6 +6,8 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useCo
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BudgetOverviewCard } from '../../src/components/BudgetOverviewCard';
 import TransactionsSection from '../../src/components/TransactionsSection';
+import { CardView } from '../../src/components/common/CardView';
+import { SettingsRow } from '../../src/components/common/SettingsRow';
 import { colors, radius, spacing, typography } from '../../src/constants/theme';
 import { useBudgetStore } from '../../src/store/useBudgetStore';
 
@@ -25,7 +27,7 @@ export default function HomeScreen() {
   const router = useRouter();
 
   const {
-    userId, expenses, incomes, totalExpenses, totalBudget,
+    userId, expenses, incomes, totalExpenses, totalIncome, totalBudget,
     isLoading, selectedMonth, selectedYear,
     setSelectedMonth, setSelectedYear, fetchTransactions,
   } = useBudgetStore();
@@ -92,6 +94,18 @@ export default function HomeScreen() {
             selectedTab={selectedTab}
             onTabChange={setSelectedTab}
           />
+        )}
+
+        {!isLoading && (totalIncome > 0 || totalExpenses > 0) && (
+          <CardView padding={0}>
+            <SettingsRow
+              iconName="wallet"
+              iconColor={themeColors.secondary}
+              title="Savings Analysis"
+              onPress={() => router.push('/savings-analysis')}
+            />
+            {/* <View style={[styles.divider, { backgroundColor: themeColors.separator }]} /> */}
+          </CardView>
         )}
       </ScrollView>
 
@@ -231,5 +245,9 @@ const styles = StyleSheet.create({
   monthCellText: {
     fontSize: typography.sizes.sm,
     fontFamily: 'Manrope-Medium',
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    marginLeft: spacing.lg + 32 + spacing.md,
   },
 });

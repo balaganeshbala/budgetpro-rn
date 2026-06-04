@@ -13,7 +13,8 @@ export const RowItemIcon = ({
   iconShape = IconShape.ROUNDED_RECTANGLE,
   iconColor,
   backgroundColor,
-  size = 40,
+  containerSize = 40,
+  iconSize = undefined
 }) => {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const themeColors = colors[scheme];
@@ -23,7 +24,7 @@ export const RowItemIcon = ({
 
   const shapeStyle =
     iconShape === IconShape.CIRCLE
-      ? { borderRadius: size / 2 }
+      ? { borderRadius: containerSize / 2 }
       : { borderRadius: radius.sm };
 
   return (
@@ -32,13 +33,13 @@ export const RowItemIcon = ({
         styles.container,
         shapeStyle,
         {
-          width: size,
-          height: size,
+          width: containerSize,
+          height: containerSize,
           backgroundColor: defaultBgColor,
         },
       ]}
     >
-      <Ionicons name={categoryIcon} size={size * 0.5} color={defaultIconColor} />
+      <Ionicons name={categoryIcon} size={iconSize ? iconSize : containerSize * 0.5 } color={defaultIconColor} />
     </View>
   );
 };

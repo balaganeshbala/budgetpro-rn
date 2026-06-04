@@ -1,27 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { CardView } from '../../src/components/common/CardView';
+import { SettingsRow } from '../../src/components/common/SettingsRow';
 import { colors, spacing, typography } from '../../src/constants/theme';
 import { supabase } from '../../src/services/supabase';
-
-function SettingsRow({ iconName, iconColor, title, showChevron = true, onPress }) {
-  const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
-  const themeColors = colors[scheme];
-
-  return (
-    <TouchableOpacity style={styles.row} onPress={onPress} activeOpacity={0.7}>
-      <View style={[styles.iconContainer, { backgroundColor: iconColor + '22' }]}>
-        <Ionicons name={iconName} size={18} color={iconColor} />
-      </View>
-      <Text style={[styles.rowTitle, { color: themeColors.text }]}>{title}</Text>
-      {showChevron && (
-        <Ionicons name="chevron-forward" size={16} color={themeColors.secondaryText} />
-      )}
-    </TouchableOpacity>
-  );
-}
 
 export default function ProfileScreen() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
@@ -127,25 +111,6 @@ const styles = StyleSheet.create({
   },
   optionsCard: {
     overflow: 'hidden',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    gap: spacing.md,
-  },
-  iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  rowTitle: {
-    flex: 1,
-    fontSize: typography.sizes.md,
-    fontFamily: typography.fonts.regular,
   },
   divider: {
     height: StyleSheet.hairlineWidth,

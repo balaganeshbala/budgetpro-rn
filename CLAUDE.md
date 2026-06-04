@@ -88,13 +88,14 @@ app/               # Expo Router screens (file = route)
   add-expense.js, edit-expense.js, expenses-detail.js
   add-income.js, edit-income.js, incomes-detail.js
   create-budget.js, edit-budget.js
+  expense-category-detail.js, about.js
+  savings-analysis.js
 src/
   components/      # Reusable UI (TransactionRow, TransactionForm, etc.)
     common/        # AppButton, AppTextField, CardView, etc.
   constants/       # theme.js, categories.js
-  services/        # supabase.js, transactionService.js, budgetService.js, AuthProvider.js
+  services/        # supabase.js, transactionService.js
   store/           # useBudgetStore.js (Zustand)
-  theme/           # theme.js (duplicate — prefer src/constants/theme.js)
 components/        # Expo default components (mostly unused/legacy)
 hooks/             # useColorScheme, useThemeColor
 ```
