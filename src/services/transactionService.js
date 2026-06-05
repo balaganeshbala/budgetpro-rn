@@ -212,6 +212,62 @@ export const transactionService = {
     },
 
     /**
+     * Fetch monthly aggregated totals for the last 24 months from summary tables.
+     * Returns an array ordered oldest → newest, each entry:
+     *   { month (1-indexed, matching DB), year, totalExpense, totalIncome, savings }
+     */
+    async fetchMonthlyTrends(userId) {
+        if (!userId) throw new Error('User ID is required');
+
+        const now = new Date();
+        // The DB month column is 1-indexed (matching the Swift app)
+        const currentMonth = now.getMonth() + 1;
+        const currentYear = now.getFullYear();
+
+        // Start year covers the full 24-month window
+        const startAnchor = new Date(now.getFullYear(), now.getMonth() - 23, 1);
+        const startYear = startAnchor.getFullYear();
+
+        const [expensesRes, incomesRes] = await Promise.all([
+            supabase.from('monthly_expense_summaries')
+                .select('year, month, total_amount')
+                .eq('user_id', userId)
+                .gte('year', startYear),
+            supabase.from('monthly_income_summaries')
+                .select('year, month, total_amount')
+                .eq('user_id', userId)
+                .gte('year', startYear),
+        ]);
+
+        if (expensesRes.error) throw expensesRes.error;
+        if (incomesRes.error) throw incomesRes.error;
+
+        const expenseMap = {};
+        const incomeMap = {};
+
+        for (const { year, month, total_amount } of expensesRes.data) {
+            expenseMap[`${year}-${month}`] = total_amount;
+        }
+        for (const { year, month, total_amount } of incomesRes.data) {
+            incomeMap[`${year}-${month}`] = total_amount;
+        }
+
+        // Build ordered array for the 24-month window, oldest → newest
+        const result = [];
+        for (let i = 23; i >= 0; i--) {
+            const d = new Date(currentYear, currentMonth - 1 - i, 1);
+            const year = d.getFullYear();
+            const month = d.getMonth() + 1; // 1-indexed to match DB
+            const key = `${year}-${month}`;
+            const totalExpense = Number(expenseMap[key] || 0);
+            const totalIncome = Number(incomeMap[key] || 0);
+            result.push({ month, year, totalExpense, totalIncome, savings: totalIncome - totalExpense });
+        }
+
+        return result;
+    },
+
+    /**
      * Save budgets for a month — replaces all existing entries for that month.
      * @param {string} userId
      * @param {number} month  0-indexed

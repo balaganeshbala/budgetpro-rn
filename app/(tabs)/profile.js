@@ -2,12 +2,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CardView } from '../../src/components/common/CardView';
 import { SettingsRow } from '../../src/components/common/SettingsRow';
 import { colors, spacing, typography } from '../../src/constants/theme';
 import { supabase } from '../../src/services/supabase';
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets();
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const themeColors = colors[scheme];
   const router = useRouter();
@@ -38,7 +40,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 20 }]} showsVerticalScrollIndicator={false} bounces={false} overScrollMode="never">
 
         {/* User Info */}
         <CardView padding={24}>

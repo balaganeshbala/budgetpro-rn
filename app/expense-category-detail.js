@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMemo, useState } from 'react';
 import { ActionSheetIOS, Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { CardView } from '../src/components/common/CardView';
@@ -20,6 +21,7 @@ const SORT_OPTIONS = [
 ];
 
 export default function ExpenseCategoryDetailScreen() {
+  const insets = useSafeAreaInsets();
   const { cat } = useLocalSearchParams();
   const router = useRouter();
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
@@ -99,8 +101,10 @@ export default function ExpenseCategoryDetailScreen() {
       <Stack.Screen options={{ title: '' }} />
       <ScrollView
         style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 }]}
         showsVerticalScrollIndicator={false}
+        bounces={false}
+        overScrollMode="never"
       >
         {/* Category summary card */}
         <CardView>
@@ -208,7 +212,7 @@ export default function ExpenseCategoryDetailScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: { padding: spacing.lg, gap: spacing.md, paddingBottom: 40 },
+  content: { padding: spacing.lg, gap: spacing.md },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
   iconCircle: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center' },
   headerMeta: { flex: 1 },

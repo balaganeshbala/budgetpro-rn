@@ -90,9 +90,10 @@ app/               # Expo Router screens (file = route)
   create-budget.js, edit-budget.js
   expense-category-detail.js, about.js
   savings-analysis.js
+  monthly-trends.js
 src/
   components/      # Reusable UI (TransactionRow, TransactionForm, etc.)
-    common/        # AppButton, AppTextField, CardView, etc.
+    common/        # AppButton, AppTextField, CardView, SettingsRow, etc.
   constants/       # theme.js, categories.js
   services/        # supabase.js, transactionService.js
   store/           # useBudgetStore.js (Zustand)
@@ -103,15 +104,23 @@ hooks/             # useColorScheme, useThemeColor
 ### Data Model (Supabase)
 - **expenses** — amount, date, category (string key), note, user_id
 - **incomes** — amount, date, category (string key), note, user_id
-- **budgets** — amount, category, month, year, user_id
+- **budget** — amount, category, date (month start UTC ISO string), user_id
 
 Transactions are fetched per `selectedMonth` / `selectedYear` from the store. State is updated optimistically on add; re-fetched on month/year change.
+
+#### Summary Tables (pre-aggregated, do not write to these from the app)
+- **monthly_expense_summaries** — user_id, year, month (1-indexed), total_amount
+- **monthly_income_summaries** — user_id, year, month (1-indexed), total_amount
+- **monthly_budget_summaries** — user_id, year, month (1-indexed), total_amount
+- **category_monthly_summaries** — user_id, year, month (1-indexed), category_name, category_type (`expense | income | budget`), total_amount
+
+These mirror the Swift app's summary tables. `monthly-trends.js` reads from `monthly_expense_summaries` and `monthly_income_summaries` via `transactionService.fetchMonthlyTrends()`. Month values in these tables are **1-indexed** (1–12), unlike the JS `Date.getMonth()` which is 0-indexed.
 
 ### Categories
 Defined in `src/constants/categories.js` as arrays of `{ value, displayName, iconName, color }`. Icons are from `@expo/vector-icons` (Ionicons). Helper functions: `getExpenseCategory(value)`, `getIncomeCategory(value)`.
 
 ### Auth Flow
-Supabase session is bootstrapped in `app/_layout.js`. Session state drives redirect: unauthenticated → `/login`; authenticated on public route → `/(tabs)`.
+Supabase session is bootstrapped in `app/_layout.js`. Session state drives redirect: unauthenticated → `/login`; authenticated on public route → `/(tabs)`. The splash screen is held until **both** fonts and the Supabase session are resolved to avoid a blank white flash on startup.
 
 ### Run the App
 ```

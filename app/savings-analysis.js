@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import { ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CardView } from '../src/components/common/CardView';
 import { RowItemIcon } from '../src/components/common/RowItemIcon';
 import { SectionHeader } from '../src/components/common/SectionHeader';
@@ -116,6 +117,7 @@ function IncomeExpensesChart({ totalIncome, effectiveExpenses, tc }) {
 // ── screen ────────────────────────────────────────────────────────────────────
 
 export default function SavingsAnalysisScreen() {
+  const insets = useSafeAreaInsets();
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const tc = colors[scheme];
 
@@ -157,8 +159,10 @@ export default function SavingsAnalysisScreen() {
       ) : (
         <ScrollView
           style={[styles.container, { backgroundColor: tc.groupedBackground }]}
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 }]}
           showsVerticalScrollIndicator={false}
+          bounces={false}
+          overScrollMode="never"
         >
           {/* ── Summary Card ── */}
           <CardView>
@@ -278,7 +282,7 @@ export default function SavingsAnalysisScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   emptyWrap: { flex: 1, justifyContent: 'center' },
-  content: { padding: spacing.lg, gap: spacing.md, paddingBottom: 40 },
+  content: { padding: spacing.lg, gap: spacing.md },
 
   sectionTitle: {
     fontSize: typography.sizes.lg,

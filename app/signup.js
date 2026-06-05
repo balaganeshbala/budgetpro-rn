@@ -95,7 +95,7 @@ export default function SignUpScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets={true}>
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets={true} bounces={false} overScrollMode="never">
 
           <View style={styles.header}>
             <Text style={[styles.title, { color: themeColors.secondary }]}>Create Account</Text>
@@ -182,7 +182,7 @@ export default function SignUpScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scroll: { flexGrow: 1, padding: spacing.lg, justifyContent: 'top' },
+  scroll: { flexGrow: 1, padding: spacing.lg, justifyContent: 'top', paddingBottom: 20 },
   header: { alignItems: 'center', marginBottom: 40 },
   title: { fontSize: 32, fontFamily: 'Manrope-Bold', marginBottom: spacing.xs },
   subtitle: { fontSize: typography.sizes.md, fontFamily: 'Manrope-Regular' },

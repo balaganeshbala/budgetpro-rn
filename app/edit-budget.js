@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
     Alert, ScrollView,
     StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View
@@ -14,6 +15,7 @@ const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];
 
 export default function EditBudgetScreen() {
+    const insets = useSafeAreaInsets();
     const router = useRouter();
     const updateBudgets = useBudgetStore(state => state.updateBudgets);
     const selectedMonth = useBudgetStore(state => state.selectedMonth);
@@ -129,10 +131,12 @@ export default function EditBudgetScreen() {
             />
             <ScrollView
                 style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}
-                contentContainerStyle={styles.content}
+                contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 }]}
                 keyboardShouldPersistTaps="handled"
                 automaticallyAdjustKeyboardInsets={true}
                 showsVerticalScrollIndicator={false}
+                bounces={false}
+                overScrollMode="never"
             >
                 {/* Total Budget Card */}
                 <CardView>
@@ -248,7 +252,7 @@ export default function EditBudgetScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    content: { padding: spacing.lg, gap: spacing.md, paddingBottom: 40 },
+    content: { padding: spacing.lg, gap: spacing.md },
     card: { borderRadius: radius.xl, padding: spacing.lg },
     totalLabel: { fontSize: typography.sizes.sm, marginBottom: spacing.xs },
     totalAmount: { fontSize: 28, fontFamily: typography.fonts.bold },

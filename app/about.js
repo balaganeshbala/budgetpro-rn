@@ -61,7 +61,7 @@ export default function AboutScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: themeColors.groupedBackground }]} edges={['bottom']}>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} bounces={false} overScrollMode="never">
 
         {/* App Info */}
         <CardView padding={32}>
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   scroll: {
     padding: spacing.lg,
     gap: spacing.md,
-    paddingBottom: spacing.xxxl,
+    paddingBottom: 20,
   },
   appInfo: {
     alignItems: 'center',

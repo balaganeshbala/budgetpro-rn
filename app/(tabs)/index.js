@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BudgetOverviewCard } from '../../src/components/BudgetOverviewCard';
 import TransactionsSection from '../../src/components/TransactionsSection';
 import { CardView } from '../../src/components/common/CardView';
@@ -22,6 +22,7 @@ const CURRENT_MONTH = now.getMonth();
 const CURRENT_YEAR = now.getFullYear();
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const themeColors = colors[scheme];
   const router = useRouter();
@@ -74,7 +75,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={{ backgroundColor: themeColors.groupedBackground }} contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ backgroundColor: themeColors.groupedBackground }} contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 20 }]} showsVerticalScrollIndicator={false} bounces={false} overScrollMode="never">
         <BudgetOverviewCard
           title="Budget"
           totalBudget={totalBudget}
@@ -104,7 +105,13 @@ export default function HomeScreen() {
               title="Savings Analysis"
               onPress={() => router.push('/savings-analysis')}
             />
-            {/* <View style={[styles.divider, { backgroundColor: themeColors.separator }]} /> */}
+            <View style={[styles.divider, { backgroundColor: themeColors.separator }]} />
+            <SettingsRow
+              iconName="trending-up"
+              iconColor={themeColors.adaptiveGreen}
+              title="Monthly Trends"
+              onPress={() => router.push('/monthly-trends')}
+            />
           </CardView>
         )}
       </ScrollView>

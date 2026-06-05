@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import { useMemo } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { AllTransactionsList } from '../src/components/common/AllTransactionsList';
 import { CardView } from '../src/components/common/CardView';
@@ -15,6 +16,7 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
 const PRIMARY_CATEGORIES = new Set(['salary', 'business', 'rental', 'pension']);
 
 export default function IncomesDetailScreen() {
+  const insets = useSafeAreaInsets();
   const incomes = useBudgetStore(state => state.incomes);
   const totalIncome = useBudgetStore(state => state.totalIncome);
   const selectedMonth = useBudgetStore(state => state.selectedMonth);
@@ -47,8 +49,10 @@ export default function IncomesDetailScreen() {
       <Stack.Screen options={{ title: monthTitle, headerBackTitle: '' }} />
       <ScrollView
         style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 }]}
         showsVerticalScrollIndicator={false}
+        bounces={false}
+        overScrollMode="never"
       >
         {/* Main summary card */}
         <CardView>
@@ -109,7 +113,7 @@ export default function IncomesDetailScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: { padding: spacing.lg, gap: spacing.md, paddingBottom: 40 },
+  content: { padding: spacing.lg, gap: spacing.md },
   card: { borderRadius: radius.xl, padding: spacing.lg },
   totalLabel: { fontSize: typography.sizes.sm, marginBottom: spacing.xs },
   totalAmount: { fontSize: 32, fontFamily: typography.fonts.bold, marginBottom: spacing.lg },

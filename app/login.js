@@ -69,7 +69,7 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets={true}>
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets={true} bounces={false} overScrollMode="never">
 
         <View style={styles.header}>
           <Text style={[styles.title, { color: themeColors.secondary }]}>Welcome Back!</Text>
@@ -154,7 +154,7 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scroll: { flexGrow: 1, padding: spacing.lg, justifyContent: 'top', marginTop: 60 },
+  scroll: { flexGrow: 1, padding: spacing.lg, justifyContent: 'top', marginTop: 60, paddingBottom: 20 },
   header: { alignItems: 'center', marginBottom: 48 },
   title: { fontSize: 32, fontFamily: 'Manrope-Bold', marginBottom: spacing.xs },
   subtitle: { fontSize: typography.sizes.md, fontFamily: 'Manrope-Regular' },

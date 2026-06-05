@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { AllTransactionsList } from '../src/components/common/AllTransactionsList';
@@ -89,6 +90,7 @@ function CategoryCard({ item, totalBudget, themeColors, onPress }) {
 }
 
 export default function ExpensesDetailScreen() {
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const expenses = useBudgetStore(state => state.expenses);
   const budgets = useBudgetStore(state => state.budgets);
@@ -171,8 +173,10 @@ export default function ExpensesDetailScreen() {
       <Stack.Screen options={{ title: monthTitle, headerBackTitle: '' }} />
       <ScrollView
         style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 }]}
         showsVerticalScrollIndicator={false}
+        bounces={false}
+        overScrollMode="never"
       >
         {/* Total Expenses Card */}
         <CardView>
@@ -210,7 +214,7 @@ export default function ExpensesDetailScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: { padding: spacing.lg, gap: spacing.md, paddingBottom: 40 },
+  content: { padding: spacing.lg, gap: spacing.md },
   card: { borderRadius: radius.xl, padding: spacing.lg },
   totalLabel: { fontSize: typography.sizes.sm, marginBottom: spacing.xs },
   totalAmount: { fontSize: 32, fontFamily: typography.fonts.bold },

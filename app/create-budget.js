@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
     Alert, ScrollView,
     StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View
@@ -13,6 +14,7 @@ const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];
 
 export default function CreateBudgetScreen() {
+    const insets = useSafeAreaInsets();
     const router = useRouter();
     const saveBudgets = useBudgetStore(state => state.saveBudgets);
     const selectedMonth = useBudgetStore(state => state.selectedMonth);
@@ -62,10 +64,12 @@ export default function CreateBudgetScreen() {
             />
             <ScrollView
                 style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}
-                contentContainerStyle={styles.content}
+                contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 }]}
                 keyboardShouldPersistTaps="handled"
                 automaticallyAdjustKeyboardInsets={true}
                 showsVerticalScrollIndicator={false}
+                bounces={false}
+                overScrollMode="never"
             >
                     {/* Description card */}
                     <View style={[styles.card, { backgroundColor: themeColors.cardBackground }]}>
@@ -124,7 +128,7 @@ export default function CreateBudgetScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    content: { padding: spacing.lg, gap: spacing.md, paddingBottom: 40 },
+    content: { padding: spacing.lg, gap: spacing.md },
     card: { borderRadius: radius.xl, padding: spacing.lg },
     descTitle: { fontSize: typography.sizes.md, marginBottom: spacing.xs },
     descBody: { fontSize: typography.sizes.sm, lineHeight: 20 },
