@@ -267,6 +267,71 @@ export const transactionService = {
         return result;
     },
 
+    async fetchMajorExpenses(userId, year) {
+        if (!userId) throw new Error('User ID is required');
+        const startDate = new Date(Date.UTC(year, 0, 1)).toISOString();
+        const endDate = new Date(Date.UTC(year, 11, 31, 23, 59, 59, 999)).toISOString();
+        try {
+            const { data, error } = await supabase
+                .from('major_expenses')
+                .select('*')
+                .eq('user_id', userId)
+                .gte('date', startDate)
+                .lte('date', endDate)
+                .order('date', { ascending: false })
+                .order('id', { ascending: false });
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Error fetching major expenses:', error);
+            throw error;
+        }
+    },
+
+    async addMajorExpense({ userId, name, amount, category, date, notes }) {
+        if (!userId) throw new Error('User ID is required');
+        try {
+            const { data, error } = await supabase
+                .from('major_expenses')
+                .insert([{ user_id: userId, name, amount, category, date, notes: notes || null }])
+                .select()
+                .single();
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Error adding major expense:', error);
+            throw error;
+        }
+    },
+
+    async updateMajorExpense({ id, name, amount, category, date, notes }) {
+        if (!id) throw new Error('Major expense ID is required');
+        try {
+            const { data, error } = await supabase
+                .from('major_expenses')
+                .update({ name, amount, category, date, notes: notes || null })
+                .eq('id', id)
+                .select()
+                .single();
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Error updating major expense:', error);
+            throw error;
+        }
+    },
+
+    async deleteMajorExpense(id) {
+        if (!id) throw new Error('Major expense ID is required');
+        try {
+            const { error } = await supabase.from('major_expenses').delete().eq('id', id);
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error deleting major expense:', error);
+            throw error;
+        }
+    },
+
     /**
      * Save budgets for a month — replaces all existing entries for that month.
      * @param {string} userId

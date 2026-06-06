@@ -105,13 +105,7 @@ export default function HomeScreen() {
               title="Savings Analysis"
               onPress={() => router.push('/savings-analysis')}
             />
-            <View style={[styles.divider, { backgroundColor: themeColors.separator }]} />
-            <SettingsRow
-              iconName="trending-up"
-              iconColor={themeColors.adaptiveGreen}
-              title="Monthly Trends"
-              onPress={() => router.push('/monthly-trends')}
-            />
+            {/* <View style={[styles.divider, { backgroundColor: themeColors.separator }]} /> */}
           </CardView>
         )}
       </ScrollView>

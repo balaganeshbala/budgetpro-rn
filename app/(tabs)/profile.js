@@ -54,11 +54,18 @@ export default function ProfileScreen() {
         </CardView>
 
         {/* Options */}
-        <CardView padding={0} style={styles.optionsCard}>
+        <CardView padding={0}>
+          <SettingsRow
+            iconName="cog"
+            iconColor="#929292"
+            title="Settings"
+            onPress={() => router.push('/settings')}
+          />
+          <View style={[styles.divider, { backgroundColor: themeColors.separator }]} />
           <SettingsRow
             iconName="information-circle"
             iconColor="#007AFF"
-            title="About BudgetPro"
+            title="About Budget Pro"
             onPress={() => router.push('/about')}
           />
           <View style={[styles.divider, { backgroundColor: themeColors.separator }]} />

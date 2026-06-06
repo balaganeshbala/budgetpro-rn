@@ -14,6 +14,10 @@ export const useBudgetStore = create((set, get) => ({
   error: null,
   selectedMonth: new Date().getMonth(),
   selectedYear: new Date().getFullYear(),
+  majorExpenses: [],
+  totalMajorExpenses: 0,
+  selectedMajorYear: new Date().getFullYear(),
+  majorExpensesLoading: false,
 
   setSelectedMonth: (month) => {
     set({ selectedMonth: month });
@@ -225,6 +229,89 @@ export const useBudgetStore = create((set, get) => ({
       await get().fetchTransactions();
     } catch (error) {
       set({ error: error.message, isLoading: false });
+      throw error;
+    }
+  },
+
+  setSelectedMajorYear: (year) => {
+    set({ selectedMajorYear: year });
+    get().fetchMajorExpenses();
+  },
+
+  fetchMajorExpenses: async () => {
+    set({ majorExpensesLoading: true });
+    try {
+      const userId = get().userId;
+      if (!userId) throw new Error('User not authenticated');
+      const data = await transactionService.fetchMajorExpenses(userId, get().selectedMajorYear);
+      set({
+        majorExpenses: data,
+        totalMajorExpenses: data.reduce((acc, e) => acc + (e.amount || 0), 0),
+        majorExpensesLoading: false,
+      });
+    } catch (error) {
+      set({ majorExpensesLoading: false });
+      console.error(error);
+    }
+  },
+
+  addMajorExpense: async (data) => {
+    set({ majorExpensesLoading: true });
+    try {
+      const userId = get().userId;
+      if (!userId) throw new Error('User not authenticated');
+      const newItem = await transactionService.addMajorExpense({ ...data, userId });
+      const year = get().selectedMajorYear;
+      if (new Date(newItem.date).getFullYear() === year) {
+        const updated = [newItem, ...get().majorExpenses].sort((a, b) => {
+          const diff = new Date(b.date) - new Date(a.date);
+          return diff !== 0 ? diff : b.id - a.id;
+        });
+        set(state => ({
+          majorExpenses: updated,
+          totalMajorExpenses: state.totalMajorExpenses + (newItem.amount || 0),
+          majorExpensesLoading: false,
+        }));
+      } else {
+        set({ majorExpensesLoading: false });
+      }
+    } catch (error) {
+      set({ majorExpensesLoading: false });
+      console.error(error);
+      throw error;
+    }
+  },
+
+  updateMajorExpense: async (data) => {
+    set({ majorExpensesLoading: true });
+    try {
+      const updated = await transactionService.updateMajorExpense(data);
+      const updatedList = get().majorExpenses.map(e => e.id === updated.id ? updated : e);
+      set({
+        majorExpenses: updatedList,
+        totalMajorExpenses: updatedList.reduce((acc, e) => acc + (e.amount || 0), 0),
+        majorExpensesLoading: false,
+      });
+    } catch (error) {
+      set({ majorExpensesLoading: false });
+      console.error(error);
+      throw error;
+    }
+  },
+
+  deleteMajorExpense: async (id) => {
+    set({ majorExpensesLoading: true });
+    try {
+      await transactionService.deleteMajorExpense(id);
+      const updatedList = get().majorExpenses.filter(e => e.id !== id);
+      set({
+        majorExpenses: updatedList,
+        totalMajorExpenses: updatedList.reduce((acc, e) => acc + (e.amount || 0), 0),
+        majorExpensesLoading: false,
+      });
+    } catch (error) {
+      set({ majorExpensesLoading: false });
+      console.error(error);
       throw error;
     }
   },

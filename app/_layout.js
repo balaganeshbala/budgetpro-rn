@@ -1,8 +1,9 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
-import { useColorScheme } from 'react-native';
+import { Appearance, useColorScheme } from 'react-native';
 import { colors } from '../src/constants/theme';
 import { supabase } from '../src/services/supabase';
 import { useBudgetStore } from '../src/store/useBudgetStore';
@@ -24,6 +25,12 @@ export default function RootLayout() {
   });
   const segments = useSegments();
   const router = useRouter();
+
+  useEffect(() => {
+    AsyncStorage.getItem('@theme_preference').then(pref => {
+      Appearance.setColorScheme(pref === 'light' || pref === 'dark' ? pref : null);
+    });
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -80,6 +87,9 @@ export default function RootLayout() {
       <Stack.Screen name="create-budget" options={{}} />
       <Stack.Screen name="edit-budget" options={{ presentation: 'modal' }} />
       <Stack.Screen name="about" options={{ title: 'About Budget Pro', presentation: 'modal' }} />
+      <Stack.Screen name="settings" options={{}} />
+      <Stack.Screen name="add-major-expense" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="edit-major-expense" options={{ presentation: 'modal' }} />
     </Stack>
   );
 }

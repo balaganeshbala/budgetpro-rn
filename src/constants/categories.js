@@ -51,3 +51,29 @@ export const getIncomeCategory = (value) => {
     const found = INCOME_CATEGORIES.find(c => c.value === value);
     return found || { value: 'other', displayName: 'Other', iconName: 'ellipsis-horizontal-circle', color: fallbackTheme.secondaryText };
 };
+
+export const MAJOR_EXPENSE_CATEGORIES = [
+    { value: 'vehicle', displayName: 'Vehicle', iconName: 'car', color: '#FF9500' },
+    { value: 'homeRenovation', displayName: 'Home Renovation', iconName: 'hammer', color: '#A2845E' },
+    { value: 'medical', displayName: 'Medical', iconName: 'medkit', color: '#FF3B30' },
+    { value: 'education', displayName: 'Education', iconName: 'school', color: '#AF52DE' },
+    { value: 'appliances', displayName: 'Appliances', iconName: 'flash', color: '#8E8E93' },
+    { value: 'electronics', displayName: 'Electronics', iconName: 'tv', color: '#007AFF' },
+    { value: 'furniture', displayName: 'Furniture', iconName: 'bed', color: '#A2845E' },
+    { value: 'event', displayName: 'Event', iconName: 'star', color: '#FF2D55' },
+    { value: 'travel', displayName: 'Travel', iconName: 'airplane', color: '#00C7BE' },
+    { value: 'legal', displayName: 'Legal', iconName: 'document-text', color: '#5856D6' },
+    { value: 'disasterRecovery', displayName: 'Disaster Recovery', iconName: 'warning', color: '#FF3B30' },
+    { value: 'relocation', displayName: 'Relocation', iconName: 'navigate', color: '#34C759' },
+    { value: 'family', displayName: 'Family', iconName: 'people', color: '#007AFF' },
+    { value: 'gift', displayName: 'Gift', iconName: 'gift', color: '#FF2D55' },
+    { value: 'taxes', displayName: 'Taxes', iconName: 'receipt', color: '#FFCC00' },
+    { value: 'debtSettlement', displayName: 'Debt Settlement', iconName: 'card', color: '#FF3B30' },
+    { value: 'donation', displayName: 'Donation', iconName: 'heart-circle', color: '#34C759' },
+    { value: 'other', displayName: 'Other', iconName: 'ellipsis-horizontal-circle', color: '#8E8E93' },
+];
+
+export const getMajorExpenseCategory = (value) => {
+    const found = MAJOR_EXPENSE_CATEGORIES.find(c => c.value === value);
+    return found || { value: 'other', displayName: 'Other', iconName: 'ellipsis-horizontal-circle', color: '#8E8E93' };
+};

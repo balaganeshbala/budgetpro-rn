@@ -83,7 +83,7 @@ A personal expense tracker mobile app built with Expo (React Native). It has a c
 ### Directory Layout
 ```
 app/               # Expo Router screens (file = route)
-  (tabs)/          # Bottom tab navigator (index, profile)
+  (tabs)/          # Bottom tab navigator (index, more, profile)
   login.js, signup.js
   add-expense.js, edit-expense.js, expenses-detail.js
   add-income.js, edit-income.js, incomes-detail.js
@@ -91,9 +91,12 @@ app/               # Expo Router screens (file = route)
   expense-category-detail.js, about.js
   savings-analysis.js
   monthly-trends.js
+  major-expenses.js, add-major-expense.js, edit-major-expense.js
+  financial-goals.js, recurring-expenses.js, year-comparison.js  # placeholders
+  settings.js
 src/
-  components/      # Reusable UI (TransactionRow, TransactionForm, etc.)
-    common/        # AppButton, AppTextField, CardView, SettingsRow, etc.
+  components/      # Reusable UI (TransactionRow, TransactionForm, MajorExpenseForm, etc.)
+    common/        # AppButton, AppTextField, CardView, SettingsRow, SectionHeader, etc.
   constants/       # theme.js, categories.js
   services/        # supabase.js, transactionService.js
   store/           # useBudgetStore.js (Zustand)
@@ -105,6 +108,7 @@ hooks/             # useColorScheme, useThemeColor
 - **expenses** — amount, date, category (string key), note, user_id
 - **incomes** — amount, date, category (string key), note, user_id
 - **budget** — amount, category, date (month start UTC ISO string), user_id
+- **major_expenses** — id, name, amount, category (string key), date, notes, user_id; fetched per `selectedMajorYear` (calendar year, not month)
 
 Transactions are fetched per `selectedMonth` / `selectedYear` from the store. State is updated optimistically on add; re-fetched on month/year change.
 
@@ -117,7 +121,21 @@ Transactions are fetched per `selectedMonth` / `selectedYear` from the store. St
 These mirror the Swift app's summary tables. `monthly-trends.js` reads from `monthly_expense_summaries` and `monthly_income_summaries` via `transactionService.fetchMonthlyTrends()`. Month values in these tables are **1-indexed** (1–12), unlike the JS `Date.getMonth()` which is 0-indexed.
 
 ### Categories
-Defined in `src/constants/categories.js` as arrays of `{ value, displayName, iconName, color }`. Icons are from `@expo/vector-icons` (Ionicons). Helper functions: `getExpenseCategory(value)`, `getIncomeCategory(value)`.
+Defined in `src/constants/categories.js` as arrays of `{ value, displayName, iconName, color }`. Icons are from `@expo/vector-icons` (Ionicons). Helper functions: `getExpenseCategory(value)`, `getIncomeCategory(value)`, `getMajorExpenseCategory(value)`.
+
+### More Tab (hub screen)
+`app/(tabs)/more.js` is a hub/menu screen using `SettingsRow` items grouped into `SectionHeader` sections:
+- **Analysis** — Monthly Trends (`/monthly-trends`), Year-over-Year (`/year-comparison`)
+- **Tracking** — Major Expenses (`/major-expenses`), Recurring Expenses (`/recurring-expenses`)
+- **Planning** — Financial Goals (`/financial-goals`)
+
+`financial-goals.js`, `recurring-expenses.js`, and `year-comparison.js` are currently placeholder "Coming Soon" screens.
+
+### Settings Screen
+`app/settings.js` — accessible from Profile → Settings row. Currently has one section:
+- **Appearance** — Theme row; tapping opens a centered modal (same pattern as category selector) with System Default / Light / Dark options.
+
+Theme preference is persisted to AsyncStorage under key `@theme_preference`. On selection, `Appearance.setColorScheme()` is called immediately so all screens update without any code changes to them. On app startup, `app/_layout.js` restores the saved preference by calling `Appearance.setColorScheme()` before render.
 
 ### Auth Flow
 Supabase session is bootstrapped in `app/_layout.js`. Session state drives redirect: unauthenticated → `/login`; authenticated on public route → `/(tabs)`. The splash screen is held until **both** fonts and the Supabase session are resolved to avoid a blank white flash on startup.
