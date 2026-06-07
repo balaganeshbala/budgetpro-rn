@@ -90,6 +90,13 @@ export default function RootLayout() {
       <Stack.Screen name="settings" options={{}} />
       <Stack.Screen name="add-major-expense" options={{ presentation: 'modal' }} />
       <Stack.Screen name="edit-major-expense" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="financial-goals" options={{ headerBackTitle: '' }} />
+      <Stack.Screen name="financial-goal-details" options={{ headerBackButtonDisplayMode: 'minimal' }} />
+      <Stack.Screen name="goal-contributions" options={{ headerBackButtonDisplayMode: 'minimal' }} />
+      <Stack.Screen name="add-financial-goal" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="edit-financial-goal" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="add-contribution" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="edit-contribution" options={{ presentation: 'modal' }} />
     </Stack>
   );
 }

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { supabase } from '../services/supabase';
+import { goalService } from '../services/goalService';
 import { transactionService } from '../services/transactionService';
 
 export const useBudgetStore = create((set, get) => ({
@@ -313,6 +314,141 @@ export const useBudgetStore = create((set, get) => ({
       set({ majorExpensesLoading: false });
       console.error(error);
       throw error;
+    }
+  },
+
+  // Financial Goals — list + active goal state
+  goals: [],
+  goalsLoading: false,
+  activeGoal: null,
+  goalActionLoading: false,
+
+  fetchGoals: async () => {
+    const { userId } = get();
+    if (!userId) return;
+    set({ goalsLoading: true });
+    try {
+      const data = await goalService.fetchGoals(userId);
+      set({ goals: data });
+    } catch (error) {
+      console.error(error);
+      throw error;
+    } finally {
+      set({ goalsLoading: false });
+    }
+  },
+
+  addGoal: async (payload) => {
+    set({ goalsLoading: true });
+    try {
+      const { userId } = get();
+      const newGoal = await goalService.addGoal({ ...payload, userId });
+      const newList = [...get().goals, { ...newGoal, goal_contributions: [] }];
+      newList.sort((a, b) => a.target_date.localeCompare(b.target_date));
+      set({ goals: newList });
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ goalsLoading: false });
+    }
+  },
+
+  deleteGoal: async (goalId) => {
+    set({ goalActionLoading: true });
+    try {
+      await goalService.deleteGoal(goalId);
+      set({
+        goals: get().goals.filter(g => g.goal_id !== goalId),
+        activeGoal: null,
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ goalActionLoading: false });
+    }
+  },
+
+  setActiveGoal: (goal) => set({ activeGoal: goal }),
+
+  addContribution: async ({ goalId, name, amount, date }) => {
+    set({ goalActionLoading: true });
+    try {
+      const newContrib = await goalService.addContribution({ goalId, name, amount, date });
+      const { activeGoal, goals } = get();
+      const patchContribs = (contribs) => [newContrib, ...(contribs || [])];
+      const updatedGoal = activeGoal?.goal_id === goalId
+        ? { ...activeGoal, goal_contributions: patchContribs(activeGoal.goal_contributions) }
+        : activeGoal;
+      set({
+        activeGoal: updatedGoal,
+        goals: goals.map(g => g.goal_id === goalId
+          ? { ...g, goal_contributions: patchContribs(g.goal_contributions) }
+          : g
+        ),
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ goalActionLoading: false });
+    }
+  },
+
+  updateContribution: async ({ id, name, amount, date }) => {
+    set({ goalActionLoading: true });
+    try {
+      const updated = await goalService.updateContribution({ id, name, amount, date });
+      const { activeGoal, goals } = get();
+      const patchContribs = (contribs) => (contribs || []).map(c => c.id === id ? updated : c);
+      const goalId = activeGoal?.goal_id;
+      set({
+        activeGoal: activeGoal ? { ...activeGoal, goal_contributions: patchContribs(activeGoal.goal_contributions) } : activeGoal,
+        goals: goals.map(g => g.goal_id === goalId
+          ? { ...g, goal_contributions: patchContribs(g.goal_contributions) }
+          : g
+        ),
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ goalActionLoading: false });
+    }
+  },
+
+  deleteContribution: async (id) => {
+    set({ goalActionLoading: true });
+    try {
+      await goalService.deleteContribution(id);
+      const { activeGoal, goals } = get();
+      const patchContribs = (contribs) => (contribs || []).filter(c => c.id !== id);
+      const goalId = activeGoal?.goal_id;
+      set({
+        activeGoal: activeGoal ? { ...activeGoal, goal_contributions: patchContribs(activeGoal.goal_contributions) } : activeGoal,
+        goals: goals.map(g => g.goal_id === goalId
+          ? { ...g, goal_contributions: patchContribs(g.goal_contributions) }
+          : g
+        ),
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ goalActionLoading: false });
+    }
+  },
+
+  updateCurrentGoal: async ({ goalId, title, icon, colorHex, targetAmount, targetDate, status }) => {
+    set({ goalActionLoading: true });
+    try {
+      await goalService.updateGoal({ goalId, title, icon, colorHex, targetAmount, targetDate, status });
+      const { activeGoal, goals } = get();
+      const patch = (g) => ({ ...g, title, icon, color_hex: colorHex, target_amount: targetAmount, target_date: targetDate, status });
+      const updatedGoal = activeGoal?.goal_id === goalId ? patch(activeGoal) : activeGoal;
+      const updatedList = goals.map(g => g.goal_id === goalId ? patch(g) : g);
+      updatedList.sort((a, b) => a.target_date.localeCompare(b.target_date));
+      set({ activeGoal: updatedGoal, goals: updatedList });
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ goalActionLoading: false });
     }
   },
 }));
