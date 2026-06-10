@@ -2,7 +2,7 @@
   "expo": {
     "name": "Budget Pro",
     "slug": "budget-pro-rn",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "orientation": "portrait",
     "icon": "./src/assets/images/icon.png",
     "scheme": "budgetprorn",
@@ -21,7 +21,7 @@
         "foregroundImage": "./src/assets/images/android-icon-foreground.png",
         "backgroundColor": "#216DF3"
       },
-      "versionCode": 16,
+      "versionCode": 17,
       "predictiveBackGestureEnabled": false,
       "package": "com.clougeon.budgetpro"
     },
