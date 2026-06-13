@@ -1,9 +1,10 @@
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { TransactionForm } from '../src/components/TransactionForm';
 import { useBudgetStore } from '../src/store/useBudgetStore';
 
 export default function AddExpenseRoute() {
   const router = useRouter();
+  const { cat } = useLocalSearchParams();
   const addExpense = useBudgetStore((state) => state.addExpense);
   const isLoading = useBudgetStore((state) => state.isLoading);
 
@@ -12,8 +13,9 @@ export default function AddExpenseRoute() {
   };
 
   return (
-    <TransactionForm 
+    <TransactionForm
       transactionType="expense"
+      initialCategory={cat || null}
       onSave={handleSave}
       isLoading={isLoading}
       onCancel={() => router.back()}

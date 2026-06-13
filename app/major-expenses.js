@@ -58,7 +58,6 @@ export default function MajorExpensesScreen() {
                     title: 'Major Expenses',
                     headerBackTitle: '',
                     headerStyle: { backgroundColor: themeColors.cardBackground },
-                    headerTintColor: themeColors.primary,
                     headerTitleStyle: { color: themeColors.text, fontFamily: typography.fonts.semibold },
                     headerRight: () => (
                         <View style={styles.headerRight}>

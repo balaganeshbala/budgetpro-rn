@@ -36,6 +36,7 @@ function buildCalendarDays(month, year) {
 export const TransactionForm = ({
   transactionType = 'expense', // 'expense' | 'income'
   initialData = null,
+  initialCategory = null,
   onSave,
   onCancel,
   isLoading = false,
@@ -63,7 +64,7 @@ export const TransactionForm = ({
   // State
   const [name, setName] = useState(initialData?.name || initialData?.source || '');
   const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
-  const [selectedCategory, setSelectedCategory] = useState(initialData?.category || (transactionType === 'expense' ? EXPENSE_CATEGORIES[0].value : INCOME_CATEGORIES[0].value));
+  const [selectedCategory, setSelectedCategory] = useState(initialData?.category || initialCategory || (transactionType === 'expense' ? EXPENSE_CATEGORIES[0].value : INCOME_CATEGORIES[0].value));
   const [date, setDate] = useState(resolveInitialDate);
 
   // Modals state

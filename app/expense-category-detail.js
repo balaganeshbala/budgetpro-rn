@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMemo, useState } from 'react';
 import { ActionSheetIOS, Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CardView } from '../src/components/common/CardView';
 import EmptyDataIndicatorView from '../src/components/EmptyDataIndicatorView';
 import { TransactionRow } from '../src/components/TransactionRow';
@@ -98,7 +98,16 @@ export default function ExpenseCategoryDetailScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: '' }} />
+      <Stack.Screen
+        options={{
+          title: monthTitle,
+          headerRight: () => (
+            <TouchableOpacity onPress={() => router.push({ pathname: '/add-expense', params: { cat } })} style={{ paddingHorizontal: 4 }}>
+              <Ionicons name="add-circle-outline" size={30} color={themeColors.primary} />
+            </TouchableOpacity>
+          ),
+        }}
+      />
       <ScrollView
         style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 }]}
@@ -115,7 +124,7 @@ export default function ExpenseCategoryDetailScreen() {
             </View>
             <View style={styles.headerMeta}>
               <Text style={[styles.categoryName, { color: themeColors.text }]}>{categoryObj.displayName}</Text>
-              <Text style={[styles.monthLabel, { color: themeColors.secondaryText }]}>{monthTitle}</Text>
+              <Text style={[styles.monthLabel, { color: themeColors.secondaryText }]}>{pct}% of total budget</Text>
             </View>
             <View style={[styles.pill, { backgroundColor: pillConfig.bg }]}>
               <Text style={[styles.pillText, { color: pillConfig.text }]}>{pillConfig.label}</Text>
@@ -154,9 +163,6 @@ export default function ExpenseCategoryDetailScreen() {
           {showProgress && (
             <View style={styles.progressSection}>
               <View style={styles.progressHeader}>
-                <Text style={[styles.statLabel, { color: themeColors.secondaryText }]}>
-                  {pct}% of total budget
-                </Text>
                 <Text style={[styles.statLabel, { color: progressColor }]}>
                   {Math.round(progress * 100)}% used
                 </Text>
@@ -227,7 +233,7 @@ const styles = StyleSheet.create({
   statValue: { fontSize: typography.sizes.md, fontFamily: typography.fonts.semibold },
   verticalDivider: { width: StyleSheet.hairlineWidth, height: 32, marginHorizontal: spacing.sm, opacity: 0.6 },
   progressSection: { gap: spacing.sm, marginTop: spacing.md },
-  progressHeader: { flexDirection: 'row', justifyContent: 'space-between' },
+  progressHeader: { flexDirection: 'row', justifyContent: 'flex-end' },
   progressTrack: { height: 6, borderRadius: 3, overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: 3 },
   listHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.xs },

@@ -62,17 +62,13 @@ export function AllTransactionsList({ items = [], type = 'expense' }) {
     <>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
-          All {isExpense ? 'Expenses' : 'Incomes'}
+        <Text style={[styles.sortLabel, { color: themeColors.secondaryText }]}>
+          Sorted by: <Text style={{ color: themeColors.secondary }}>{currentSortLabel}</Text>
         </Text>
         <TouchableOpacity onPress={handleSortPress} style={{ padding: spacing.xs }}>
           <Ionicons name="swap-vertical-outline" size={22} color={themeColors.primary} />
         </TouchableOpacity>
       </View>
-
-      <Text style={[styles.sortLabel, { color: themeColors.secondaryText }]}>
-        Sorted by: <Text style={{ color: themeColors.secondary }}>{currentSortLabel}</Text>
-      </Text>
 
       {/* List card */}
       <CardView padding={0}>
@@ -100,7 +96,8 @@ export function AllTransactionsList({ items = [], type = 'expense' }) {
         {sorted.length === 0 && (
           <EmptyDataIndicatorView
             icon={isExpense ? 'receipt-outline' : 'cash-outline'}
-            title={isExpense ? 'No Expenses Yet' : 'No Incomes Yet'}
+            title={isExpense ? 'No Expense Yet' : 'No Income Yet'}
+            bodyText={isExpense ? 'Add your expense to track spending' : 'Add your income to track savings'}
           />
         )}
       </CardView>
@@ -110,8 +107,7 @@ export function AllTransactionsList({ items = [], type = 'expense' }) {
 
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.sm },
-  sectionTitle: { fontSize: typography.sizes.lg, fontFamily: typography.fonts.bold },
-  sortLabel: { fontSize: typography.sizes.sm, marginBottom: spacing.xs },
+  sortLabel: { fontSize: typography.sizes.sm },
   card: { borderRadius: radius.xl, overflow: 'hidden' },
   divider: { height: StyleSheet.hairlineWidth, marginLeft: spacing.md + 40 + spacing.md },
   empty: { textAlign: 'center', padding: spacing.xl, fontSize: typography.sizes.md },

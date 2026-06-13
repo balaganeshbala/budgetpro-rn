@@ -101,7 +101,8 @@ app/               # Expo Router screens (file = route)
   settings.js
 src/
   components/      # Reusable UI (TransactionRow, TransactionForm, MajorExpenseForm, etc.)
-    common/        # AppButton, AppTextField, CardView, SettingsRow, SectionHeader, etc.
+    common/        # AppButton, AppTextField, CardView, SettingsRow, SectionHeader, AllTransactionsList, etc.
+    EmptyDataIndicatorView.js  # Centered empty-state view (icon + title + bodyText props)
     GoalForm.js    # Add/edit goal form (emoji picker, color grid, date picker, status segmented control)
     ContributionForm.js  # Add/edit contribution form
   constants/       # theme.js, categories.js
@@ -131,6 +132,21 @@ These mirror the Swift app's summary tables. `monthly-trends.js` reads from `mon
 
 ### Categories
 Defined in `src/constants/categories.js` as arrays of `{ value, displayName, iconName, color }`. Icons are from `@expo/vector-icons` (Ionicons). Helper functions: `getExpenseCategory(value)`, `getIncomeCategory(value)`, `getMajorExpenseCategory(value)`.
+
+### Home Screen (`app/(tabs)/index.js`)
+
+- **By Category section**: Uses an inline `CategoryGridItem` component (defined at module level above `HomeScreen`). Each row shows icon + name + remaining/overspent amount. Tapping navigates to `/expense-category-detail?cat=<value>`. Only rendered when `categoryBreakdown.length > 0`.
+- **Savings Analysis row**: Only rendered when `expenses.length > 0`. Income Details row is always shown.
+- **`AllTransactionsList`** (`src/components/common/AllTransactionsList.js`): Shared sortable transaction list used in `expenses-detail` and `incomes-detail`. Renders a sort header + `CardView` of `TransactionRow` items. Shows `EmptyDataIndicatorView` inside the card when empty.
+
+### TransactionForm (`src/components/TransactionForm.js`)
+
+- **`initialCategory` prop**: Pre-selects a category without triggering edit mode. Use this when navigating from a category detail screen to add a new expense (e.g., `add-expense.js` reads `cat` from `useLocalSearchParams` and passes it as `initialCategory`). Do NOT use `initialData={{ category }}` — that triggers "Update" button mode and crashes on missing `initialData.date`.
+
+### Detail Screen Patterns
+
+- **Header `+` button**: Both `expense-category-detail.js` and `incomes-detail.js` have a `+` icon in `Stack.Screen headerRight` that navigates to the add screen. `expense-category-detail` passes `cat` as a param so the form pre-selects the category.
+- **Full-screen empty state**: `incomes-detail.js` shows `EmptyDataIndicatorView` (full-screen, `flex:1 justifyContent:center`) when `incomes.length === 0`, replacing the entire ScrollView content including summary cards.
 
 ### More Tab (hub screen)
 `app/(tabs)/more.js` is a hub/menu screen using `SettingsRow` items grouped into `SectionHeader` sections:

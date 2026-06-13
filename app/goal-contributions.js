@@ -3,8 +3,8 @@ import { Stack, useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CardView } from '../src/components/common/CardView';
-import { useBudgetStore } from '../src/store/useBudgetStore';
 import { colors, spacing, typography } from '../src/constants/theme';
+import { useBudgetStore } from '../src/store/useBudgetStore';
 
 const fmt = (v) => '₹' + Math.round(v).toLocaleString('en-IN');
 const fmtDate = (s) => new Date(s + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -45,7 +45,6 @@ export default function GoalContributionsScreen() {
                     title: 'All Contributions',
                     headerBackButtonDisplayMode: 'minimal',
                     headerStyle: { backgroundColor: themeColors.cardBackground },
-                    headerTintColor: themeColors.primary,
                     headerTitleStyle: { color: themeColors.text, fontFamily: typography.fonts.semibold },
                 }}
             />

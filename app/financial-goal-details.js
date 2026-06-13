@@ -76,7 +76,6 @@ export default function FinancialGoalDetailsScreen() {
                     title: 'Goal Details',
                     headerBackButtonDisplayMode: 'minimal',
                     headerStyle: { backgroundColor: themeColors.cardBackground },
-                    headerTintColor: themeColors.primary,
                     headerTitleStyle: { color: themeColors.text, fontFamily: typography.fonts.semibold },
                     headerRight: () => (
                         <View style={styles.headerRight}>

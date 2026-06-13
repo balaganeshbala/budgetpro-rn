@@ -1,10 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useMemo } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { AllTransactionsList } from '../src/components/common/AllTransactionsList';
 import { CardView } from '../src/components/common/CardView';
+import { SectionHeader } from '../src/components/common/SectionHeader';
+import EmptyDataIndicatorView from '../src/components/EmptyDataIndicatorView';
 import { getIncomeCategory } from '../src/constants/categories';
 import { colors, radius, spacing, typography } from '../src/constants/theme';
 import { useBudgetStore } from '../src/store/useBudgetStore';
@@ -17,6 +19,7 @@ const PRIMARY_CATEGORIES = new Set(['salary', 'business', 'rental', 'pension']);
 
 export default function IncomesDetailScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const incomes = useBudgetStore(state => state.incomes);
   const totalIncome = useBudgetStore(state => state.totalIncome);
   const selectedMonth = useBudgetStore(state => state.selectedMonth);
@@ -46,7 +49,26 @@ export default function IncomesDetailScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: monthTitle, headerBackTitle: '' }} />
+      <Stack.Screen
+        options={{
+          title: monthTitle,
+          headerBackTitle: '',
+          headerRight: () => (
+            <TouchableOpacity onPress={() => router.push('/add-income')} style={{ paddingHorizontal: 4 }}>
+              <Ionicons name="add-circle-outline" size={30} color={themeColors.primary} />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      {incomes.length === 0 ? (
+        <View style={[styles.emptyWrap, { backgroundColor: themeColors.groupedBackground }]}>
+          <EmptyDataIndicatorView
+            icon="cash-outline"
+            title="No Income Yet"
+            bodyText="Tap the + button to add your first income entry"
+          />
+        </View>
+      ) : (
       <ScrollView
         style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 }]}
@@ -56,6 +78,8 @@ export default function IncomesDetailScreen() {
       >
         {/* Main summary card */}
         <CardView>
+          <SectionHeader title="Income Details"></SectionHeader>
+
           <Text style={[styles.totalLabel, { color: themeColors.secondaryText }]}>Total Income</Text>
           <Text style={[styles.totalAmount, { color: themeColors.text }]}>₹{fmt(totalIncome)}</Text>
 
@@ -107,15 +131,18 @@ export default function IncomesDetailScreen() {
         <AllTransactionsList items={incomes} type="income" />
 
       </ScrollView>
+      )}
     </>
   );
 }
 
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  emptyWrap: { flex: 1, justifyContent: 'center' },
   content: { padding: spacing.lg, gap: spacing.md },
   card: { borderRadius: radius.xl, padding: spacing.lg },
-  totalLabel: { fontSize: typography.sizes.sm, marginBottom: spacing.xs },
+  totalLabel: { fontSize: typography.sizes.sm, marginBottom: spacing.xs, marginTop: spacing.md },
   totalAmount: { fontSize: 32, fontFamily: typography.fonts.bold, marginBottom: spacing.lg },
   splitRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
   splitIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginRight: spacing.md },

@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CardView } from '../src/components/common/CardView';
+import EmptyDataIndicatorView from '../src/components/EmptyDataIndicatorView';
 import { colors, radius, spacing, typography } from '../src/constants/theme';
 import { useBudgetStore } from '../src/store/useBudgetStore';
 
@@ -77,7 +78,6 @@ export default function FinancialGoalsScreen() {
                     title: 'Financial Goals',
                     headerBackTitle: '',
                     headerStyle: { backgroundColor: themeColors.cardBackground },
-                    headerTintColor: themeColors.primary,
                     headerTitleStyle: { color: themeColors.text, fontFamily: typography.fonts.semibold },
                     headerRight: () => (
                         <View style={styles.headerRight}>
@@ -95,11 +95,11 @@ export default function FinancialGoalsScreen() {
                 </View>
             ) : goals.length === 0 ? (
                 <View style={styles.center}>
-                    <Text style={{ fontSize: 48 }}>🎯</Text>
-                    <Text style={[styles.emptyTitle, { color: themeColors.text }]}>No Financial Goals</Text>
-                    <Text style={[styles.emptySubtitle, { color: themeColors.secondaryText }]}>
-                        Set up goals to track your savings and larger expenses.
-                    </Text>
+                    <EmptyDataIndicatorView
+                    icon='golf'
+                    title='No Financial Goals'
+                    bodyText='Set up goals to track your savings and larger expenses'
+                />
                 </View>
             ) : (
                 <ScrollView
