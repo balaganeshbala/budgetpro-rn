@@ -39,9 +39,17 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    Promise.all([
+      supabase.auth.getSession(),
+      AsyncStorage.getItem('@biometric_lock_enabled'),
+    ]).then(([{ data: { session } }, biometricPref]) => {
+      biometricEnabledRef.current = biometricPref === 'true';
       useBudgetStore.setState({ userId: session?.user?.id ?? null });
       setSession(session);
+      if (biometricPref === 'true' && session) {
+        requireAuthRef.current = true;
+        setLockState('auth');
+      }
       setInitialized(true);
     });
 
@@ -72,16 +80,12 @@ export default function RootLayout() {
   }, [fontsLoaded, fontError, initialized]);
 
   useEffect(() => {
-    AsyncStorage.getItem('@biometric_lock_enabled').then(v => {
-      biometricEnabledRef.current = v === 'true';
-    });
-  }, []);
-
-  useEffect(() => {
     const sub = AppState.addEventListener('change', async (nextState) => {
       if (nextState === 'inactive' || nextState === 'background') {
-        // Record background time on 'background' (not 'inactive' — iOS fires both but Android may only fire 'background')
-        if (nextState === 'background') backgroundTimeRef.current = Date.now();
+        // Set background time on the first of inactive/background.
+        // Android may only fire 'inactive' for the overview screen (no 'background' follows),
+        // so we record the time here too — 'background' overwrites it with a nearly identical timestamp if it fires.
+        if (!backgroundTimeRef.current) backgroundTimeRef.current = Date.now();
         // Show privacy screen immediately so app switcher never captures content
         if (biometricEnabledRef.current) {
           setLockState(s => s === 'auth' ? 'auth' : 'privacy');
@@ -98,7 +102,6 @@ export default function RootLayout() {
         biometricEnabledRef.current = enabled === 'true';
 
         if (backgroundedAt === null) {
-          // Only went through 'inactive' (notification centre, control centre) — dismiss unless auth is already pending
           if (!requireAuthRef.current) setLockState('hidden');
           return;
         }
