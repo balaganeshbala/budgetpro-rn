@@ -78,7 +78,7 @@ export default function FinancialGoalsScreen() {
                     title: 'Financial Goals',
                     headerBackTitle: '',
                     headerStyle: { backgroundColor: themeColors.cardBackground },
-                    headerTitleStyle: { color: themeColors.text, fontFamily: typography.fonts.semibold },
+                    headerTitleStyle: { color: themeColors.text, fontFamily: typography.fonts.medium },
                     headerRight: () => (
                         <View style={styles.headerRight}>
                             <TouchableOpacity onPress={() => router.push('/add-financial-goal')} activeOpacity={0.7}>

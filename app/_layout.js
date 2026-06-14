@@ -5,7 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useRef, useState } from 'react';
 import { Appearance, AppState, Modal, useColorScheme } from 'react-native';
 import { LockScreen } from '../src/components/LockScreen';
-import { colors } from '../src/constants/theme';
+import { colors, typography } from '../src/constants/theme';
 import { supabase } from '../src/services/supabase';
 import { useBudgetStore } from '../src/store/useBudgetStore';
 
@@ -132,7 +132,7 @@ export default function RootLayout() {
       screenOptions={{
         headerStyle: { backgroundColor: theme.cardBackground },
         headerTintColor: theme.text,
-        headerTitleStyle: { color: theme.text },
+        headerTitleStyle: { color: theme.text, fontFamily: typography.fonts.medium },
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false, title: '' }} />

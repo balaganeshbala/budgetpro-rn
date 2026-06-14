@@ -307,6 +307,7 @@ const styles = StyleSheet.create({
   summaryLabel: {
     flex: 1,
     fontSize: typography.sizes.md,
+    fontFamily: typography.fonts.regular
   },
   summaryValue: {
     fontSize: typography.sizes.md,
@@ -328,6 +329,7 @@ const styles = StyleSheet.create({
   },
   barValueText: {
     fontSize: typography.sizes.sm,
+    fontFamily: typography.fonts.regular,
     marginBottom: spacing.sm,
     textAlign: 'center',
   },
@@ -344,6 +346,7 @@ const styles = StyleSheet.create({
     width: BAR_WIDTH + 50,
     textAlign: 'center',
     fontSize: typography.sizes.sm,
+    fontFamily: typography.fonts.regular,
     justifyContent: 'center'
   },
 
@@ -352,6 +355,7 @@ const styles = StyleSheet.create({
     fontSize: typography.sizes.sm,
     lineHeight: 20,
     marginBottom: spacing.md,
+    fontFamily: typography.fonts.regular
   },
   ratePercentRow: {
     flexDirection: 'row',
@@ -386,6 +390,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: spacing.sm,
+    fontFamily: typography.fonts.regular
   },
   rateLabelText: {
     fontSize: typography.sizes.xs,
@@ -401,6 +406,7 @@ const styles = StyleSheet.create({
   msgText: {
     flex: 1,
     fontSize: typography.sizes.sm,
+    fontFamily: typography.fonts.regular,
     lineHeight: 20,
   },
 
@@ -427,6 +433,7 @@ const styles = StyleSheet.create({
   },
   recDesc: {
     fontSize: typography.sizes.sm,
+    fontFamily: typography.fonts.regular,
     lineHeight: 20,
   },
 });

@@ -384,6 +384,7 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
   },
   selectorLabel: {
+    fontFamily: typography.fonts.regular,
     fontSize: typography.sizes.md,
     color: '#8E8E93',
   },

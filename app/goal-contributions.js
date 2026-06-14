@@ -45,7 +45,7 @@ export default function GoalContributionsScreen() {
                     title: 'All Contributions',
                     headerBackButtonDisplayMode: 'minimal',
                     headerStyle: { backgroundColor: themeColors.cardBackground },
-                    headerTitleStyle: { color: themeColors.text, fontFamily: typography.fonts.semibold },
+                    headerTitleStyle: { color: themeColors.text, fontFamily: typography.fonts.medium },
                 }}
             />
 

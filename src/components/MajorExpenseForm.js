@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     selectorLeft: { flexDirection: 'row', alignItems: 'center' },
     selectorRight: { flexDirection: 'row', alignItems: 'center' },
     icon: { marginRight: spacing.sm },
-    selectorLabel: { fontSize: typography.sizes.md, color: '#8E8E93' },
+    selectorLabel: { fontSize: typography.sizes.md, color: '#8E8E93', fontFamily: typography.fonts.regular },
     selectedValueText: { fontSize: typography.sizes.md, fontFamily: typography.fonts.medium },
     modalOverlay: {
         flex: 1, justifyContent: 'center', alignItems: 'center',

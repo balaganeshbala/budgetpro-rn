@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { StyleSheet, useColorScheme, View } from 'react-native';
 import EmptyDataIndicatorView from '../src/components/EmptyDataIndicatorView';
-import { colors } from '../src/constants/theme';
+import { colors, typography } from '../src/constants/theme';
 
 export default function YearComparisonScreen() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
@@ -9,7 +9,7 @@ export default function YearComparisonScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}>
-      <Stack.Screen options={{ title: 'Year-over-Year', headerBackTitle: '' }} />
+      <Stack.Screen options={{ title: 'Year-over-Year', headerBackTitle: '', headerTitleStyle: { fontFamily: typography.fonts.medium } }} />
       <View style={styles.body}>
         <EmptyDataIndicatorView
           icon='bar-chart-outline'

@@ -52,6 +52,7 @@ export default function IncomesDetailScreen() {
       <Stack.Screen
         options={{
           title: monthTitle,
+          headerTitleStyle: { fontFamily: typography.fonts.medium },
           headerBackTitle: '',
           headerRight: () => (
             <TouchableOpacity onPress={() => router.push('/add-income')} style={{ paddingHorizontal: 4 }}>
@@ -140,19 +141,19 @@ export default function IncomesDetailScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   emptyWrap: { flex: 1, justifyContent: 'center' },
-  content: { padding: spacing.lg, gap: spacing.md },
+  content: { padding: spacing.lg, gap: spacing.md, },
   card: { borderRadius: radius.xl, padding: spacing.lg },
-  totalLabel: { fontSize: typography.sizes.sm, marginBottom: spacing.xs, marginTop: spacing.md },
+  totalLabel: { fontSize: typography.sizes.sm, fontFamily: typography.fonts.regular, marginBottom: spacing.xs, marginTop: spacing.md },
   totalAmount: { fontSize: 32, fontFamily: typography.fonts.bold, marginBottom: spacing.lg },
   splitRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
   splitIcon: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginRight: spacing.md },
   splitLabel: { flex: 1, fontSize: typography.sizes.md, fontFamily: typography.fonts.medium },
   splitAmount: { fontSize: typography.sizes.md, fontFamily: typography.fonts.semibold },
   dividerLine: { height: StyleSheet.hairlineWidth, marginVertical: spacing.md },
-  byCategory: { fontSize: typography.sizes.sm, marginBottom: spacing.md },
+  byCategory: { fontSize: typography.sizes.sm, marginBottom: spacing.md, fontFamily: typography.fonts.regular },
   categoryRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
   categoryDot: { width: 10, height: 10, borderRadius: 5, marginRight: spacing.md },
-  categoryName: { flex: 1, fontSize: typography.sizes.md },
+  categoryName: { flex: 1, fontSize: typography.sizes.md, fontFamily: typography.fonts.regular },
   categoryAmountCol: { alignItems: 'flex-end' },
   categoryAmount: { fontSize: typography.sizes.md, fontFamily: typography.fonts.semibold },
   categoryPct: { fontSize: typography.sizes.sm, marginTop: 2 },

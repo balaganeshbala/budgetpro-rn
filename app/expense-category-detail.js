@@ -238,6 +238,6 @@ const styles = StyleSheet.create({
   progressFill: { height: '100%', borderRadius: 3 },
   listHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.xs },
   sectionTitle: { fontSize: typography.sizes.lg, fontFamily: typography.fonts.bold },
-  sortLabel: { fontSize: typography.sizes.sm, marginBottom: spacing.xs },
+  sortLabel: { fontSize: typography.sizes.sm, fontFamily: typography.fonts.regular, marginBottom: spacing.xs },
   rowDivider: { height: StyleSheet.hairlineWidth, marginLeft: spacing.md + 40 + spacing.md },
 });

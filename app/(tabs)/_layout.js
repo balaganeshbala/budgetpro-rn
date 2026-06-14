@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { useColorScheme } from 'react-native';
-import { colors } from '../../src/constants/theme';
+import { colors, typography } from '../../src/constants/theme';
 
 export default function TabsLayout() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
@@ -43,6 +43,7 @@ export default function TabsLayout() {
           title: 'More',
           headerShown: true,
           headerStyle: { backgroundColor: themeColors.cardBackground },
+          headerTitleStyle: { fontFamily: typography.fonts.medium },
           headerTintColor: themeColors.text,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="grid-outline" size={size} color={color} />
@@ -55,6 +56,7 @@ export default function TabsLayout() {
           title: 'Profile',
           headerShown: true,
           headerStyle: { backgroundColor: themeColors.cardBackground },
+          headerTitleContainerStyle: { fontFamily: typography.fonts.medium },
           headerTintColor: themeColors.text,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person" size={size} color={color} />

@@ -1,8 +1,8 @@
 import * as Haptics from 'expo-haptics';
 import { Stack } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, PanResponder, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CardView } from '../src/components/common/CardView';
 import { RowItemIcon } from '../src/components/common/RowItemIcon';
 import { SectionHeader } from '../src/components/common/SectionHeader';
@@ -276,7 +276,7 @@ export default function MonthlyTrendsScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Monthly Trends', headerBackTitle: '' }} />
+      <Stack.Screen options={{ title: 'Monthly Trends', headerTitleStyle: { fontFamily: typography.fonts.medium }, headerBackTitle: '' }} />
 
       {isLoading ? (
         <View style={[styles.centered, { backgroundColor: tc.groupedBackground }]}>

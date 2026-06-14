@@ -107,7 +107,7 @@ export function AllTransactionsList({ items = [], type = 'expense' }) {
 
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.sm },
-  sortLabel: { fontSize: typography.sizes.sm },
+  sortLabel: { fontSize: typography.sizes.sm, fontFamily: typography.fonts.regular },
   card: { borderRadius: radius.xl, overflow: 'hidden' },
   divider: { height: StyleSheet.hairlineWidth, marginLeft: spacing.md + 40 + spacing.md },
   empty: { textAlign: 'center', padding: spacing.xl, fontSize: typography.sizes.md },
