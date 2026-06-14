@@ -2,8 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
-import { Appearance, useColorScheme } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Appearance, AppState, Modal, useColorScheme } from 'react-native';
+import { LockScreen } from '../src/components/LockScreen';
 import { colors } from '../src/constants/theme';
 import { supabase } from '../src/services/supabase';
 import { useBudgetStore } from '../src/store/useBudgetStore';
@@ -13,6 +14,11 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [session, setSession] = useState(null);
   const [initialized, setInitialized] = useState(false);
+  // 'hidden' | 'privacy' (screen shown, no auth) | 'auth' (screen shown, auth required)
+  const [lockState, setLockState] = useState('hidden');
+  const backgroundTimeRef = useRef(null);
+  const requireAuthRef = useRef(false);  // stays true until successful unlock
+  const biometricEnabledRef = useRef(false); // kept in sync; read sync in inactive/background handlers
   const colorScheme = useColorScheme();
   const theme = colors[colorScheme === 'dark' ? 'dark' : 'light'];
 
@@ -65,9 +71,60 @@ export default function RootLayout() {
     if ((fontsLoaded || fontError) && initialized) SplashScreen.hideAsync();
   }, [fontsLoaded, fontError, initialized]);
 
+  useEffect(() => {
+    AsyncStorage.getItem('@biometric_lock_enabled').then(v => {
+      biometricEnabledRef.current = v === 'true';
+    });
+  }, []);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', async (nextState) => {
+      if (nextState === 'inactive' || nextState === 'background') {
+        // Record background time on 'background' (not 'inactive' — iOS fires both but Android may only fire 'background')
+        if (nextState === 'background') backgroundTimeRef.current = Date.now();
+        // Show privacy screen immediately so app switcher never captures content
+        if (biometricEnabledRef.current) {
+          setLockState(s => s === 'auth' ? 'auth' : 'privacy');
+        }
+      } else if (nextState === 'active') {
+        const backgroundedAt = backgroundTimeRef.current;
+        backgroundTimeRef.current = null;
+
+        // Re-read settings so changes made while backgrounded are respected
+        const [enabled, timeout] = await Promise.all([
+          AsyncStorage.getItem('@biometric_lock_enabled'),
+          AsyncStorage.getItem('@biometric_lock_timeout'),
+        ]);
+        biometricEnabledRef.current = enabled === 'true';
+
+        if (backgroundedAt === null) {
+          // Only went through 'inactive' (notification centre, control centre) — dismiss unless auth is already pending
+          if (!requireAuthRef.current) setLockState('hidden');
+          return;
+        }
+
+        if (enabled !== 'true') {
+          requireAuthRef.current = false;
+          setLockState('hidden');
+          return;
+        }
+
+        const elapsed = (Date.now() - backgroundedAt) / 1000;
+        if (elapsed >= parseInt(timeout ?? '0', 10) || requireAuthRef.current) {
+          requireAuthRef.current = true;
+          setLockState('auth');
+        } else {
+          setLockState('hidden');
+        }
+      }
+    });
+    return () => sub.remove();
+  }, []);
+
   if (!initialized || (!fontsLoaded && !fontError)) return null;
 
   return (
+    <>
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: theme.cardBackground },
@@ -99,5 +156,12 @@ export default function RootLayout() {
       <Stack.Screen name="add-contribution" options={{ presentation: 'modal' }} />
       <Stack.Screen name="edit-contribution" options={{ presentation: 'modal' }} />
     </Stack>
+    <Modal visible={lockState !== 'hidden' && !!session} animationType="none" statusBarTranslucent>
+      <LockScreen
+        requireAuth={lockState === 'auth'}
+        onUnlock={() => { requireAuthRef.current = false; setLockState('hidden'); }}
+      />
+    </Modal>
+    </>
   );
 }

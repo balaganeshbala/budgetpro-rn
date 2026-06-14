@@ -1,14 +1,24 @@
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Appearance, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, useColorScheme, View } from 'react-native';
+import { Appearance, Modal, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, TouchableWithoutFeedback, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CardView } from '../src/components/common/CardView';
 import { SectionHeader } from '../src/components/common/SectionHeader';
 import { colors, radius, spacing, typography } from '../src/constants/theme';
 
 const THEME_KEY = '@theme_preference';
+const BIOMETRIC_LOCK_KEY = '@biometric_lock_enabled';
+const LOCK_TIMEOUT_KEY = '@biometric_lock_timeout';
+
+const LOCK_TIMEOUT_OPTIONS = [
+  { value: 0,  label: 'Immediately' },
+  { value: 10, label: 'After 10 seconds' },
+  { value: 30, label: 'After 30 seconds' },
+  { value: 60, label: 'After 1 minute' },
+];
 
 const THEME_OPTIONS = [
   { value: 'system', label: 'System Default', iconName: 'contrast-outline', color: '#8E8E93' },
@@ -24,9 +34,24 @@ export default function SettingsScreen() {
   const [preference, setPreference] = useState('system');
   const [pickerVisible, setPickerVisible] = useState(false);
 
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [lockTimeout, setLockTimeout] = useState(0);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [lockPickerVisible, setLockPickerVisible] = useState(false);
+
   useEffect(() => {
     AsyncStorage.getItem(THEME_KEY).then(saved => {
       if (saved) setPreference(saved);
+    });
+    Promise.all([
+      LocalAuthentication.hasHardwareAsync(),
+      LocalAuthentication.isEnrolledAsync(),
+      AsyncStorage.getItem(BIOMETRIC_LOCK_KEY),
+      AsyncStorage.getItem(LOCK_TIMEOUT_KEY),
+    ]).then(([hasHardware, isEnrolled, enabled, timeout]) => {
+      setBiometricAvailable(hasHardware && isEnrolled);
+      setBiometricEnabled(enabled === 'true');
+      setLockTimeout(parseInt(timeout ?? '0', 10));
     });
   }, []);
 
@@ -37,7 +62,26 @@ export default function SettingsScreen() {
     Appearance.setColorScheme(value === 'system' ? null : value);
   }
 
+  async function handleBiometricToggle(value) {
+    if (value) {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Verify your identity to enable biometric lock',
+        disableDeviceFallback: false,
+      });
+      if (!result.success) return;
+    }
+    setBiometricEnabled(value);
+    await AsyncStorage.setItem(BIOMETRIC_LOCK_KEY, value ? 'true' : 'false');
+  }
+
+  async function handleLockTimeoutSelect(value) {
+    setLockTimeout(value);
+    setLockPickerVisible(false);
+    await AsyncStorage.setItem(LOCK_TIMEOUT_KEY, String(value));
+  }
+
   const selectedLabel = THEME_OPTIONS.find(o => o.value === preference)?.label ?? 'System Default';
+  const selectedTimeoutLabel = LOCK_TIMEOUT_OPTIONS.find(o => o.value === lockTimeout)?.label ?? 'Immediately';
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}>
@@ -59,6 +103,42 @@ export default function SettingsScreen() {
             <Ionicons name="chevron-forward" size={16} color={themeColors.secondaryText} />
           </TouchableOpacity>
         </CardView>
+
+        <SectionHeader title="Security" style={styles.sectionHeader} />
+        <CardView padding={0}>
+          <View style={styles.row}>
+            <View style={[styles.iconBg, { backgroundColor: '#FF9500' + '18' }]}>
+              <Ionicons name="finger-print" size={20} color="#FF9500" />
+            </View>
+            <Text style={[styles.rowTitle, { color: biometricAvailable ? themeColors.text : themeColors.secondaryText }]}>
+              Biometric Lock
+            </Text>
+            <Switch
+              value={biometricEnabled}
+              onValueChange={handleBiometricToggle}
+              trackColor={{ false: themeColors.separator, true: themeColors.primary }}
+              disabled={!biometricAvailable}
+            />
+          </View>
+          {biometricEnabled && (
+            <>
+              <View style={[styles.rowSeparator, { backgroundColor: themeColors.separator }]} />
+              <TouchableOpacity style={styles.row} onPress={() => setLockPickerVisible(true)} activeOpacity={0.7}>
+                <View style={[styles.iconBg, { backgroundColor: themeColors.primary + '18' }]}>
+                  <Ionicons name="timer-outline" size={20} color={themeColors.primary} />
+                </View>
+                <Text style={[styles.rowTitle, { color: themeColors.text }]}>Lock After</Text>
+                <Text style={[styles.rowValue, { color: themeColors.secondaryText }]}>{selectedTimeoutLabel}</Text>
+                <Ionicons name="chevron-forward" size={16} color={themeColors.secondaryText} />
+              </TouchableOpacity>
+            </>
+          )}
+        </CardView>
+        {!biometricAvailable && (
+          <Text style={[styles.sectionNote, { color: themeColors.secondaryText }]}>
+            No biometrics are enrolled on this device.
+          </Text>
+        )}
       </ScrollView>
 
       <Modal visible={pickerVisible} animationType="none" transparent onRequestClose={() => setPickerVisible(false)}>
@@ -92,14 +172,43 @@ export default function SettingsScreen() {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+
+      <Modal visible={lockPickerVisible} animationType="none" transparent onRequestClose={() => setLockPickerVisible(false)}>
+        <TouchableWithoutFeedback onPress={() => setLockPickerVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <View style={[styles.modalContent, { backgroundColor: themeColors.cardBackground }]}>
+                <View style={styles.modalHeader}>
+                  <Text style={[styles.modalTitle, { color: themeColors.text }]}>Lock After</Text>
+                  <TouchableOpacity onPress={() => setLockPickerVisible(false)} style={styles.closeButton}>
+                    <Ionicons name="close" size={24} color={themeColors.secondaryText} />
+                  </TouchableOpacity>
+                </View>
+                {LOCK_TIMEOUT_OPTIONS.map(option => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[styles.optionItem, { borderBottomColor: themeColors.separator }]}
+                    onPress={() => handleLockTimeoutSelect(option.value)}
+                  >
+                    <Text style={[styles.optionText, { color: themeColors.text }]}>{option.label}</Text>
+                    {lockTimeout === option.value && (
+                      <Ionicons name="checkmark" size={24} color={themeColors.primary} />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scroll: { padding: spacing.lg, gap: spacing.xs },
-  sectionHeader: { marginBottom: spacing.sm },
+  scroll: { paddingHorizontal: spacing.lg, gap: spacing.xs },
+  sectionHeader: { marginTop: spacing.lg },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -165,5 +274,15 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: typography.sizes.md,
     fontFamily: typography.fonts.medium,
+  },
+  rowSeparator: {
+    height: StyleSheet.hairlineWidth,
+    marginLeft: spacing.lg,
+  },
+  sectionNote: {
+    fontSize: typography.sizes.sm,
+    fontFamily: typography.fonts.regular,
+    paddingHorizontal: spacing.sm,
+    marginTop: spacing.xs,
   },
 });
