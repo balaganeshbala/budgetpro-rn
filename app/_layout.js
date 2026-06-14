@@ -50,7 +50,7 @@ export default function RootLayout() {
     if (!initialized) return;
 
     const inAuthGroup = segments[0] === '(tabs)';
-    const isPublicRoute = segments[0] === 'login' || segments[0] === 'signup';
+    const isPublicRoute = segments[0] === 'login' || segments[0] === 'signup' || segments[0] === 'login-callback';
 
     if (!session && inAuthGroup) {
       // Redirect to login if not authenticated
@@ -77,6 +77,7 @@ export default function RootLayout() {
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false, title: '' }} />
       <Stack.Screen name="login" options={{ headerShown: false, title: '' }} />
+      <Stack.Screen name="login-callback" options={{ headerShown: false }} />
       <Stack.Screen name="signup" options={{ title: '' }} />
       <Stack.Screen name="add-expense" options={{ presentation: 'modal', title: 'Add Expense' }} />
       <Stack.Screen name="add-income" options={{ presentation: 'modal', title: 'Add Income' }} />

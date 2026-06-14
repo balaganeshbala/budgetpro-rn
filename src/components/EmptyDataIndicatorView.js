@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
     },
     bodyText: {
         fontSize: typography.sizes.sm,
+        fontFamily: typography.fonts.regular,
         textAlign: 'center',
         paddingHorizontal: spacing.md,
     },

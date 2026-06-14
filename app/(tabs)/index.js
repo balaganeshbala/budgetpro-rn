@@ -6,6 +6,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useCo
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BudgetOverviewCard } from '../../src/components/BudgetOverviewCard';
 import { CardView } from '../../src/components/common/CardView';
+import { RowItemIcon } from '../../src/components/common/RowItemIcon';
 import { SectionHeader } from '../../src/components/common/SectionHeader';
 import { SettingsRow } from '../../src/components/common/SettingsRow';
 import { getExpenseCategory, getIncomeCategory } from '../../src/constants/categories';
@@ -33,9 +34,17 @@ function CategoryGridItem({ item, themeColors, onPress }) {
       activeOpacity={0.7}
     >
       <View style={styles.gridItemIconRow}>
-        <View style={[styles.gridItemIcon, { backgroundColor: categoryObj.color + '25' }]}>
+        {/* <View style={[styles.gridItemIcon, { backgroundColor: categoryObj.color + '25' }]}>
           <Ionicons name={categoryObj.iconName} size={16} color={categoryObj.color} />
-        </View>
+        </View> */}
+        <RowItemIcon
+            categoryIcon={categoryObj.iconName} 
+            iconShape="circle" 
+            iconColor={categoryObj.color}
+            backgroundColor={categoryObj.color + '25'}
+            containerSize={32}
+            iconSize={15}
+          />
         <Text style={[styles.gridItemName, { color: themeColors.text }]} numberOfLines={1}>
           {categoryObj.displayName}
         </Text>
@@ -381,7 +390,7 @@ const styles = StyleSheet.create({
   gridItemIconRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: spacing.md,
   },
   gridItemIcon: {
     width: 32,
@@ -392,8 +401,8 @@ const styles = StyleSheet.create({
   },
   gridItemName: {
     flex: 1,
-    fontSize: typography.sizes.sm,
-    fontFamily: typography.fonts.semibold,
+    fontSize: typography.sizes.md,
+    fontFamily: typography.fonts.regular,
   },
   gridItemRemainingBlock: {
     alignItems: 'flex-end',
