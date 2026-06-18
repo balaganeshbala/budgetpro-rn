@@ -95,8 +95,8 @@ export default function SettingsScreen() {
         <SectionHeader title="Appearance" style={styles.sectionHeader} />
         <CardView padding={0}>
           <TouchableOpacity style={styles.row} onPress={() => setPickerVisible(true)} activeOpacity={0.7}>
-            <View style={[styles.iconBg, { backgroundColor: themeColors.primary + '18' }]}>
-              <Ionicons name="contrast-outline" size={20} color={themeColors.primary} />
+            <View style={[styles.iconBg, { backgroundColor: themeColors.text + '22' }]}>
+              <Ionicons name="contrast-outline" size={20} color={themeColors.text} />
             </View>
             <Text style={[styles.rowTitle, { color: themeColors.text }]}>Theme</Text>
             <Text style={[styles.rowValue, { color: themeColors.secondaryText }]}>{selectedLabel}</Text>
@@ -107,8 +107,8 @@ export default function SettingsScreen() {
         <SectionHeader title="Security" style={styles.sectionHeader} />
         <CardView padding={0}>
           <View style={styles.row}>
-            <View style={[styles.iconBg, { backgroundColor: '#FF9500' + '18' }]}>
-              <Ionicons name="finger-print" size={20} color="#FF9500" />
+            <View style={[styles.iconBg, { backgroundColor: '#FF3B30' + '22' }]}>
+              <Ionicons name="finger-print" size={20} color="#FF3B30" />
             </View>
             <Text style={[styles.rowTitle, { color: biometricAvailable ? themeColors.text : themeColors.secondaryText }]}>
               Biometric Lock
@@ -116,6 +116,7 @@ export default function SettingsScreen() {
             <Switch
               value={biometricEnabled}
               onValueChange={handleBiometricToggle}
+              thumbColor={ '#FFF' }
               trackColor={{ false: themeColors.separator, true: themeColors.primary }}
               disabled={!biometricAvailable}
             />
@@ -124,8 +125,8 @@ export default function SettingsScreen() {
             <>
               <View style={[styles.rowSeparator, { backgroundColor: themeColors.separator }]} />
               <TouchableOpacity style={styles.row} onPress={() => setLockPickerVisible(true)} activeOpacity={0.7}>
-                <View style={[styles.iconBg, { backgroundColor: themeColors.primary + '18' }]}>
-                  <Ionicons name="timer-outline" size={20} color={themeColors.primary} />
+                <View style={[styles.iconBg, { backgroundColor: '#21b36a' + '22' }]}>
+                  <Ionicons name="timer-outline" size={20} color="#21b36a" />
                 </View>
                 <Text style={[styles.rowTitle, { color: themeColors.text }]}>Lock After</Text>
                 <Text style={[styles.rowValue, { color: themeColors.secondaryText }]}>{selectedTimeoutLabel}</Text>

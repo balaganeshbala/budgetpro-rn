@@ -89,7 +89,7 @@ export default function IncomesDetailScreen() {
               <Ionicons name="add-circle-outline" size={20} color={themeColors.secondary} />
             </View>
             <Text style={[styles.splitLabel, { color: themeColors.text }]}>Primary</Text>
-            <Text style={[styles.splitAmount, { color: themeColors.adaptiveGreen }]}>{fmt(primaryTotal)}</Text>
+            <Text style={[styles.splitAmount, { color: themeColors.adaptiveGreen }]}>₹{fmt(primaryTotal)}</Text>
           </View>
 
           <View style={styles.splitRow}>
@@ -97,7 +97,7 @@ export default function IncomesDetailScreen() {
               <Ionicons name="star-outline" size={20} color={themeColors.secondary} />
             </View>
             <Text style={[styles.splitLabel, { color: themeColors.text }]}>Secondary</Text>
-            <Text style={[styles.splitAmount, { color: themeColors.warning }]}>{fmt(secondaryTotal)}</Text>
+            <Text style={[styles.splitAmount, { color: themeColors.warning }]}>₹{fmt(secondaryTotal)}</Text>
           </View>
 
           {categoryBreakdown.length > 0 && (

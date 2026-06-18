@@ -3,6 +3,7 @@ import { Stack, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import EmptyDataIndicatorView from '../src/components/EmptyDataIndicatorView';
 import { TransactionRow } from '../src/components/TransactionRow';
 import { CardView } from '../src/components/common/CardView';
 import { getMajorExpenseCategory } from '../src/constants/categories';
@@ -120,13 +121,11 @@ export default function MajorExpensesScreen() {
                 ) : (
                     <CardView padding={0}>
                         {majorExpenses.length === 0 ? (
-                            <View style={styles.emptyState}>
-                                <Ionicons name="wallet-outline" size={40} color={themeColors.tertiaryText} />
-                                <Text style={[styles.emptyTitle, { color: themeColors.text }]}>No Major Expenses</Text>
-                                <Text style={[styles.emptySubtitle, { color: themeColors.secondaryText }]}>
-                                    Tap + to record a major expense for {selectedMajorYear}
-                                </Text>
-                            </View>
+                            <EmptyDataIndicatorView
+                                icon='wallet-outline'
+                                title='No Major Expenses'
+                                bodyText={'Tap + to record a major expense for ' + selectedMajorYear}
+                            />
                         ) : (
                             majorExpenses.map((item, index) => {
                                 const category = getMajorExpenseCategory(item.category);

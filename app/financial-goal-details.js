@@ -69,6 +69,19 @@ export default function FinancialGoalDetailsScreen() {
     const goalColor = activeGoal.color_hex || '#216DF3';
     const statusColor = STATUS_COLORS[activeGoal.status] || '#216DF3';
 
+    const today = new Date();
+    const target = new Date(activeGoal.target_date + 'T00:00:00');
+    const remainingMonths = (target.getFullYear() * 12 + target.getMonth()) - (today.getFullYear() * 12 + today.getMonth());
+    const reqPerMonth = remainingMonths > 0 ? remaining / remainingMonths : remainingMonths === 0 ? remaining : 0;
+    const monthsLeftLabel = remainingMonths > 0 ? `${remainingMonths} mo` : remainingMonths === 0 ? 'This month' : 'Overdue';
+    const reqPerMonthLabel = remainingMonths >= 0 ? fmt(reqPerMonth) : '—';
+
+    const distinctMonths = new Set(contributions.map(c => c.date.slice(0, 7))).size;
+    const avgMonthly = distinctMonths > 0 ? currentAmount / distinctMonths : 0;
+    const deficit = remainingMonths >= 0 && reqPerMonth > 0 ? Math.max(0, reqPerMonth - avgMonthly) : 0;
+    const showBadge = activeGoal.status !== 'completed' && contributions.length > 0 && remainingMonths >= 0;
+    const onTrack = avgMonthly >= reqPerMonth;
+
     return (
         <View style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}>
             <Stack.Screen
@@ -116,8 +129,17 @@ export default function FinancialGoalDetailsScreen() {
                     {/* Progress section */}
                     <View style={styles.progressSection}>
                         <View style={styles.progressHeader}>
-                            <Text style={[styles.progressPct, { color: themeColors.text }]}>{progressPct}%</Text>
-                            <Text style={[styles.progressCompleted, { color: themeColors.secondaryText }]}>completed</Text>
+                            <View style={styles.progressLeft}>
+                                <Text style={[styles.progressPct, { color: themeColors.text }]}>{progressPct}%</Text>
+                                <Text style={[styles.progressCompleted, { color: themeColors.secondaryText }]}>completed</Text>
+                            </View>
+                            {showBadge && (
+                                <View style={[styles.trackBadge, { backgroundColor: onTrack ? '#34C75920' : '#FF950020' }]}>
+                                    <Text style={[styles.trackBadgeText, { color: onTrack ? '#34C759' : '#FF9500' }]}>
+                                        {onTrack ? 'On Track' : 'Behind'}
+                                    </Text>
+                                </View>
+                            )}
                         </View>
                         <View style={[styles.progressTrack, { backgroundColor: themeColors.separator }]}>
                             <View style={[styles.progressFill, { width: `${progressPct}%`, backgroundColor: goalColor }]} />
@@ -130,12 +152,16 @@ export default function FinancialGoalDetailsScreen() {
                     <View style={styles.statsGrid}>
                         {[
                             { label: 'Target', value: fmt(activeGoal.target_amount), icon: 'flag-outline' },
-                            { label: 'Current', value: fmt(currentAmount), icon: 'cash-outline' },
+                            { label: 'Saved', value: fmt(currentAmount), icon: 'cash-outline' },
                             { label: 'Remaining', value: fmt(remaining), icon: 'hourglass-outline' },
-                            { label: 'Date', value: fmtDate(activeGoal.target_date), icon: 'calendar-outline' },
+                            { label: 'Due Date', value: fmtDate(activeGoal.target_date), icon: 'calendar-outline' },
+                            { label: 'Months Left', value: monthsLeftLabel, icon: 'timer-outline' },
+                            { label: 'Req/Month', value: reqPerMonthLabel, icon: 'trending-up-outline' },
+                            { label: 'Avg/Month', value: distinctMonths > 0 ? fmt(avgMonthly) : '—', icon: 'stats-chart-outline' },
+                            { label: 'Deficit', value: deficit > 0 ? fmt(deficit) : '—', icon: 'trending-down-outline' },
                         ].map(({ label, value, icon }) => (
                             <View key={label} style={[styles.statItem, { backgroundColor: themeColors.groupedBackground }]}>
-                                <Ionicons name={icon} size={14} color={themeColors.secondaryText} />
+                                <Ionicons name={icon} size={18} color={themeColors.secondary} />
                                 <Text style={[styles.statLabel, { color: themeColors.secondaryText }]}>{label}</Text>
                                 <Text style={[styles.statValue, { color: themeColors.text }]}>{value}</Text>
                             </View>
@@ -210,14 +236,17 @@ const styles = StyleSheet.create({
     statusText: { fontSize: typography.sizes.xs, fontFamily: typography.fonts.medium, textTransform: 'capitalize' },
     divider: { height: StyleSheet.hairlineWidth, marginVertical: spacing.md },
     progressSection: { marginBottom: spacing.xs },
-    progressHeader: { flexDirection: 'row', alignItems: 'baseline', gap: spacing.xs, marginBottom: spacing.sm },
+    progressHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.sm },
+    progressLeft: { flexDirection: 'row', alignItems: 'baseline', gap: spacing.xs },
     progressPct: { fontSize: typography.sizes.xxxl, fontFamily: typography.fonts.bold },
-    progressCompleted: { fontSize: typography.sizes.sm },
+    progressCompleted: { fontSize: typography.sizes.sm, fontFamily: typography.fonts.medium },
+    trackBadge: { paddingHorizontal: spacing.sm, paddingVertical: 3, borderRadius: radius.sm },
+    trackBadgeText: { fontSize: typography.sizes.xs, fontFamily: typography.fonts.semibold },
     progressTrack: { height: 10, borderRadius: 5, overflow: 'hidden' },
     progressFill: { height: '100%', borderRadius: 5 },
     statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
     statItem: { width: '47.5%', borderRadius: radius.md, padding: spacing.md, alignItems: 'center', gap: 4 },
-    statLabel: { fontSize: typography.sizes.xs },
+    statLabel: { fontSize: typography.sizes.xs, fontFamily: typography.fonts.semibold },
     statValue: { fontSize: typography.sizes.sm, fontFamily: typography.fonts.semibold, textAlign: 'center' },
     cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: spacing.md },
     sectionTitle: { fontSize: typography.sizes.lg, fontFamily: typography.fonts.bold },
@@ -228,7 +257,7 @@ const styles = StyleSheet.create({
     viewAllText: { fontSize: typography.sizes.sm, fontFamily: typography.fonts.semibold },
     groupRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: spacing.md },
     groupMonth: { fontSize: typography.sizes.md, fontFamily: typography.fonts.semibold, marginBottom: 2 },
-    groupCount: { fontSize: typography.sizes.xs },
+    groupCount: { fontSize: typography.sizes.xs, fontFamily: typography.fonts.regular },
     groupAmount: { fontSize: typography.sizes.md, fontFamily: typography.fonts.semibold, color: '#34C759' },
     rowDivider: { height: StyleSheet.hairlineWidth, marginLeft: spacing.md },
 });

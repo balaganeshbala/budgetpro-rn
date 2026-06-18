@@ -15,8 +15,8 @@ function GoalCard({ goal, onPress }) {
     const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
     const themeColors = colors[scheme];
 
-    const currentAmount = (goal.goal_contributions || []).reduce((sum, c) => sum + c.amount, 0);
-    const progress = goal.target_amount > 0 ? Math.min(currentAmount / goal.target_amount, 1) : 0;
+    const savedAmount = (goal.goal_contributions || []).reduce((sum, c) => sum + c.amount, 0);
+    const progress = goal.target_amount > 0 ? Math.min(savedAmount / goal.target_amount, 1) : 0;
     const statusColor = STATUS_COLORS[goal.status] || '#216DF3';
     const goalColor = goal.color_hex || '#216DF3';
     const targetDateStr = new Date(goal.target_date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -38,8 +38,8 @@ function GoalCard({ goal, onPress }) {
 
                 <View style={styles.cardAmounts}>
                     <View>
-                        <Text style={[styles.amountLabel, { color: themeColors.secondaryText }]}>Current</Text>
-                        <Text style={[styles.amountValue, { color: themeColors.text }]}>{fmt(currentAmount)}</Text>
+                        <Text style={[styles.amountLabel, { color: themeColors.secondaryText }]}>Saved</Text>
+                        <Text style={[styles.amountValue, { color: themeColors.text }]}>{fmt(savedAmount)}</Text>
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
                         <Text style={[styles.amountLabel, { color: themeColors.secondaryText }]}>Target</Text>
@@ -134,10 +134,10 @@ const styles = StyleSheet.create({
     progressTrack: { height: 8, borderRadius: 4, overflow: 'hidden', marginBottom: spacing.md },
     progressFill: { height: '100%', borderRadius: 4 },
     cardAmounts: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm },
-    amountLabel: { fontSize: typography.sizes.xs, marginBottom: 2 },
+    amountLabel: { fontSize: typography.sizes.xs, marginBottom: 2, fontFamily: typography.fonts.regular},
     amountValue: { fontSize: typography.sizes.md, fontFamily: typography.fonts.medium },
     cardDate: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-    dateText: { fontSize: typography.sizes.xs },
+    dateText: { fontSize: typography.sizes.xs, fontFamily: typography.fonts.regular },
     emptyTitle: { fontSize: typography.sizes.lg, fontFamily: typography.fonts.semibold, textAlign: 'center' },
-    emptySubtitle: { fontSize: typography.sizes.sm, textAlign: 'center' },
+    emptySubtitle: { fontSize: typography.sizes.sm, textAlign: 'center', fontFamily: typography.fonts.regular },
 });
