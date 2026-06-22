@@ -1,13 +1,13 @@
 import * as Haptics from 'expo-haptics';
 import { Stack } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, PanResponder, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { ActivityIndicator, PanResponder, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CardView } from '../src/components/common/CardView';
 import { RowItemIcon } from '../src/components/common/RowItemIcon';
 import { SectionHeader } from '../src/components/common/SectionHeader';
 import EmptyDataIndicatorView from '../src/components/EmptyDataIndicatorView';
-import { colors, radius, spacing, typography } from '../src/constants/theme';
+import { colors, spacing, typography } from '../src/constants/theme';
 import { transactionService } from '../src/services/transactionService';
 import { useBudgetStore } from '../src/store/useBudgetStore';
 
@@ -33,9 +33,12 @@ function getSavingsRateColor(rate, tc) {
 
 // ── Line Chart ────────────────────────────────────────────────────────────────
 
-function TrendLineChart({ data, mode, tc }) {
+function TrendLineChart({ data, mode, tc, onTouchActive }) {
   const [chartWidth, setChartWidth] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(null);
+
+  const onTouchActiveRef = useRef(null);
+  onTouchActiveRef.current = onTouchActive;
 
   const color = getModeColor(mode, tc);
 
@@ -81,10 +84,10 @@ function TrendLineChart({ data, mode, tc }) {
     onStartShouldSetPanResponderCapture: () => true,
     onMoveShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponderCapture: () => true,
-    onPanResponderGrant: (e) => handleTouchRef.current(e.nativeEvent.locationX),
+    onPanResponderGrant: (e) => { onTouchActiveRef.current?.(true); handleTouchRef.current(e.nativeEvent.locationX); },
     onPanResponderMove: (e) => handleTouchRef.current(e.nativeEvent.locationX),
-    onPanResponderRelease: () => { activeIndexRef.current = null; setSelectedIndex(null); },
-    onPanResponderTerminate: () => { activeIndexRef.current = null; setSelectedIndex(null); },
+    onPanResponderRelease: () => { onTouchActiveRef.current?.(false); activeIndexRef.current = null; setSelectedIndex(null); },
+    onPanResponderTerminate: () => { onTouchActiveRef.current?.(false); activeIndexRef.current = null; setSelectedIndex(null); },
   })).current;
 
   const labelInterval = data.length > 20 ? 6 : data.length > 12 ? 3 : data.length > 6 ? 2 : 1;
@@ -242,9 +245,23 @@ export default function MonthlyTrendsScreen() {
   const tc = colors[scheme];
   const userId = useBudgetStore(s => s.userId);
 
+  const { width } = useWindowDimensions();
+  const pagerRef = useRef(null);
+
   const [trendData, setTrendData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedMode, setSelectedMode] = useState('Expenses');
+  const [currentPage, setCurrentPage] = useState(0);
+  const [chartActive, setChartActive] = useState(false);
+
+  function scrollToPage(page) {
+    pagerRef.current?.scrollTo({ x: page * width, animated: true });
+    setCurrentPage(page);
+  }
+
+  function onPageChange(e) {
+    const page = Math.round(e.nativeEvent.contentOffset.x / width);
+    setCurrentPage(page);
+  }
 
   useEffect(() => {
     if (!userId) return;
@@ -291,84 +308,102 @@ export default function MonthlyTrendsScreen() {
           />
         </View>
       ) : (
-        <ScrollView
-          style={{ backgroundColor: tc.groupedBackground }}
-          contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 }]}
-          showsVerticalScrollIndicator={false}
-          bounces={false}
-          overScrollMode="never"
-        >
-          {/* Segmented Picker */}
-          <View style={[styles.segmentedContainer, { backgroundColor: tc.groupedBackground }]}>
-            {MODES.map(mode => (
-              <TouchableOpacity
-                key={mode}
-                style={[styles.segment, selectedMode === mode && { backgroundColor: tc.cardBackground, ...styles.activeSegment }]}
-                onPress={() => setSelectedMode(mode)}
-                activeOpacity={0.7}
-              >
-                <Text style={[styles.segmentText, {
-                  color: selectedMode === mode ? tc.text : tc.secondaryText,
-                  fontFamily: selectedMode === mode ? typography.fonts.semibold : typography.fonts.regular,
-                }]}>
-                  {mode}
-                </Text>
-              </TouchableOpacity>
-            ))}
+        <View style={styles.flex}>
+          {/* Tab bar */}
+          <View style={[styles.tabBar, { backgroundColor: tc.cardBackground, borderBottomColor: tc.separator }]}>
+            {MODES.map((mode, i) => {
+              const active = i === currentPage;
+              return (
+                <TouchableOpacity
+                  key={mode}
+                  activeOpacity={0.8}
+                  onPress={() => scrollToPage(i)}
+                  style={[styles.tabItem, active && { borderBottomColor: tc.primary }]}
+                >
+                  <Text style={[styles.tabText, { color: active ? tc.primary : tc.secondaryText }, active && { fontFamily: typography.fonts.semibold }]}>
+                    {mode}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
-          {/* Trend Chart */}
-          <CardView>
-            <SectionHeader
-              title={`${selectedMode} Trend`}
-              subtitle="Last Two Years"
-              style={{ marginBottom: spacing.xl }}
-            />
-            <TrendLineChart data={trendData} mode={selectedMode} tc={tc} />
-          </CardView>
+          {/* Pager */}
+          <ScrollView
+            ref={pagerRef}
+            horizontal
+            pagingEnabled
+            scrollEnabled={!chartActive}
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={onPageChange}
+            style={styles.pager}
+            bounces={false}
+          >
+            {MODES.map(mode => (
+              <ScrollView
+                key={mode}
+                style={[styles.page, { width, backgroundColor: tc.groupedBackground }]}
+                contentContainerStyle={[styles.pageContent, { paddingBottom: insets.bottom + 20 }]}
+                scrollEnabled={!chartActive}
+                showsVerticalScrollIndicator={false}
+                bounces={false}
+                overScrollMode="never"
+              >
+                {/* Trend Chart */}
+                <CardView>
+                  <SectionHeader
+                    title={`${mode} Trend`}
+                    subtitle="Last Two Years"
+                    style={{ marginBottom: spacing.xl }}
+                  />
+                  <TrendLineChart data={trendData} mode={mode} tc={tc} onTouchActive={setChartActive} />
+                </CardView>
 
-          {/* Monthly Averages */}
-          <CardView>
-            <SectionHeader
-              title="Monthly Averages"
-              subtitle="Active Months"
-              style={{ marginBottom: spacing.xl }}
-            />
-            <AvgRow
-              icon="add-circle-outline"
-              iconColor={tc.adaptiveGreen}
-              title="Income"
-              value={fmt(avgIncome)}
-              valueColor={tc.text}
-              tc={tc}
-            />
-            <AvgRow
-              icon="remove-circle-outline"
-              iconColor={tc.adaptiveRed}
-              title="Expenses"
-              value={fmt(avgExpense)}
-              valueColor={tc.text}
-              tc={tc}
-            />
-            <AvgRow
-              icon="briefcase-outline"
-              iconColor={tc.secondary}
-              title="Net Savings"
-              value={fmtSigned(avgSavings)}
-              valueColor={avgSavings >= 0 ? tc.adaptiveGreen : tc.error}
-              tc={tc}
-            />
-            <AvgRow
-              icon="analytics-outline"
-              iconColor={getSavingsRateColor(avgSavingsRate, tc)}
-              title="Savings Rate"
-              value={`${avgSavingsRate.toFixed(1)}%`}
-              valueColor={getSavingsRateColor(avgSavingsRate, tc)}
-              tc={tc}
-              last
-            />
-          </CardView>
-        </ScrollView>
+                {/* Monthly Averages */}
+                <CardView>
+                  <SectionHeader
+                    title="Monthly Averages"
+                    subtitle="Active Months"
+                    style={{ marginBottom: spacing.xl }}
+                  />
+                  <AvgRow
+                    icon="add-circle-outline"
+                    iconColor={tc.adaptiveGreen}
+                    title="Income"
+                    value={fmt(avgIncome)}
+                    valueColor={tc.text}
+                    tc={tc}
+                  />
+                  <AvgRow
+                    icon="remove-circle-outline"
+                    iconColor={tc.adaptiveRed}
+                    title="Expenses"
+                    value={fmt(avgExpense)}
+                    valueColor={tc.text}
+                    tc={tc}
+                  />
+                  <AvgRow
+                    icon="briefcase-outline"
+                    iconColor={tc.secondary}
+                    title="Net Savings"
+                    value={fmtSigned(avgSavings)}
+                    valueColor={avgSavings >= 0 ? tc.adaptiveGreen : tc.error}
+                    tc={tc}
+                  />
+                  <AvgRow
+                    icon="analytics-outline"
+                    iconColor={getSavingsRateColor(avgSavingsRate, tc)}
+                    title="Savings Rate"
+                    value={`${avgSavingsRate.toFixed(1)}%`}
+                    valueColor={getSavingsRateColor(avgSavingsRate, tc)}
+                    tc={tc}
+                    last
+                  />
+                </CardView>
+              </ScrollView>
+            ))}
+          </ScrollView>
+        </View>
       )}
     </>
   );
@@ -378,30 +413,27 @@ export default function MonthlyTrendsScreen() {
 
 const styles = StyleSheet.create({
   centered: { flex: 1, justifyContent: 'center' },
-  content: { padding: spacing.lg, gap: spacing.md },
+  flex: { flex: 1 },
 
-  segmentedContainer: {
+  tabBar: {
     flexDirection: 'row',
-    borderRadius: radius.sm,
-    padding: 2,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  segment: {
+  tabItem: {
     flex: 1,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.md,
     alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.sm - 2,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+    marginBottom: -StyleSheet.hairlineWidth,
   },
-  activeSegment: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1.5,
-    elevation: 1,
-  },
-  segmentText: {
+  tabText: {
     fontSize: typography.sizes.sm,
+    fontFamily: typography.fonts.medium,
   },
+  pager: { flex: 1 },
+  page: { flex: 1 },
+  pageContent: { padding: spacing.lg, gap: spacing.md },
 
   chartContainer: {
     position: 'relative',
