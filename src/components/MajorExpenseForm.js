@@ -18,9 +18,9 @@ import { colors, radius, spacing, typography } from '../constants/theme';
 import { AppButton } from './common/AppButton';
 import { AppTextField } from './common/AppTextField';
 
+import { shortMonthNames } from '../constants/months';
+
 const DAY_NAMES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
 
 function buildCalendarDays(month, year) {
     const firstDayOfWeek = new Date(year, month, 1).getDay();
@@ -249,7 +249,7 @@ export const MajorExpenseForm = ({
                                                 <Ionicons name="chevron-back" size={22} color={themeColors.text} />
                                             </TouchableOpacity>
                                             <Text style={[styles.calendarMonthLabel, { color: themeColors.text }]}>
-                                                {MONTH_NAMES[calendarMonth]} {calendarYear}
+                                                {shortMonthNames[calendarMonth]} {calendarYear}
                                             </Text>
                                             <TouchableOpacity onPress={nextMonth} style={styles.monthNavBtn}>
                                                 <Ionicons name="chevron-forward" size={22} color={themeColors.text} />

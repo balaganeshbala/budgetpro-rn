@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, useColorScheme, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CardView } from '../../src/components/common/CardView';
 import { SectionHeader } from '../../src/components/common/SectionHeader';
 import { SettingsRow } from '../../src/components/common/SettingsRow';
@@ -13,14 +13,14 @@ export default function MoreScreen() {
   const router = useRouter();
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.groupedBackground }]} edges={['top']}>
       <ScrollView
         contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 20 }]}
         showsVerticalScrollIndicator={false}
         bounces={false}
         overScrollMode="never"
       >
-        <SectionHeader title="Analysis" style={{ marginTop: 10 }}/>
+        <SectionHeader title="Analysis" />
         <CardView padding={0}>
           <SettingsRow
             iconName="trending-up"
@@ -64,7 +64,7 @@ export default function MoreScreen() {
           />
         </CardView>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

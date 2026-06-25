@@ -9,10 +9,8 @@ import {
 import { CardView } from '../src/components/common/CardView';
 import { EXPENSE_CATEGORIES } from '../src/constants/categories';
 import { colors, radius, spacing, typography } from '../src/constants/theme';
+import { shortMonthNames } from '../src/constants/months';
 import { useBudgetStore } from '../src/store/useBudgetStore';
-
-const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
 
 export default function EditBudgetScreen() {
     const insets = useSafeAreaInsets();
@@ -55,7 +53,7 @@ export default function EditBudgetScreen() {
     const totalBudget = Object.values(amounts).reduce((sum, v) => sum + (parseFloat(v) || 0), 0);
     const originalTotal = Object.values(originalAmounts).reduce((sum, v) => sum + (parseFloat(v) || 0), 0);
     const fmt = (v) => Math.round(v).toLocaleString('en-IN');
-    const monthLabel = `${MONTH_NAMES[selectedMonth]} ${selectedYear}`;
+    const monthLabel = `${shortMonthNames[selectedMonth]} ${selectedYear}`;
 
     const hasChanges = EXPENSE_CATEGORIES.some(cat => {
         const current = parseFloat(amounts[cat.value]) || 0;

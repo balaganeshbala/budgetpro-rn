@@ -8,10 +8,8 @@ import EmptyDataIndicatorView from '../src/components/EmptyDataIndicatorView';
 import { TransactionRow } from '../src/components/TransactionRow';
 import { getExpenseCategory } from '../src/constants/categories';
 import { colors, radius, spacing, typography } from '../src/constants/theme';
+import { shortMonthNames } from '../src/constants/months';
 import { useBudgetStore } from '../src/store/useBudgetStore';
-
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'];
 
 const SORT_OPTIONS = [
   { label: 'Date (Newest First)', value: 'date_desc' },
@@ -36,7 +34,7 @@ export default function ExpenseCategoryDetailScreen() {
   const [sortBy, setSortBy] = useState('date_desc');
 
   const categoryObj = getExpenseCategory(cat);
-  const monthTitle = `${MONTHS[selectedMonth]} ${selectedYear}`;
+  const monthTitle = `${shortMonthNames[selectedMonth]} ${selectedYear}`;
 
   const { spent, budget, remaining, status, progress, pct, filtered } = useMemo(() => {
     const filtered = expenses.filter(e => e.category === cat);

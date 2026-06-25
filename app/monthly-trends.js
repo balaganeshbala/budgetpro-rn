@@ -9,9 +9,8 @@ import { SectionHeader } from '../src/components/common/SectionHeader';
 import EmptyDataIndicatorView from '../src/components/EmptyDataIndicatorView';
 import { colors, spacing, typography } from '../src/constants/theme';
 import { transactionService } from '../src/services/transactionService';
+import { shortMonthNames } from '../src/constants/months';
 import { useBudgetStore } from '../src/store/useBudgetStore';
-
-const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const MODES = ['Expenses', 'Income', 'Savings'];
 const CHART_HEIGHT = 180;
 const X_AXIS_HEIGHT = 28;
@@ -187,7 +186,7 @@ function TrendLineChart({ data, mode, tc, onTouchActive }) {
                 top: Math.max(4, points[selectedIndex].y - 52),
               }]}>
                 <Text style={styles.tooltipMonth}>
-                  {SHORT_MONTHS[data[selectedIndex].month - 1]} {data[selectedIndex].year}
+                  {shortMonthNames[data[selectedIndex].month - 1]} {data[selectedIndex].year}
                 </Text>
                 <Text style={styles.tooltipValue}>
                   ₹{Math.round(Math.abs(values[selectedIndex])).toLocaleString('en-IN')}
@@ -208,7 +207,7 @@ function TrendLineChart({ data, mode, tc, onTouchActive }) {
                   top: CHART_HEIGHT + 6,
                 }]}
               >
-                {SHORT_MONTHS[d.month - 1]} '{String(d.year).slice(2)}
+                {shortMonthNames[d.month - 1]} '{String(d.year).slice(2)}
               </Text>
             );
           })}

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BudgetOverviewCard } from '../../src/components/BudgetOverviewCard';
 import { CardView } from '../../src/components/common/CardView';
@@ -10,13 +10,9 @@ import { RowItemIcon } from '../../src/components/common/RowItemIcon';
 import { SectionHeader } from '../../src/components/common/SectionHeader';
 import { SettingsRow } from '../../src/components/common/SettingsRow';
 import { getExpenseCategory, getIncomeCategory } from '../../src/constants/categories';
+import { shortMonthNames } from '../../src/constants/months';
 import { colors, radius, spacing, typography } from '../../src/constants/theme';
 import { useBudgetStore } from '../../src/store/useBudgetStore';
-
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'];
-const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const START_YEAR = 2023;
 const PRIMARY_INCOME_CATEGORIES = new Set(['salary', 'business', 'rental', 'pension']);
@@ -29,11 +25,10 @@ function CategoryGridItem({ item, themeColors, onPress }) {
 
   return (
     <TouchableOpacity
-      style={styles.gridItem}
       onPress={onPress}
       activeOpacity={0.7}
     >
-      <View style={styles.gridItemIconRow}>
+      <CardView style={styles.gridItemIconRow}>
         {/* <View style={[styles.gridItemIcon, { backgroundColor: categoryObj.color + '25' }]}>
           <Ionicons name={categoryObj.iconName} size={16} color={categoryObj.color} />
         </View> */}
@@ -71,7 +66,7 @@ function CategoryGridItem({ item, themeColors, onPress }) {
           size={15}
           color={themeColors.secondaryText}
         />
-      </View>
+      </CardView>
     </TouchableOpacity>
   );
 }
@@ -93,6 +88,27 @@ export default function HomeScreen() {
 
   const [pickerVisible, setPickerVisible] = useState(false);
   const [pickerYear, setPickerYear] = useState(selectedYear);
+
+  const canGoPrev = selectedYear > START_YEAR || selectedMonth > 0;
+  const canGoNext = !(selectedYear === CURRENT_YEAR && selectedMonth === CURRENT_MONTH);
+
+  function prevMonth() {
+    if (selectedMonth === 0) {
+      setSelectedYear(selectedYear - 1);
+      setSelectedMonth(11);
+    } else {
+      setSelectedMonth(selectedMonth - 1);
+    }
+  }
+
+  function nextMonth() {
+    if (selectedMonth === 11) {
+      setSelectedYear(selectedYear + 1);
+      setSelectedMonth(0);
+    } else {
+      setSelectedMonth(selectedMonth + 1);
+    }
+  }
 
   const categoryBreakdown = useMemo(() => {
     const byCategory = {};
@@ -163,44 +179,55 @@ export default function HomeScreen() {
 
       {/* Header */}
       <View style={[styles.header, { backgroundColor: themeColors.cardBackground, borderBottomColor: themeColors.separator }]}>
-        <TouchableOpacity onPress={openPicker} style={[styles.monthButton, { backgroundColor: themeColors.cardBackground, borderColor: themeColors.separator }]} activeOpacity={0.7}>
-          <Ionicons name="calendar" size={18} color={themeColors.primary} style={styles.calendarIcon} />
-          <Text style={[styles.monthLabel, { color: themeColors.primary }]}>
-            {MONTHS[selectedMonth]} {selectedYear}
-          </Text>
+        <Image source={require('../../src/assets/images/icon.png')} style={styles.appIcon} />
+        <View style={styles.monthNav}>
+          <TouchableOpacity onPress={prevMonth} disabled={!canGoPrev} style={styles.navBtn} activeOpacity={0.7}>
+            <Ionicons name="chevron-back" size={20} color={canGoPrev ? themeColors.text : themeColors.tertiaryText} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={openPicker} activeOpacity={0.7}>
+            <Text style={[styles.monthLabel, { color: themeColors.text }]}>
+              {shortMonthNames[selectedMonth]} {selectedYear}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={nextMonth} disabled={!canGoNext} style={styles.navBtn} activeOpacity={0.7}>
+            <Ionicons name="chevron-forward" size={20} color={canGoNext ? themeColors.text : themeColors.tertiaryText} />
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity onPress={() => router.push('/profile')} style={styles.profileBtn} activeOpacity={0.7}>
+          <Ionicons name="person-circle-outline" size={30} color={themeColors.text} />
         </TouchableOpacity>
       </View>
 
       <ScrollView style={{ backgroundColor: themeColors.groupedBackground }} contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom }]} showsVerticalScrollIndicator={false} bounces={false} overScrollMode="never">
-        <BudgetOverviewCard
-          title="Budget"
-          totalBudget={totalBudget}
-          totalSpent={totalExpenses}
-          isLoading={isLoading}
-          isPastMonth={selectedYear < CURRENT_YEAR || (selectedYear === CURRENT_YEAR && selectedMonth < CURRENT_MONTH)}
-          onCreateBudget={() => router.push('/create-budget')}
-          onEditBudget={() => router.push('/edit-budget')}
-        />
+        <View style={styles.budgetSection}>
+          <BudgetOverviewCard
+            title="Budget"
+            totalBudget={totalBudget}
+            totalSpent={totalExpenses}
+            isLoading={isLoading}
+            isPastMonth={selectedYear < CURRENT_YEAR || (selectedYear === CURRENT_YEAR && selectedMonth < CURRENT_MONTH)}
+            onCreateBudget={() => router.push('/create-budget')}
+            onEditBudget={() => router.push('/edit-budget')}
+          />
+        </View>
 
         {!isLoading && categoryBreakdown.length > 0 && (
-          <CardView>
-            <SectionHeader title="By Category"></SectionHeader>
-            <View style={styles.gridContainer}>
-              {categoryBreakdown.map((item, index) => (
-                <View key={item.cat}>
-                  {index > 0 && <View style={[styles.catDivider, { backgroundColor: themeColors.separator }]} />}
-                  <CategoryGridItem
-                    item={item}
-                    themeColors={themeColors}
-                    onPress={() => router.push({ pathname: '/expense-category-detail', params: { cat: item.cat } })}
-                  />
-                </View>
-              ))}
-            </View>
-          </CardView>
+          <View style={styles.categorySection}>
+            <SectionHeader title="By Category" />
+            {categoryBreakdown.map((item) => (
+              <CategoryGridItem
+                key={item.cat}
+                item={item}
+                themeColors={themeColors}
+                onPress={() => router.push({ pathname: '/expense-category-detail', params: { cat: item.cat } })}
+              />
+            ))}
+          </View>
         )}
 
-        <CardView padding={0}>
+        <View style={styles.insightsSection}>
+          <SectionHeader title="Quick Links" />
+          <CardView padding={0}>
           <SettingsRow
             iconName="cash-outline"
             iconColor={themeColors.adaptiveGreen}
@@ -209,7 +236,7 @@ export default function HomeScreen() {
           />
           {expenses.length > 0 && (
             <>
-              <View style={[styles.divider, { backgroundColor: themeColors.separator }]} />
+            <View style={[styles.divider, { backgroundColor: themeColors.separator }]} />
               <SettingsRow
                 iconName="wallet"
                 iconColor={themeColors.secondary}
@@ -219,6 +246,7 @@ export default function HomeScreen() {
             </>
           )}
         </CardView>
+        </View>
 
       </ScrollView>
 
@@ -277,7 +305,7 @@ export default function HomeScreen() {
                         styles.monthCellText,
                         { color: disabled ? themeColors.tertiaryText : selected ? '#FFFFFF' : themeColors.text },
                       ]}>
-                        {SHORT_MONTHS[idx]}
+                        {shortMonthNames[idx]}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -296,29 +324,44 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
-    alignItems: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  monthButton: {
+  appIcon: {
+    position: 'absolute',
+    left: spacing.md + spacing.xs,
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+  },
+  profileBtn: {
+    position: 'absolute',
+    right: spacing.md,
+    padding: spacing.xs,
+  },
+  monthNav: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.pill,
-    borderWidth: 1,
+    gap: spacing.md,
   },
-  calendarIcon: {
-    marginRight: spacing.sm,
+  navBtn: {
+    padding: spacing.sm,
   },
   monthLabel: {
-    fontSize: typography.sizes.md,
+    fontSize: typography.sizes.lg,
     fontFamily: 'Manrope-SemiBold',
   },
   scroll: {
     padding: spacing.lg,
     gap: spacing.lg,
+  },
+  budgetSection: {
+    marginHorizontal: -spacing.lg,
+    marginTop: -spacing.lg,
   },
   overlay: {
     flex: 1,
@@ -376,16 +419,12 @@ const styles = StyleSheet.create({
   incomeCategoryAmountCol: { alignItems: 'flex-end' },
   incomeCategoryAmount: { fontSize: typography.sizes.md, fontFamily: typography.fonts.semibold },
   incomeCategoryPct: { fontSize: typography.sizes.sm, marginTop: 2 },
-  gridContainer: {
-    marginTop: spacing.lg,
+  categorySection: {
+    gap: spacing.sm,
   },
-  catDivider: {
-    height: StyleSheet.hairlineWidth,
-    marginBottom: spacing.sm
-  },
-  gridItem: {
-    borderRadius: radius.lg,
-    marginBottom: spacing.sm,
+  insightsSection: {
+    gap: spacing.sm,
+    marginTop: spacing.sm
   },
   gridItemIconRow: {
     flexDirection: 'row',

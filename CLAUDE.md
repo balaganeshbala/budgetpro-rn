@@ -83,7 +83,8 @@ A personal expense tracker mobile app built with Expo (React Native). It has a c
 ### Directory Layout
 ```
 app/               # Expo Router screens (file = route)
-  (tabs)/          # Bottom tab navigator (index, more, profile)
+  (tabs)/          # Bottom tab navigator — index, transactions, more ONLY (3 tabs)
+  profile.js       # Stack screen (NOT a tab); opened via router.push('/profile') from home header
   login.js, signup.js
   add-expense.js, edit-expense.js, expenses-detail.js
   add-income.js, edit-income.js, incomes-detail.js
@@ -105,7 +106,7 @@ src/
     EmptyDataIndicatorView.js  # Centered empty-state view (icon + title + bodyText props)
     GoalForm.js    # Add/edit goal form (emoji picker, color grid, date picker, status segmented control)
     ContributionForm.js  # Add/edit contribution form
-  constants/       # theme.js, categories.js
+  constants/       # theme.js, categories.js, months.js
   services/        # supabase.js, transactionService.js, goalService.js
   store/           # useBudgetStore.js (Zustand)
 components/        # Expo default components (mostly unused/legacy)
@@ -135,6 +136,8 @@ Defined in `src/constants/categories.js` as arrays of `{ value, displayName, ico
 
 ### Home Screen (`app/(tabs)/index.js`)
 
+- **Header**: App icon (`src/assets/images/icon.png`) on the left, month nav centered, profile icon button (`person-circle-outline`) on the right. Profile button navigates to `/profile`.
+- **"Insights" section header** above the Income Details and Savings Analysis cards.
 - **By Category section**: Uses an inline `CategoryGridItem` component (defined at module level above `HomeScreen`). Each row shows icon + name + remaining/overspent amount. Tapping navigates to `/expense-category-detail?cat=<value>`. Only rendered when `categoryBreakdown.length > 0`.
 - **Savings Analysis row**: Only rendered when `expenses.length > 0`. Income Details row is always shown.
 - **`AllTransactionsList`** (`src/components/common/AllTransactionsList.js`): Shared sortable transaction list used in `expenses-detail` and `incomes-detail`. Renders a sort header + `CardView` of `TransactionRow` items. Shows `EmptyDataIndicatorView` inside the card when empty.
@@ -155,6 +158,15 @@ Defined in `src/constants/categories.js` as arrays of `{ value, displayName, ico
 - **Planning** — Financial Goals (`/financial-goals`)
 
 `recurring-expenses.js` and `year-comparison.js` are still placeholder "Coming Soon" screens. Financial Goals is fully implemented.
+
+### Profile Screen (`app/profile.js`)
+Moved from `app/(tabs)/profile.js` to a root stack screen. Opened via the profile icon in the home screen header (`router.push('/profile')`). Has a native back button. Tab bar only has `index`, `transactions`, and `more`.
+
+### Month Name Constants (`src/constants/months.js`)
+Single source of truth — `shortMonthNames` and `fullMonthNames`. Do not declare local month arrays in screens; import from here.
+
+### BudgetOverviewCard (`src/components/BudgetOverviewCard.js`)
+Uses `react-native-svg` for the donut arc. Shows used percentage (`{Math.round(percentage)}%` + "used") in the center hole. Two exports: `DonutArc` (default) and `BudgetOverviewCard` (named).
 
 ### Settings Screen
 `app/settings.js` — accessible from Profile → Settings row. Currently has one section:

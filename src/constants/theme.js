@@ -7,7 +7,7 @@ export const colors = {
     
     background: '#FFFFFF',
     cardBackground: '#FFFFFF',
-    groupedBackground: '#F2F2F2',
+    groupedBackground: '#F6F9FC',
     toolbarBackground: '#F8F8F8',
     
     white: '#FFFFFF',
@@ -40,8 +40,8 @@ export const colors = {
     adaptiveRed: '#FF6666',
     
     background: '#000000',
-    cardBackground: '#1C1C1E', // iOS secondarySystemGroupedBackground
-    groupedBackground: '#2C2C2E', // iOS tertiarySystemGroupedBackground
+    cardBackground: '#171E26', // iOS secondarySystemGroupedBackground
+    groupedBackground: '#0F141A', // iOS tertiarySystemGroupedBackground
     
     white: '#FFFFFF',
     black: '#000000',
@@ -51,11 +51,11 @@ export const colors = {
     tertiaryText: '#EBEBF54D',
     quaternaryText: '#EBEBF52E',
     
-    separator: '#38383A',
+    separator: '#51545C',
     opaqueSeparator: '#38383A',
     
-    inputBackground: '#2C2C2E',
-    inputBorder: '#3A3A3C',
+    inputBackground: '#0D1218',
+    inputBorder: '#2E384A',
     focusedInputBorder: '#2E7AFF',
     
     success: '#30D158',

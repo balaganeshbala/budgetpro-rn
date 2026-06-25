@@ -1,17 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
     Alert, ScrollView,
     StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { EXPENSE_CATEGORIES } from '../src/constants/categories';
+import { shortMonthNames } from '../src/constants/months';
 import { colors, radius, spacing, typography } from '../src/constants/theme';
 import { useBudgetStore } from '../src/store/useBudgetStore';
-
-const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
 
 export default function CreateBudgetScreen() {
     const insets = useSafeAreaInsets();
@@ -28,7 +26,7 @@ export default function CreateBudgetScreen() {
 
     const totalBudget = Object.values(amounts).reduce((sum, v) => sum + (parseFloat(v) || 0), 0);
     const fmt = (v) => Math.round(v).toLocaleString('en-IN');
-    const monthLabel = `${MONTH_NAMES[selectedMonth]} ${selectedYear}`;
+    const monthLabel = `${shortMonthNames[selectedMonth]} ${selectedYear}`;
 
     const handleSave = async () => {
         const budgetData = EXPENSE_CATEGORIES.map(cat => ({

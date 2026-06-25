@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { colors, radius, spacing, typography } from '../constants/theme';
 import { CardView } from './common/CardView';
 import { SectionHeader } from './common/SectionHeader';
@@ -27,6 +28,95 @@ const SkeletonBox = ({ width, height, style }) => {
   );
 };
 
+const DONUT_SIZE = 100;
+const DONUT_STROKE = 20;
+
+const SAFE_GRADIENT = ['#C3DAFA', '#DAD7F7'];
+const SPENT_GRADIENT = ['#496BF6', '#52AEF9'];
+
+const SAFE_DOT_COLOR = SAFE_GRADIENT[0];
+const SPENT_DOT_COLOR = SPENT_GRADIENT[0];
+
+export default function DonutArc({ percentage = 0, size = 100, strokeWidth = 20, bgColor, centerColor }) {
+  // 1. Clamp the percentage between 0 and 100
+  const pct = Math.min(Math.max(percentage, 0), 100);
+
+  // 2. Math for the SVG Circle
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  
+  // Calculate how much of the stroke is missing based on the percentage
+  const strokeDashoffset = circumference - (pct / 100) * circumference;
+
+  return (
+    <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
+      <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <Defs>
+          {/* Safe Gradient (Track) */}
+          <LinearGradient id="safeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <Stop offset="0%" stopColor={SAFE_GRADIENT[0]} />
+            <Stop offset="100%" stopColor={SAFE_GRADIENT[1]} />
+          </LinearGradient>
+          
+          {/* Spent Gradient (Progress) */}
+          <LinearGradient id="spentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <Stop offset="0%" stopColor={SPENT_GRADIENT[0]} />
+            <Stop offset="100%" stopColor={SPENT_GRADIENT[1]} />
+          </LinearGradient>
+        </Defs>
+
+        {/* Layer 1: Background Track (Safe) */}
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="url(#safeGrad)"
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+
+        {/* Layer 2: Progress Arc (Spent) */}
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="url(#spentGrad)"
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="butt" // Change to "round" if you want rounded ends
+          transform={`rotate(-90 ${size / 2} ${size / 2})`} // Rotates so 0% starts at 12 o'clock
+        />
+      </Svg>
+
+      {/* Center Hole & Text Content */}
+      <View
+        style={{
+          position: 'absolute',
+          width: size - strokeWidth * 2,
+          height: size - strokeWidth * 2,
+          borderRadius: (size - strokeWidth * 2) / 2,
+          backgroundColor: bgColor || 'transparent',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {centerColor && (
+          <>
+            <Text style={{ fontSize: 13, fontFamily: 'Manrope-Bold', color: centerColor, lineHeight: 16 }}>
+              {Math.round(percentage)}%
+            </Text>
+            <Text style={{ fontSize: 9, fontFamily: 'Manrope-Medium', color: centerColor, opacity: 0.6, lineHeight: 12 }}>
+              used
+            </Text>
+          </>
+        )}
+      </View>
+    </View>
+  );
+}
+
 export const BudgetOverviewCard = ({ title = 'Budget', totalBudget, totalSpent, isLoading = false, isPastMonth = false, onCreateBudget, onEditBudget }) => {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const themeColors = colors[scheme];
@@ -46,7 +136,7 @@ export const BudgetOverviewCard = ({ title = 'Budget', totalBudget, totalSpent, 
   const formatAmount = (val) => `₹${Math.round(val).toLocaleString('en-IN')}`;
 
   return (
-    <CardView padding={spacing.lg}>
+    <CardView style={{ borderRadius: 0 }} padding={spacing.lg}>
       {/* Header */}
       <View style={styles.headerRow}>
         <SectionHeader title={title} />
@@ -128,8 +218,14 @@ export const BudgetOverviewCard = ({ title = 'Budget', totalBudget, totalSpent, 
 
           {/* ── Right: liquid-fill gauge ── */}
           <View style={styles.rightCol}>
-            <View style={[styles.ring, { borderColor: statusColor }]}>
-              {/* Fill rises from bottom proportional to usage */}
+            <DonutArc
+              percentage={usagePercentage}
+              size={DONUT_SIZE}
+              strokeWidth={DONUT_STROKE}
+              bgColor={themeColors.cardBackground}
+              centerColor={themeColors.text}
+            />
+            {/* <View style={[styles.ring, { borderColor: statusColor }]}>
               <View style={[
                 styles.ringFill,
                 { height: `${Math.min(usagePercentage, 100)}%`, backgroundColor: statusColor + '28' },
@@ -141,7 +237,7 @@ export const BudgetOverviewCard = ({ title = 'Budget', totalBudget, totalSpent, 
                 </Text>
                 <Text style={[styles.ringLabel, { color: themeColors.secondaryText }]}>used</Text>
               </View>
-            </View>
+            </View> */}
           </View>
         </View>
       )}

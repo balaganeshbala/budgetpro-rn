@@ -1,6 +1,5 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, useColorScheme } from 'react-native';
-import { colors, typography, radius, spacing } from '../../constants/theme';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, useColorScheme } from 'react-native';
+import { colors, radius, spacing, typography } from '../../constants/theme';
 
 /**
  * Shared primary button component.

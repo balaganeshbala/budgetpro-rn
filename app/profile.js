@@ -3,10 +3,10 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CardView } from '../../src/components/common/CardView';
-import { SettingsRow } from '../../src/components/common/SettingsRow';
-import { colors, spacing, typography } from '../../src/constants/theme';
-import { supabase } from '../../src/services/supabase';
+import { CardView } from '../src/components/common/CardView';
+import { SettingsRow } from '../src/components/common/SettingsRow';
+import { colors, spacing, typography } from '../src/constants/theme';
+import { supabase } from '../src/services/supabase';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -41,7 +41,6 @@ export default function ProfileScreen() {
   return (
     <View style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}>
       <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 20 }]} showsVerticalScrollIndicator={false} bounces={false} overScrollMode="never">
-
         {/* User Info */}
         <CardView padding={24}>
           <View style={styles.avatarRow}>
@@ -87,12 +86,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  title: {
-    fontSize: typography.sizes.xl,
+  screenTitle: {
+    fontSize: typography.sizes.xxxl,
     fontFamily: typography.fonts.bold,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.sm,
+    marginBottom: spacing.sm,
   },
   scroll: {
     padding: spacing.lg,
@@ -117,9 +114,6 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: typography.sizes.sm,
     fontFamily: typography.fonts.regular,
-  },
-  optionsCard: {
-    overflow: 'hidden',
   },
   divider: {
     height: StyleSheet.hairlineWidth,

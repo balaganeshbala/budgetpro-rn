@@ -7,10 +7,8 @@ import { RowItemIcon } from '../src/components/common/RowItemIcon';
 import { SectionHeader } from '../src/components/common/SectionHeader';
 import EmptyDataIndicatorView from '../src/components/EmptyDataIndicatorView';
 import { colors, radius, spacing, typography } from '../src/constants/theme';
+import { shortMonthNames } from '../src/constants/months';
 import { useBudgetStore } from '../src/store/useBudgetStore';
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const CHART_HEIGHT = 150;
 const BAR_WIDTH = 60;
@@ -146,7 +144,7 @@ export default function SavingsAnalysisScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: `${MONTHS[selectedMonth]} ${selectedYear}`, headerBackTitle: '' }} />
+      <Stack.Screen options={{ title: `${shortMonthNames[selectedMonth]} ${selectedYear}`, headerBackTitle: '' }} />
 
       {incomes.length === 0 ? (
         <View style={[styles.emptyWrap, { backgroundColor: tc.groupedBackground }]}>

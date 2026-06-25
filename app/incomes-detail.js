@@ -9,10 +9,8 @@ import { SectionHeader } from '../src/components/common/SectionHeader';
 import EmptyDataIndicatorView from '../src/components/EmptyDataIndicatorView';
 import { getIncomeCategory } from '../src/constants/categories';
 import { colors, radius, spacing, typography } from '../src/constants/theme';
+import { shortMonthNames } from '../src/constants/months';
 import { useBudgetStore } from '../src/store/useBudgetStore';
-
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
-                 'July', 'August', 'September', 'October', 'November', 'December'];
 
 // Primary = main/stable income sources; Secondary = supplemental
 const PRIMARY_CATEGORIES = new Set(['salary', 'business', 'rental', 'pension']);
@@ -27,7 +25,7 @@ export default function IncomesDetailScreen() {
 
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const themeColors = colors[scheme];
-  const monthTitle = `${MONTHS[selectedMonth]} ${selectedYear}`;
+  const monthTitle = `${shortMonthNames[selectedMonth]} ${selectedYear}`;
   const fmt = (v) => Math.round(v).toLocaleString('en-IN');
 
   const { primaryTotal, secondaryTotal } = useMemo(() => {

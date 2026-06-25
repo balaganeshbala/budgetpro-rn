@@ -76,15 +76,18 @@ export default function MajorExpensesScreen() {
                 bounces={false}
                 overScrollMode="never"
             >
-                {/* Year Picker */}
-                <TouchableOpacity
-                    onPress={() => setPickerVisible(true)}
-                    style={[styles.yearButton, { borderColor: themeColors.separator, backgroundColor: themeColors.cardBackground }]}
-                    activeOpacity={0.7}
-                >
-                    <Ionicons name="calendar" size={16} color={themeColors.primary} style={styles.calendarIcon} />
-                    <Text style={[styles.yearButtonLabel, { color: themeColors.primary }]}>{selectedMajorYear}</Text>
-                </TouchableOpacity>
+                {/* Year Nav */}
+                <View style={styles.yearNav}>
+                    <TouchableOpacity onPress={() => setSelectedMajorYear(selectedMajorYear - 1)} disabled={selectedMajorYear <= START_YEAR} style={styles.navBtn} activeOpacity={0.7}>
+                        <Ionicons name="chevron-back" size={20} color={selectedMajorYear > START_YEAR ? themeColors.text : themeColors.tertiaryText} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setPickerVisible(true)} activeOpacity={0.7}>
+                        <Text style={[styles.yearLabel, { color: themeColors.text }]}>{selectedMajorYear}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setSelectedMajorYear(selectedMajorYear + 1)} disabled={selectedMajorYear >= CURRENT_YEAR} style={styles.navBtn} activeOpacity={0.7}>
+                        <Ionicons name="chevron-forward" size={20} color={selectedMajorYear < CURRENT_YEAR ? themeColors.text : themeColors.tertiaryText} />
+                    </TouchableOpacity>
+                </View>
 
                 {/* Summary Card */}
                 <CardView>
@@ -193,19 +196,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: spacing.sm,
     },
-    yearButton: {
-        width: 100,
+    yearNav: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: spacing.md,
-        paddingHorizontal: spacing.md,
-        borderRadius: radius.pill,
-        borderWidth: 1,
-        gap: 5
+        alignSelf: 'center',
+        gap: spacing.md,
     },
-    calendarIcon: { marginRight: spacing.xs },
-    yearButtonLabel: { fontSize: typography.sizes.md, fontFamily: typography.fonts.semibold },
+    navBtn: { padding: spacing.sm },
+    yearLabel: { fontSize: typography.sizes.lg, fontFamily: typography.fonts.semibold },
     scroll: { padding: spacing.lg, gap: spacing.md },
     totalLabel: { fontSize: typography.sizes.sm, marginBottom: spacing.xs, fontFamily: typography.fonts.regular },
     totalAmount: { fontSize: 32, fontFamily: typography.fonts.bold, marginBottom: spacing.lg },

@@ -5,13 +5,9 @@ import { useRef, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AllTransactionsList } from '../../src/components/common/AllTransactionsList';
+import { shortMonthNames } from '../../src/constants/months';
 import { colors, radius, spacing, typography } from '../../src/constants/theme';
 import { useBudgetStore } from '../../src/store/useBudgetStore';
-
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'];
-const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const START_YEAR = 2023;
 const now = new Date();
@@ -33,6 +29,27 @@ export default function TransactionsScreen() {
   const [currentPage, setCurrentPage] = useState(0);
   const [pickerYear, setPickerYear] = useState(selectedYear);
   const pagerRef = useRef(null);
+
+  const canGoPrev = selectedYear > START_YEAR || selectedMonth > 0;
+  const canGoNext = !(selectedYear === CURRENT_YEAR && selectedMonth === CURRENT_MONTH);
+
+  function prevMonth() {
+    if (selectedMonth === 0) {
+      setSelectedYear(selectedYear - 1);
+      setSelectedMonth(11);
+    } else {
+      setSelectedMonth(selectedMonth - 1);
+    }
+  }
+
+  function nextMonth() {
+    if (selectedMonth === 11) {
+      setSelectedYear(selectedYear + 1);
+      setSelectedMonth(0);
+    } else {
+      setSelectedMonth(selectedMonth + 1);
+    }
+  }
 
   function scrollToPage(page) {
     pagerRef.current?.scrollTo({ x: page * width, animated: true });
@@ -68,22 +85,21 @@ export default function TransactionsScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: themeColors.cardBackground }]} edges={['top']}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} backgroundColor={themeColors.cardBackground} />
 
-      {/* Header row: month picker + add button */}
+      {/* Header */}
       <View style={[styles.header, { backgroundColor: themeColors.cardBackground, borderBottomColor: themeColors.separator }]}>
-        <TouchableOpacity onPress={openPicker} style={[styles.monthButton, { borderColor: themeColors.separator }]} activeOpacity={0.7}>
-          <Ionicons name="calendar" size={18} color={themeColors.primary} style={styles.calendarIcon} />
-          <Text style={[styles.monthLabel, { color: themeColors.primary }]}>
-            {MONTHS[selectedMonth]} {selectedYear}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.addButton, { backgroundColor: themeColors.primary + '15' }]}
-          onPress={() => router.push(currentPage === 0 ? '/add-expense' : '/add-income')}
-        >
-          <Ionicons name="add" size={14} color={themeColors.primary} />
-          <Text style={[styles.addButtonText, { color: themeColors.primary }]}>Add</Text>
-        </TouchableOpacity>
+        <View style={styles.monthNav}>
+          <TouchableOpacity onPress={prevMonth} disabled={!canGoPrev} style={styles.navBtn} activeOpacity={0.7}>
+            <Ionicons name="chevron-back" size={20} color={canGoPrev ? themeColors.text : themeColors.tertiaryText} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={openPicker} activeOpacity={0.7}>
+            <Text style={[styles.monthLabel, { color: themeColors.text }]}>
+              {shortMonthNames[selectedMonth]} {selectedYear}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={nextMonth} disabled={!canGoNext} style={styles.navBtn} activeOpacity={0.7}>
+            <Ionicons name="chevron-forward" size={20} color={canGoNext ? themeColors.text : themeColors.tertiaryText} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Tab bar */}
@@ -118,7 +134,7 @@ export default function TransactionsScreen() {
           <ScrollView
             key={type}
             style={[styles.page, { width, backgroundColor: themeColors.groupedBackground }]}
-            contentContainerStyle={[styles.pageContent, { paddingBottom: insets.bottom }]}
+            contentContainerStyle={[styles.pageContent, { paddingBottom: insets.bottom + 58 }]}
             showsVerticalScrollIndicator={false}
             bounces={false}
             overScrollMode="never"
@@ -127,6 +143,15 @@ export default function TransactionsScreen() {
           </ScrollView>
         ))}
       </ScrollView>
+
+      {/* FAB */}
+      <TouchableOpacity
+        style={[styles.fab, { backgroundColor: themeColors.primary, bottom: spacing.lg }]}
+        onPress={() => router.push(currentPage === 0 ? '/add-expense' : '/add-income')}
+        activeOpacity={0.85}
+      >
+        <Ionicons name="add" size={28} color="#FFFFFF" />
+      </TouchableOpacity>
 
       {/* Month picker modal */}
       <Modal visible={pickerVisible} transparent onRequestClose={() => setPickerVisible(false)}>
@@ -157,7 +182,7 @@ export default function TransactionsScreen() {
                       style={[styles.monthCell, selected && { backgroundColor: themeColors.primary }]}
                     >
                       <Text style={[styles.monthCellText, { color: disabled ? themeColors.tertiaryText : selected ? '#FFFFFF' : themeColors.text }]}>
-                        {SHORT_MONTHS[idx]}
+                        {shortMonthNames[idx]}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -175,37 +200,36 @@ export default function TransactionsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  monthButton: {
+  monthNav: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radius.pill,
-    borderWidth: 1,
+    gap: spacing.md,
   },
-  calendarIcon: { marginRight: spacing.sm },
+  navBtn: {
+    padding: spacing.sm,
+  },
   monthLabel: {
-    fontSize: typography.sizes.md,
+    fontSize: typography.sizes.lg,
     fontFamily: 'Manrope-SemiBold',
   },
-  addButton: {
-    flexDirection: 'row',
+  fab: {
+    position: 'absolute',
+    right: spacing.xl,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radius.pill,
-    gap: 4,
-  },
-  addButtonText: {
-    fontSize: typography.sizes.sm,
-    fontFamily: typography.fonts.semibold,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
   },
   tabBar: {
     flexDirection: 'row',

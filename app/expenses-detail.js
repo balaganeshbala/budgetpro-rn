@@ -7,10 +7,8 @@ import { CardView } from '../src/components/common/CardView';
 import { ExpenseCategoryCard } from '../src/components/ExpenseCategoryCard';
 import { getExpenseCategory } from '../src/constants/categories';
 import { colors, radius, spacing, typography } from '../src/constants/theme';
+import { shortMonthNames } from '../src/constants/months';
 import { useBudgetStore } from '../src/store/useBudgetStore';
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const SORT_OPTIONS = [
   { label: 'Date (Newest First)', value: 'date_desc' },
@@ -31,7 +29,7 @@ export default function ExpensesDetailScreen() {
 
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
   const themeColors = colors[scheme];
-  const monthTitle = `${MONTHS[selectedMonth]} ${selectedYear}`;
+  const monthTitle = `${shortMonthNames[selectedMonth]} ${selectedYear}`;
   const fmt = (v) => Math.round(v).toLocaleString('en-IN');
 
   // Defer heavy rendering until after the navigation transition animation finishes

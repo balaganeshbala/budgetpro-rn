@@ -17,11 +17,10 @@ import { colors, radius, spacing, typography } from '../constants/theme';
 import { useBudgetStore } from '../store/useBudgetStore';
 import { AppButton } from './common/AppButton';
 import { AppTextField } from './common/AppTextField';
-import { CardView } from './common/CardView';
+
+import { shortMonthNames } from '../constants/months';
 
 const DAY_NAMES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
 
 // Returns a flat array of 7-aligned day numbers (null = empty cell)
 function buildCalendarDays(month, year) {
@@ -175,7 +174,6 @@ export const TransactionForm = ({
 
   return (
     <View style={[styles.screen, { backgroundColor: themeColors.groupedBackground }]}>
-    <CardView padding={spacing.lg}>
       <View style={styles.container}>
         
         <Text style={[styles.formTitle, { color: themeColors.text }]}>
@@ -265,7 +263,7 @@ export const TransactionForm = ({
 
               {/* Month Label */}
               <Text style={[styles.calendarMonthLabel, { color: themeColors.text }]}>
-                {MONTH_NAMES[selectedMonth]} {selectedYear}
+                {shortMonthNames[selectedMonth]} {selectedYear}
               </Text>
 
               {/* Day Name Headers */}
@@ -346,7 +344,6 @@ export const TransactionForm = ({
         </Modal>
 
       </View>
-    </CardView>
     </View>
   );
 };
@@ -357,6 +354,7 @@ const styles = StyleSheet.create({
   },
   container: {
     gap: spacing.lg,
+    padding: spacing.lg
   },
   formTitle: {
     fontSize: typography.sizes.xl,

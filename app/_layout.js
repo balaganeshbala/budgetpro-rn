@@ -148,10 +148,11 @@ export default function RootLayout() {
       <Stack.Screen name="create-budget" options={{}} />
       <Stack.Screen name="edit-budget" options={{ presentation: 'modal' }} />
       <Stack.Screen name="about" options={{ title: 'About Budget Pro', presentation: 'modal' }} />
-      <Stack.Screen name="settings" options={{}} />
+      <Stack.Screen name="profile" options={{ title: 'Profile', headerBackButtonDisplayMode: 'minimal' }} />
+      <Stack.Screen name="settings" options={{ headerBackButtonDisplayMode: 'minimal' }} />
       <Stack.Screen name="add-major-expense" options={{ presentation: 'modal' }} />
       <Stack.Screen name="edit-major-expense" options={{ presentation: 'modal' }} />
-      <Stack.Screen name="financial-goals" options={{ headerBackTitle: '' }} />
+      <Stack.Screen name="financial-goals" options={{ headerBackButtonDisplayMode: 'minimal' }} />
       <Stack.Screen name="financial-goal-details" options={{ headerBackButtonDisplayMode: 'minimal' }} />
       <Stack.Screen name="goal-contributions" options={{ headerBackButtonDisplayMode: 'minimal' }} />
       <Stack.Screen name="add-financial-goal" options={{ presentation: 'modal' }} />
