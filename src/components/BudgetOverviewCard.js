@@ -153,7 +153,7 @@ export const BudgetOverviewCard = ({ title = 'Budget', totalBudget, totalSpent, 
       </View>
 
       {isLoading ? (
-        <View style={styles.skeletonPanel}>
+        <CardView style={styles.skeletonPanel}>
           {/* Left skeleton */}
           <View style={styles.skeletonLeft}>
             <SkeletonBox width={70} height={20} style={{ borderRadius: radius.pill }} />
@@ -165,7 +165,7 @@ export const BudgetOverviewCard = ({ title = 'Budget', totalBudget, totalSpent, 
           </View>
           {/* Right skeleton — circle */}
           <View style={[styles.skeletonCircle, { borderColor: themeColors.separator }]} />
-        </View>
+        </CardView>
       ) : totalBudget === 0 ? (
         isPastMonth ? (
           <EmptyDataIndicatorView
@@ -183,7 +183,7 @@ export const BudgetOverviewCard = ({ title = 'Budget', totalBudget, totalSpent, 
           />
         )
       ) : (
-        <View style={styles.splitPanel}>
+        <CardView style={ styles.splitPanel }>
           {/* ── Left: remaining + details ── */}
           <View style={styles.leftCol}>
             {/* Status badge */}
@@ -239,7 +239,7 @@ export const BudgetOverviewCard = ({ title = 'Budget', totalBudget, totalSpent, 
               </View>
             </View> */}
           </View>
-        </View>
+        </CardView>
       )}
     </CardView>
   );
@@ -271,14 +271,14 @@ const styles = StyleSheet.create({
   splitPanel: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.lg,
+    gap: spacing.lg
   },
   leftCol: {
     flex: 1,
     gap: 0,
   },
   panelDivider: {
-    width: 1,
+    width: 0,
     alignSelf: 'stretch',
     opacity: 0.5,
   },
