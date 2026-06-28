@@ -98,7 +98,9 @@ app/               # Expo Router screens (file = route)
   add-financial-goal.js, edit-financial-goal.js
   add-contribution.js, edit-contribution.js
   goal-contributions.js                       # "View All" contributions screen
-  recurring-expenses.js, year-comparison.js   # Coming Soon placeholders
+  recurring-expenses.js                        # Recurring expense list + summary
+  add-recurring-expense.js, edit-recurring-expense.js
+  year-comparison.js                           # Coming Soon placeholder
   settings.js
 src/
   components/      # Reusable UI (TransactionRow, TransactionForm, MajorExpenseForm, etc.)
@@ -106,8 +108,9 @@ src/
     EmptyDataIndicatorView.js  # Centered empty-state view (icon + title + bodyText props)
     GoalForm.js    # Add/edit goal form (emoji picker, color grid, date picker, status segmented control)
     ContributionForm.js  # Add/edit contribution form
+    RecurringExpenseForm.js  # Add/edit recurring expense form (category picker, frequency toggle, billing month/day)
   constants/       # theme.js, categories.js, months.js
-  services/        # supabase.js, transactionService.js, goalService.js
+  services/        # supabase.js, transactionService.js, goalService.js, recurringService.js
   store/           # useBudgetStore.js (Zustand)
 components/        # Expo default components (mostly unused/legacy)
 hooks/             # useColorScheme, useThemeColor
@@ -118,6 +121,7 @@ hooks/             # useColorScheme, useThemeColor
 - **incomes** — amount, date, category (string key), note, user_id
 - **budget** — amount, category, date (month start UTC ISO string), user_id
 - **major_expenses** — id, name, amount, category (string key), date, notes, user_id; fetched per `selectedMajorYear` (calendar year, not month)
+- **recurring_expenses** — id, user_id, name, amount, category (string key), frequency (`monthly | yearly`), billing_day (int 1–31, nullable), billing_month (int 1–12, nullable, yearly only), notes; no date column — these are standing items, not dated transactions
 - **financial_goals** — goal_id, title, icon (emoji), color_hex, target_amount, target_date (YYYY-MM-DD), status (`active | paused | completed`), user_id
 - **goal_contributions** — id, goal_id, name, amount, date (YYYY-MM-DD), user_id; nested-fetched with goals via `goal_contributions(*)`
 
@@ -157,7 +161,7 @@ Defined in `src/constants/categories.js` as arrays of `{ value, displayName, ico
 - **Tracking** — Major Expenses (`/major-expenses`), Recurring Expenses (`/recurring-expenses`)
 - **Planning** — Financial Goals (`/financial-goals`)
 
-`recurring-expenses.js` and `year-comparison.js` are still placeholder "Coming Soon" screens. Financial Goals is fully implemented.
+`year-comparison.js` is still a placeholder "Coming Soon" screen. Recurring Expenses and Financial Goals are fully implemented.
 
 ### Profile Screen (`app/profile.js`)
 Moved from `app/(tabs)/profile.js` to a root stack screen. Opened via the profile icon in the home screen header (`router.push('/profile')`). Has a native back button. Tab bar only has `index`, `transactions`, and `more`.
@@ -173,6 +177,34 @@ Uses `react-native-svg` for the donut arc. Shows used percentage (`{Math.round(p
 - **Appearance** — Theme row; tapping opens a centered modal (same pattern as category selector) with System Default / Light / Dark options.
 
 Theme preference is persisted to AsyncStorage under key `@theme_preference`. On selection, `Appearance.setColorScheme()` is called immediately so all screens update without any code changes to them. On app startup, `app/_layout.js` restores the saved preference by calling `Appearance.setColorScheme()` before render.
+
+### Recurring Expenses Feature
+
+Tracks standing subscriptions, EMIs, and regular bills. Items have no transaction date — they represent recurring commitments, not individual payments.
+
+#### Store state (in `useBudgetStore.js`)
+- `recurringExpenses[]` — full list, fetched once on mount
+- `recurringLoading` — true during any fetch/add/update/delete
+
+#### Key patterns
+- Fetched once on mount via `useEffect([userId])` — no re-fetch on return from add/edit screens; mutations patch the array in-place via store actions.
+- **No "active/paused" state** — delete to remove an item.
+- **`billing_month` is only set for yearly items** — monthly items always have `billing_month: null`.
+- **Monthly cost summary** normalizes yearly items to per-month equivalent (`amount / 12`) for the aggregate total.
+- List is sorted: monthly items by `billing_day`, yearly items by `billing_month` then `billing_day` (nulls last).
+- `ordinal(n)` helper (defined locally in both `recurring-expenses.js` and `RecurringExpenseForm.js`) formats day numbers → "1st", "2nd", "3rd", etc.
+- The `dueDateLabel(item)` helper in `recurring-expenses.js` returns `"due on the 5th"` (monthly) or `"due Jan 5th"` (yearly), or `null` if `billing_day` is not set.
+
+#### Form (`RecurringExpenseForm.js`)
+- Uses `EXPENSE_CATEGORIES` (not a separate category list).
+- Frequency toggle is a segmented control (Monthly / Yearly) — switching to Monthly clears `billingMonth` from the saved payload.
+- Billing month picker (modal, month names) only appears when frequency is `yearly`.
+- Billing day is a free-form numeric text input (max 2 digits); validated to 1–31 on save, stored as `null` if blank or out of range.
+- `isDirty` check guards the Update button on the edit screen.
+
+#### Edit screen conventions
+- Delete button is in `headerRight` as a trash icon (same pattern as `edit-major-expense.js`).
+- Item is passed as `JSON.stringify(item)` in route params under the key `item` (not `transaction`).
 
 ### Financial Goals Feature
 

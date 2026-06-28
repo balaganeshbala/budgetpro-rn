@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     trackBadgeText: { fontSize: typography.sizes.xs, fontFamily: typography.fonts.semibold },
     progressTrack: { height: 10, borderRadius: 5, overflow: 'hidden' },
     progressFill: { height: '100%', borderRadius: 5 },
-    statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.lg },
     statItem: { width: '47.5%', borderRadius: radius.md, padding: spacing.md, alignItems: 'center', gap: 4 },
     statLabel: { fontSize: typography.sizes.xs, fontFamily: typography.fonts.semibold },
     statValue: { fontSize: typography.sizes.sm, fontFamily: typography.fonts.semibold, textAlign: 'center' },

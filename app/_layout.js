@@ -159,6 +159,8 @@ export default function RootLayout() {
       <Stack.Screen name="edit-financial-goal" options={{ presentation: 'modal' }} />
       <Stack.Screen name="add-contribution" options={{ presentation: 'modal' }} />
       <Stack.Screen name="edit-contribution" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="add-recurring-expense" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="edit-recurring-expense" options={{ presentation: 'modal' }} />
     </Stack>
     <Modal visible={lockState !== 'hidden' && !!session} animationType="none" statusBarTranslucent>
       <LockScreen

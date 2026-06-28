@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../services/supabase';
 import { goalService } from '../services/goalService';
+import { recurringService } from '../services/recurringService';
 import { transactionService } from '../services/transactionService';
 
 export const useBudgetStore = create((set, get) => ({
@@ -432,6 +433,61 @@ export const useBudgetStore = create((set, get) => ({
       throw error;
     } finally {
       set({ goalActionLoading: false });
+    }
+  },
+
+  // Recurring Expenses
+  recurringExpenses: [],
+  recurringLoading: false,
+
+  fetchRecurringExpenses: async () => {
+    const { userId } = get();
+    if (!userId) return;
+    set({ recurringLoading: true });
+    try {
+      const data = await recurringService.fetchRecurring(userId);
+      set({ recurringExpenses: data });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      set({ recurringLoading: false });
+    }
+  },
+
+  addRecurringExpense: async (payload) => {
+    set({ recurringLoading: true });
+    try {
+      const { userId } = get();
+      const newItem = await recurringService.addRecurring({ ...payload, userId });
+      set({ recurringExpenses: [...get().recurringExpenses, newItem] });
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ recurringLoading: false });
+    }
+  },
+
+  updateRecurringExpense: async (payload) => {
+    set({ recurringLoading: true });
+    try {
+      const updated = await recurringService.updateRecurring(payload);
+      set({ recurringExpenses: get().recurringExpenses.map(e => e.id === updated.id ? updated : e) });
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ recurringLoading: false });
+    }
+  },
+
+  deleteRecurringExpense: async (id) => {
+    set({ recurringLoading: true });
+    try {
+      await recurringService.deleteRecurring(id);
+      set({ recurringExpenses: get().recurringExpenses.filter(e => e.id !== id) });
+    } catch (error) {
+      throw error;
+    } finally {
+      set({ recurringLoading: false });
     }
   },
 

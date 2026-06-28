@@ -1,5 +1,5 @@
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
 import {
     Modal, Platform, Pressable, ScrollView,
@@ -38,7 +38,7 @@ export const ContributionForm = ({ initialData = null, goalTitle = '', onSave, i
     const dateLabel = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
     return (
-        <View style={[styles.screen, { backgroundColor: themeColors.cardBackground }]}>
+        <View style={[styles.screen, { backgroundColor: themeColors.groupedBackground }]}>
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 keyboardShouldPersistTaps="handled"
