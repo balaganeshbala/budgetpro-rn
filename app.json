@@ -23,6 +23,7 @@
       },
       "versionCode": 20,
       "predictiveBackGestureEnabled": false,
+      "softInputMode": "adjustResize",
       "package": "com.clougeon.budgetpro"
     },
     "web": {

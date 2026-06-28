@@ -8,12 +8,12 @@ import { CardView } from '../src/components/common/CardView';
 import { SectionHeader } from '../src/components/common/SectionHeader';
 import EmptyDataIndicatorView from '../src/components/EmptyDataIndicatorView';
 import { getIncomeCategory } from '../src/constants/categories';
-import { colors, radius, spacing, typography } from '../src/constants/theme';
 import { shortMonthNames } from '../src/constants/months';
+import { colors, radius, spacing, typography } from '../src/constants/theme';
 import { useBudgetStore } from '../src/store/useBudgetStore';
 
 // Primary = main/stable income sources; Secondary = supplemental
-const PRIMARY_CATEGORIES = new Set(['salary', 'business', 'rental', 'pension']);
+const PRIMARY_CATEGORIES = new Set(['salary', 'business', 'pension']);
 
 export default function IncomesDetailScreen() {
   const insets = useSafeAreaInsets();

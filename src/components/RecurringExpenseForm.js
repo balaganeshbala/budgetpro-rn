@@ -1,12 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
     FlatList,
     Keyboard,
     Modal,
+    Platform,
     ScrollView,
     StyleSheet,
     Text,
+    TextInput,
     TouchableOpacity,
     TouchableWithoutFeedback,
     useColorScheme,
@@ -36,6 +38,26 @@ export const RecurringExpenseForm = ({ initialData = null, onSave, onCancel, isL
     const [notes, setNotes] = useState(initialData?.notes || '');
     const [showCategoryPicker, setShowCategoryPicker] = useState(false);
     const [showMonthPicker, setShowMonthPicker] = useState(false);
+
+    const scrollRef = useRef(null);
+    const scrollOffsetRef = useRef(0);
+
+    useEffect(() => {
+        if (Platform.OS !== 'android') return;
+        const sub = Keyboard.addListener('keyboardDidShow', (e) => {
+            const focused = TextInput.State.currentlyFocusedInput();
+            if (!focused) return;
+            focused.measure((x, y, width, height, pageX, pageY) => {
+                const keyboardTop = e.endCoordinates.screenY;
+                const inputBottom = pageY + height;
+                if (inputBottom > keyboardTop) {
+                    const overlap = inputBottom - keyboardTop + 20;
+                    scrollRef.current?.scrollTo({ y: scrollOffsetRef.current + overlap, animated: true });
+                }
+            });
+        });
+        return () => sub.remove();
+    }, []);
 
     const selectedCategoryObj = EXPENSE_CATEGORIES.find(c => c.value === category);
 
@@ -72,11 +94,14 @@ export const RecurringExpenseForm = ({ initialData = null, onSave, onCancel, isL
     return (
         <View style={[styles.screen, { backgroundColor: themeColors.groupedBackground }]}>
             <ScrollView
+                ref={scrollRef}
                 contentContainerStyle={styles.scrollContent}
                 keyboardShouldPersistTaps="handled"
                 automaticallyAdjustKeyboardInsets={true}
                 showsVerticalScrollIndicator={false}
                 bounces={false}
+                onScroll={(e) => { scrollOffsetRef.current = e.nativeEvent.contentOffset.y; }}
+                scrollEventThrottle={16}
             >
                 <View style={styles.container}>
                     <Text style={[styles.formTitle, { color: themeColors.text }]}>Recurring Expense Details</Text>
