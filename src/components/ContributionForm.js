@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
 import {
-    Modal, Platform, Pressable, ScrollView,
+    KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView,
     StyleSheet, Text, TouchableOpacity, useColorScheme, View
 } from 'react-native';
 import { colors, radius, spacing, typography } from '../constants/theme';
@@ -38,9 +38,9 @@ export const ContributionForm = ({ initialData = null, goalTitle = '', onSave, i
     const dateLabel = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
     return (
-        <View style={[styles.screen, { backgroundColor: themeColors.groupedBackground }]}>
+        <KeyboardAvoidingView style={[styles.screen, { backgroundColor: themeColors.groupedBackground }]} behavior="padding" enabled={Platform.OS !== 'ios'}>
             <ScrollView
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={[styles.scrollContent, Platform.OS === 'android' && { paddingBottom: spacing.xl + 80 }]}
                 keyboardShouldPersistTaps="handled"
                 automaticallyAdjustKeyboardInsets
                 showsVerticalScrollIndicator={false}
@@ -118,7 +118,7 @@ export const ContributionForm = ({ initialData = null, goalTitle = '', onSave, i
                     />
                 )
             )}
-        </View>
+        </KeyboardAvoidingView>
     );
 };
 

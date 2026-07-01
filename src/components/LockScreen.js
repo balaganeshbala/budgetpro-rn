@@ -27,7 +27,7 @@ export function LockScreen({ onUnlock, requireAuth }) {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}>
       <View style={styles.content}>
         <View style={[styles.iconWrap, { backgroundColor: themeColors.primary + '18' }]}>
           <Ionicons name="lock-closed" size={40} color={themeColors.primary} />

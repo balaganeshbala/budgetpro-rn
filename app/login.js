@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppButton } from '../src/components/common/AppButton';
 import { AppTextField } from '../src/components/common/AppTextField';
@@ -24,7 +24,9 @@ export default function LoginScreen() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const isFormValid = email.trim().length > 0 && password.length > 0;
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  const isFormValid = isEmailValid && password.length >= 6;
 
   async function handleSignIn() {
     if (!isFormValid) return;
@@ -68,8 +70,9 @@ export default function LoginScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets={true} bounces={false} overScrollMode="never">
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled={Platform.OS !== 'ios'}>
+      <ScrollView contentContainerStyle={[styles.scroll, Platform.OS === 'android' && { paddingBottom: 100 }]} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets bounces={false} overScrollMode="never">
 
         <View style={styles.header}>
           <Text style={[styles.title, { color: themeColors.secondary }]}>Welcome Back!</Text>
@@ -148,6 +151,7 @@ export default function LoginScreen() {
         </View>
 
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

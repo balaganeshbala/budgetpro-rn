@@ -4,7 +4,9 @@ import {
     Alert,
     FlatList,
     Keyboard,
+    KeyboardAvoidingView,
     Modal,
+    Platform,
     ScrollView,
     StyleSheet,
     Text,
@@ -151,12 +153,12 @@ export const MajorExpenseForm = ({
     };
 
     return (
-        <View style={[styles.screen, { backgroundColor: themeColors.cardBackground }]}>
+        <KeyboardAvoidingView style={[styles.screen, { backgroundColor: themeColors.cardBackground }]} behavior="padding" enabled={Platform.OS !== 'ios'}>
             <ScrollView
                 style={styles.scroll}
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={[styles.scrollContent, Platform.OS === 'android' && { paddingBottom: spacing.xl + 80 }]}
                 keyboardShouldPersistTaps="handled"
-                automaticallyAdjustKeyboardInsets={true}
+                automaticallyAdjustKeyboardInsets
                 showsVerticalScrollIndicator={false}
                 bounces={false}
             >
@@ -326,7 +328,7 @@ export const MajorExpenseForm = ({
                     </Modal>
                 </View>
             </ScrollView>
-        </View>
+        </KeyboardAvoidingView>
     );
 };
 

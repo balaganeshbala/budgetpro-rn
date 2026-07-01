@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppButton } from '../src/components/common/AppButton';
 import { AppTextField } from '../src/components/common/AppTextField';
@@ -94,8 +94,9 @@ export default function SignUpScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets={true} bounces={false} overScrollMode="never">
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled={Platform.OS !== 'ios'}>
+        <ScrollView contentContainerStyle={[styles.scroll, Platform.OS === 'android' && { paddingBottom: 100 }]} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets bounces={false} overScrollMode="never">
 
           <View style={styles.header}>
             <Text style={[styles.title, { color: themeColors.secondary }]}>Create Account</Text>
@@ -176,6 +177,7 @@ export default function SignUpScreen() {
           </View>
 
         </ScrollView>
+        </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

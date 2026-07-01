@@ -3,7 +3,7 @@ import { Stack, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-    Alert, ScrollView,
+    Alert, KeyboardAvoidingView, Platform, ScrollView,
     StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View
 } from 'react-native';
 import { CardView } from '../src/components/common/CardView';
@@ -127,11 +127,12 @@ export default function EditBudgetScreen() {
                     ),
                 }}
             />
+            <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled={Platform.OS !== 'ios'}>
             <ScrollView
                 style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}
-                contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 }]}
+                contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 + (Platform.OS === 'android' ? 80 : 0) }]}
                 keyboardShouldPersistTaps="handled"
-                automaticallyAdjustKeyboardInsets={true}
+                automaticallyAdjustKeyboardInsets
                 showsVerticalScrollIndicator={false}
                 bounces={false}
                 overScrollMode="never"
@@ -244,6 +245,7 @@ export default function EditBudgetScreen() {
                     );
                 })}
             </ScrollView>
+            </KeyboardAvoidingView>
         </>
     );
 }

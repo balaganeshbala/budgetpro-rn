@@ -3,7 +3,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
 import {
     FlatList, Keyboard, Modal, Platform, Pressable,
-    ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View
+    KeyboardAvoidingView, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View
 } from 'react-native';
 import { colors, radius, spacing, typography } from '../constants/theme';
 import { toYMD } from '../services/goalService';
@@ -60,9 +60,9 @@ export const GoalForm = ({ initialData = null, onSave, isLoading = false }) => {
     const dateLabel = targetDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
     return (
-        <View style={[styles.screen, { backgroundColor: themeColors.groupedBackground }]}>
+        <KeyboardAvoidingView style={[styles.screen, { backgroundColor: themeColors.groupedBackground }]} behavior="padding" enabled={Platform.OS !== 'ios'}>
             <ScrollView
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={[styles.scrollContent, Platform.OS === 'android' && { paddingBottom: spacing.xl + 80 }]}
                 keyboardShouldPersistTaps="handled"
                 automaticallyAdjustKeyboardInsets
                 showsVerticalScrollIndicator={false}
@@ -205,7 +205,7 @@ export const GoalForm = ({ initialData = null, onSave, isLoading = false }) => {
                     />
                 )
             )}
-        </View>
+        </KeyboardAvoidingView>
     );
 };
 

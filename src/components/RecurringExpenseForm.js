@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import {
     FlatList,
     Keyboard,
+    KeyboardAvoidingView,
     Modal,
     Platform,
     ScrollView,
@@ -39,26 +40,6 @@ export const RecurringExpenseForm = ({ initialData = null, onSave, onCancel, isL
     const [showCategoryPicker, setShowCategoryPicker] = useState(false);
     const [showMonthPicker, setShowMonthPicker] = useState(false);
 
-    const scrollRef = useRef(null);
-    const scrollOffsetRef = useRef(0);
-
-    useEffect(() => {
-        if (Platform.OS !== 'android') return;
-        const sub = Keyboard.addListener('keyboardDidShow', (e) => {
-            const focused = TextInput.State.currentlyFocusedInput();
-            if (!focused) return;
-            focused.measure((x, y, width, height, pageX, pageY) => {
-                const keyboardTop = e.endCoordinates.screenY;
-                const inputBottom = pageY + height;
-                if (inputBottom > keyboardTop) {
-                    const overlap = inputBottom - keyboardTop + 20;
-                    scrollRef.current?.scrollTo({ y: scrollOffsetRef.current + overlap, animated: true });
-                }
-            });
-        });
-        return () => sub.remove();
-    }, []);
-
     const selectedCategoryObj = EXPENSE_CATEGORIES.find(c => c.value === category);
 
     const isFormValid =
@@ -92,16 +73,13 @@ export const RecurringExpenseForm = ({ initialData = null, onSave, onCancel, isL
     };
 
     return (
-        <View style={[styles.screen, { backgroundColor: themeColors.groupedBackground }]}>
+        <KeyboardAvoidingView style={[styles.screen, { backgroundColor: themeColors.groupedBackground }]} behavior="padding" enabled={Platform.OS !== 'ios'}>
             <ScrollView
-                ref={scrollRef}
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={[styles.scrollContent, Platform.OS === 'android' && { paddingBottom: spacing.xl + 80 }]}
                 keyboardShouldPersistTaps="handled"
-                automaticallyAdjustKeyboardInsets={true}
+                automaticallyAdjustKeyboardInsets
                 showsVerticalScrollIndicator={false}
                 bounces={false}
-                onScroll={(e) => { scrollOffsetRef.current = e.nativeEvent.contentOffset.y; }}
-                scrollEventThrottle={16}
             >
                 <View style={styles.container}>
                     <Text style={[styles.formTitle, { color: themeColors.text }]}>Recurring Expense Details</Text>
@@ -282,13 +260,13 @@ export const RecurringExpenseForm = ({ initialData = null, onSave, onCancel, isL
                     </View>
                 </TouchableWithoutFeedback>
             </Modal>
-        </View>
+        </KeyboardAvoidingView>
     );
 };
 
 const styles = StyleSheet.create({
     screen: { flex: 1 },
-    scrollContent: { padding: spacing.lg, paddingBottom: spacing.xl },
+    scrollContent: { padding: spacing.lg },
     container: { gap: spacing.lg },
     formTitle: { fontSize: typography.sizes.xl, fontFamily: typography.fonts.bold, marginBottom: spacing.xs },
     selectorButton: {

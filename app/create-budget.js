@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-    Alert, ScrollView,
+    Alert, KeyboardAvoidingView, Platform, ScrollView,
     StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -60,11 +60,12 @@ export default function CreateBudgetScreen() {
                     ),
                 }}
             />
+            <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled={Platform.OS !== 'ios'}>
             <ScrollView
                 style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}
-                contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 }]}
+                contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 20 + (Platform.OS === 'android' ? 80 : 0) }]}
                 keyboardShouldPersistTaps="handled"
-                automaticallyAdjustKeyboardInsets={true}
+                automaticallyAdjustKeyboardInsets
                 showsVerticalScrollIndicator={false}
                 bounces={false}
                 overScrollMode="never"
@@ -120,6 +121,7 @@ export default function CreateBudgetScreen() {
                         );
                     })}
                 </ScrollView>
+            </KeyboardAvoidingView>
         </>
     );
 }
