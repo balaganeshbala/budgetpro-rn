@@ -111,6 +111,8 @@ export default function CreateBudgetScreen() {
                                         placeholder="0"
                                         placeholderTextColor={themeColors.secondaryText}
                                         value={value}
+                                        textAlignVertical="center"
+                                        scrollEnabled={false}
                                         onChangeText={text => {
                                             const clean = text.replace(/[^0-9]/g, '');
                                             setAmounts(prev => ({ ...prev, [cat.value]: clean }));
@@ -143,6 +145,6 @@ const styles = StyleSheet.create({
     categorySubtitle: { fontSize: typography.sizes.sm, marginTop: 2 },
     inputBox: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: radius.md, paddingHorizontal: spacing.sm, height: 40, minWidth: 90 },
     rupee: { fontSize: typography.sizes.md, marginRight: 4 },
-    input: { fontSize: typography.sizes.md, minWidth: 60, textAlign: 'right' },
+    input: { fontSize: typography.sizes.md, minWidth: 60, textAlign: 'right', paddingVertical: 0 },
     saveBtn: { fontSize: typography.sizes.md, fontFamily: typography.fonts.semibold },
 });
