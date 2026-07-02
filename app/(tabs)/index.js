@@ -82,7 +82,7 @@ export default function HomeScreen() {
 
   const {
     userId, expenses, incomes, budgets, totalExpenses, totalIncome, totalBudget,
-    isLoading, selectedMonth, selectedYear,
+    isLoading, selectedMonth, selectedYear, isOffline,
     setSelectedMonth, setSelectedYear, fetchTransactions,
   } = useBudgetStore();
 
@@ -197,6 +197,12 @@ export default function HomeScreen() {
           <Ionicons name="person-circle-outline" size={30} color={themeColors.text} />
         </TouchableOpacity>
       </View>
+
+      {isOffline && (
+        <View style={styles.offlineBanner}>
+          <Text style={styles.offlineBannerText}>No internet</Text>
+        </View>
+      )}
 
       <ScrollView style={{ backgroundColor: themeColors.groupedBackground }} contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom }]} showsVerticalScrollIndicator={false} bounces={false} overScrollMode="never">
         <View style={styles.budgetSection}>
@@ -458,5 +464,15 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: typography.sizes.lg,
     fontFamily: typography.fonts.bold,
+  },
+  offlineBanner: {
+    backgroundColor: '#D97706',
+    paddingVertical: 6,
+    alignItems: 'center',
+  },
+  offlineBannerText: {
+    color: '#fff',
+    fontSize: 12,
+    fontFamily: typography.fonts.medium,
   },
 });

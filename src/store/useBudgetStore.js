@@ -1,11 +1,14 @@
 import { create } from 'zustand';
 import { supabase } from '../services/supabase';
 import { goalService } from '../services/goalService';
+import { offlineCache } from '../services/offlineCache';
+import { dequeue, enqueue, getQueue } from '../services/writeQueue';
 import { recurringService } from '../services/recurringService';
 import { transactionService } from '../services/transactionService';
 
 export const useBudgetStore = create((set, get) => ({
   userId: null,
+  isOffline: false,
   expenses: [],
   incomes: [],
   budgets: [],
@@ -41,26 +44,38 @@ export const useBudgetStore = create((set, get) => ({
 
   // Actions
   addExpense: async (expenseData) => {
+    const { isOffline, userId, selectedMonth, selectedYear } = get();
+    if (!userId) throw new Error('User not authenticated');
+
+    if (isOffline) {
+      const tempId = `_offline_${Date.now()}`;
+      const tempExpense = { id: tempId, ...expenseData, user_id: userId };
+      const expenseDate = new Date(tempExpense.date);
+      if (expenseDate.getMonth() === selectedMonth && expenseDate.getFullYear() === selectedYear) {
+        set(state => ({
+          expenses: [tempExpense, ...state.expenses].sort((a, b) => {
+            const diff = new Date(b.date) - new Date(a.date);
+            if (diff !== 0) return diff;
+            const aId = typeof a.id === 'number' ? a.id : -1;
+            const bId = typeof b.id === 'number' ? b.id : -1;
+            return bId - aId;
+          }),
+          totalExpenses: state.totalExpenses + (tempExpense.amount || 0),
+        }));
+      }
+      await enqueue({ id: tempId, type: 'addExpense', payload: { ...expenseData, userId }, tempId });
+      return;
+    }
+
     set({ isLoading: true, error: null });
     try {
-      const userId = get().userId;
-      if (!userId) throw new Error('User not authenticated');
-
-      const newExpense = await transactionService.addExpense({
-        ...expenseData,
-        userId
-      });
-      
-      // Update local state instantly without another network fetch
-      const currentMonth = get().selectedMonth;
-      const currentYear = get().selectedYear;
+      const newExpense = await transactionService.addExpense({ ...expenseData, userId });
       const expenseDate = new Date(newExpense.date);
-
-      if (expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear) {
+      if (expenseDate.getMonth() === selectedMonth && expenseDate.getFullYear() === selectedYear) {
         const updatedExpenses = [newExpense, ...get().expenses].sort((a, b) => {
           const dateDiff = new Date(b.date) - new Date(a.date);
           if (dateDiff !== 0) return dateDiff;
-          return b.id - a.id; // Higher id first within same day
+          return b.id - a.id;
         });
         set(state => ({
           expenses: updatedExpenses,
@@ -77,26 +92,38 @@ export const useBudgetStore = create((set, get) => ({
   },
 
   addIncome: async (incomeData) => {
+    const { isOffline, userId, selectedMonth, selectedYear } = get();
+    if (!userId) throw new Error('User not authenticated');
+
+    if (isOffline) {
+      const tempId = `_offline_${Date.now()}`;
+      const tempIncome = { id: tempId, ...incomeData, user_id: userId };
+      const incomeDate = new Date(tempIncome.date);
+      if (incomeDate.getMonth() === selectedMonth && incomeDate.getFullYear() === selectedYear) {
+        set(state => ({
+          incomes: [tempIncome, ...state.incomes].sort((a, b) => {
+            const diff = new Date(b.date) - new Date(a.date);
+            if (diff !== 0) return diff;
+            const aId = typeof a.id === 'number' ? a.id : -1;
+            const bId = typeof b.id === 'number' ? b.id : -1;
+            return bId - aId;
+          }),
+          totalIncome: state.totalIncome + (tempIncome.amount || 0),
+        }));
+      }
+      await enqueue({ id: tempId, type: 'addIncome', payload: { ...incomeData, userId }, tempId });
+      return;
+    }
+
     set({ isLoading: true, error: null });
     try {
-      const userId = get().userId;
-      if (!userId) throw new Error('User not authenticated');
-
-      const newIncome = await transactionService.addIncome({
-        ...incomeData,
-        userId
-      });
-      
-      // Update local state instantly without another network fetch
-      const currentMonth = get().selectedMonth;
-      const currentYear = get().selectedYear;
+      const newIncome = await transactionService.addIncome({ ...incomeData, userId });
       const incomeDate = new Date(newIncome.date);
-
-      if (incomeDate.getMonth() === currentMonth && incomeDate.getFullYear() === currentYear) {
+      if (incomeDate.getMonth() === selectedMonth && incomeDate.getFullYear() === selectedYear) {
         const updatedIncomes = [newIncome, ...get().incomes].sort((a, b) => {
           const dateDiff = new Date(b.date) - new Date(a.date);
           if (dateDiff !== 0) return dateDiff;
-          return b.id - a.id; // Higher id first within same day
+          return b.id - a.id;
         });
         set(state => ({
           incomes: updatedIncomes,
@@ -177,33 +204,46 @@ export const useBudgetStore = create((set, get) => ({
   },
 
   fetchTransactions: async () => {
-    set({ isLoading: true, error: null });
-    try {
-      const userId = get().userId;
-      if (!userId) throw new Error('User not authenticated');
+    const { userId, selectedMonth, selectedYear } = get();
+    if (!userId) { set({ isLoading: false }); return; }
 
-      const { selectedMonth, selectedYear } = get();
-      const data = await transactionService.fetchTransactions(userId, selectedMonth, selectedYear);
+    const applyData = (data) => {
       const expensesList = data.expenses || [];
       const incomesList = data.incomes || [];
       const budgetsList = data.budgets || [];
-      
-      const totalExpenses = expensesList.reduce((acc, curr) => acc + (curr.amount || 0), 0);
-      const totalIncome = incomesList.reduce((acc, curr) => acc + (curr.amount || 0), 0);
-      const totalBudget = budgetsList.reduce((acc, curr) => acc + (curr.amount || 0), 0);
-
       set({
         expenses: expensesList,
         incomes: incomesList,
         budgets: budgetsList,
-        totalExpenses,
-        totalIncome,
-        totalBudget,
-        isLoading: false
+        totalExpenses: expensesList.reduce((acc, curr) => acc + (curr.amount || 0), 0),
+        totalIncome: incomesList.reduce((acc, curr) => acc + (curr.amount || 0), 0),
+        totalBudget: budgetsList.reduce((acc, curr) => acc + (curr.amount || 0), 0),
+        isLoading: false,
+        error: null,
       });
+    };
+
+    // Show cache immediately if available
+    const cached = await offlineCache.loadTransactions(selectedMonth, selectedYear);
+    if (cached) {
+      applyData(cached);
+    } else {
+      set({ isLoading: true, error: null });
+    }
+
+    // Fetch fresh data in the background
+    try {
+      const data = await transactionService.fetchTransactions(userId, selectedMonth, selectedYear);
+      // Discard if user has navigated to a different month while fetching
+      const { selectedMonth: m, selectedYear: y } = get();
+      if (m !== selectedMonth || y !== selectedYear) return;
+      applyData(data);
+      offlineCache.saveTransactions(selectedMonth, selectedYear, data);
     } catch (error) {
-      set({ error: error.message, isLoading: false });
-      console.error(error);
+      if (!cached) {
+        set({ error: error.message, isLoading: false });
+        console.error(error);
+      }
     }
   },
 
@@ -241,19 +281,32 @@ export const useBudgetStore = create((set, get) => ({
   },
 
   fetchMajorExpenses: async () => {
-    set({ majorExpensesLoading: true });
+    const { userId, selectedMajorYear } = get();
+    if (!userId) { set({ majorExpensesLoading: false }); return; }
+
+    const applyData = (data) => set({
+      majorExpenses: data,
+      totalMajorExpenses: data.reduce((acc, e) => acc + (e.amount || 0), 0),
+      majorExpensesLoading: false,
+    });
+
+    const cached = await offlineCache.loadMajorExpenses(selectedMajorYear);
+    if (cached) {
+      applyData(cached);
+    } else {
+      set({ majorExpensesLoading: true });
+    }
+
     try {
-      const userId = get().userId;
-      if (!userId) throw new Error('User not authenticated');
-      const data = await transactionService.fetchMajorExpenses(userId, get().selectedMajorYear);
-      set({
-        majorExpenses: data,
-        totalMajorExpenses: data.reduce((acc, e) => acc + (e.amount || 0), 0),
-        majorExpensesLoading: false,
-      });
+      const data = await transactionService.fetchMajorExpenses(userId, selectedMajorYear);
+      if (get().selectedMajorYear !== selectedMajorYear) return;
+      applyData(data);
+      offlineCache.saveMajorExpenses(selectedMajorYear, data);
     } catch (error) {
-      set({ majorExpensesLoading: false });
-      console.error(error);
+      if (!cached) {
+        set({ majorExpensesLoading: false });
+        console.error(error);
+      }
     }
   },
 
@@ -327,14 +380,24 @@ export const useBudgetStore = create((set, get) => ({
   fetchGoals: async () => {
     const { userId } = get();
     if (!userId) return;
-    set({ goalsLoading: true });
+
+    const cached = await offlineCache.loadGoals();
+    if (cached) {
+      set({ goals: cached, goalsLoading: false });
+    } else {
+      set({ goalsLoading: true });
+    }
+
     try {
       const data = await goalService.fetchGoals(userId);
-      set({ goals: data });
+      set({ goals: data, goalsLoading: false });
+      offlineCache.saveGoals(data);
     } catch (error) {
-      console.error(error);
-      throw error;
-    } finally {
+      if (!cached) {
+        set({ goalsLoading: false });
+        console.error(error);
+        throw error;
+      }
       set({ goalsLoading: false });
     }
   },
@@ -443,13 +506,20 @@ export const useBudgetStore = create((set, get) => ({
   fetchRecurringExpenses: async () => {
     const { userId } = get();
     if (!userId) return;
-    set({ recurringLoading: true });
+
+    const cached = await offlineCache.loadRecurring();
+    if (cached) {
+      set({ recurringExpenses: cached, recurringLoading: false });
+    } else {
+      set({ recurringLoading: true });
+    }
+
     try {
       const data = await recurringService.fetchRecurring(userId);
-      set({ recurringExpenses: data });
+      set({ recurringExpenses: data, recurringLoading: false });
+      offlineCache.saveRecurring(data);
     } catch (error) {
-      console.error(error);
-    } finally {
+      if (!cached) console.error(error);
       set({ recurringLoading: false });
     }
   },
@@ -489,6 +559,29 @@ export const useBudgetStore = create((set, get) => ({
     } finally {
       set({ recurringLoading: false });
     }
+  },
+
+  flushWriteQueue: async () => {
+    const queue = await getQueue();
+    if (!queue.length) return;
+
+    for (const item of queue) {
+      try {
+        if (item.type === 'addExpense') {
+          const newExpense = await transactionService.addExpense(item.payload);
+          const expenses = get().expenses.map(e => e.id === item.tempId ? newExpense : e);
+          set({ expenses, totalExpenses: expenses.reduce((acc, e) => acc + (e.amount || 0), 0) });
+        } else if (item.type === 'addIncome') {
+          const newIncome = await transactionService.addIncome(item.payload);
+          const incomes = get().incomes.map(i => i.id === item.tempId ? newIncome : i);
+          set({ incomes, totalIncome: incomes.reduce((acc, i) => acc + (i.amount || 0), 0) });
+        }
+        await dequeue(item.id);
+      } catch (err) {
+        console.error('Queue flush error:', err);
+      }
+    }
+    get().fetchTransactions();
   },
 
   updateCurrentGoal: async ({ goalId, title, icon, colorHex, targetAmount, targetDate, status }) => {

@@ -225,7 +225,7 @@ export const transactionService = {
         const currentYear = now.getFullYear();
 
         // Start year covers the full 24-month window
-        const startAnchor = new Date(now.getFullYear(), now.getMonth() - 23, 1);
+        const startAnchor = new Date(now.getFullYear(), now.getMonth() - 24, 1);
         const startYear = startAnchor.getFullYear();
 
         const [expensesRes, incomesRes] = await Promise.all([
@@ -254,7 +254,7 @@ export const transactionService = {
 
         // Build ordered array for the 24-month window, oldest → newest
         const result = [];
-        for (let i = 23; i >= 0; i--) {
+        for (let i = 24; i >= 1; i--) {
             const d = new Date(currentYear, currentMonth - 1 - i, 1);
             const year = d.getFullYear();
             const month = d.getMonth() + 1; // 1-indexed to match DB

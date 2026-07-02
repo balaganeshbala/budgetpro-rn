@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -58,6 +59,26 @@ export default function RootLayout() {
     });
 
     return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    // Flush any queued writes from a previous offline session on startup
+    NetInfo.fetch().then(state => {
+      if (state.isConnected) useBudgetStore.getState().flushWriteQueue();
+    });
+  }, []);
+
+  useEffect(() => {
+    let prevConnected = true;
+    const unsub = NetInfo.addEventListener(state => {
+      const isConnected = !!state.isConnected;
+      useBudgetStore.setState({ isOffline: !isConnected });
+      if (!prevConnected && isConnected) {
+        useBudgetStore.getState().flushWriteQueue();
+      }
+      prevConnected = isConnected;
+    });
+    return () => unsub();
   }, []);
 
   useEffect(() => {

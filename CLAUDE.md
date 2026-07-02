@@ -111,6 +111,7 @@ src/
     RecurringExpenseForm.js  # Add/edit recurring expense form (category picker, frequency toggle, billing month/day)
   constants/       # theme.js, categories.js, months.js
   services/        # supabase.js, transactionService.js, goalService.js, recurringService.js
+                   # offlineCache.js (AsyncStorage snapshots), writeQueue.js (offline write queue)
   store/           # useBudgetStore.js (Zustand)
 components/        # Expo default components (mostly unused/legacy)
 hooks/             # useColorScheme, useThemeColor
@@ -135,12 +136,15 @@ Transactions are fetched per `selectedMonth` / `selectedYear` from the store. St
 
 These mirror the Swift app's summary tables. `monthly-trends.js` reads from `monthly_expense_summaries` and `monthly_income_summaries` via `transactionService.fetchMonthlyTrends()`. Month values in these tables are **1-indexed** (1–12), unlike the JS `Date.getMonth()` which is 0-indexed.
 
+`fetchMonthlyTrends` returns the **last 24 months excluding the current month** (oldest → newest). The current month is intentionally excluded since it's incomplete.
+
 ### Categories
 Defined in `src/constants/categories.js` as arrays of `{ value, displayName, iconName, color }`. Icons are from `@expo/vector-icons` (Ionicons). Helper functions: `getExpenseCategory(value)`, `getIncomeCategory(value)`, `getMajorExpenseCategory(value)`.
 
 ### Home Screen (`app/(tabs)/index.js`)
 
 - **Header**: App icon (`src/assets/images/icon.png`) on the left, month nav centered, profile icon button (`person-circle-outline`) on the right. Profile button navigates to `/profile`.
+- **Offline banner**: Amber strip rendered between the header row and the ScrollView when `isOffline` is true (read from store). Styled inline — no separate component.
 - **"Insights" section header** above the Income Details and Savings Analysis cards.
 - **By Category section**: Uses an inline `CategoryGridItem` component (defined at module level above `HomeScreen`). Each row shows icon + name + remaining/overspent amount. Tapping navigates to `/expense-category-detail?cat=<value>`. Only rendered when `categoryBreakdown.length > 0`.
 - **Savings Analysis row**: Only rendered when `expenses.length > 0`. Income Details row is always shown.
@@ -237,6 +241,38 @@ This app uses `@react-navigation/native-stack` (not the JS stack). Key differenc
 - **Hiding back button title**: Use `headerBackButtonDisplayMode: 'minimal'` on the current screen. This is the native-stack v7 API — `headerBackTitleVisible` is JS-stack only and has no effect here. `headerBackTitle: ''` (empty string) is unreliable (treated as falsy in some versions).
 - **Where to set it**: Set on the screen that *shows* the back button (the current screen), NOT on the previous screen. Also set it statically in `_layout.js` to avoid a race before component mount — dynamic `Stack.Screen` options in the component only apply after first render.
 - **`headerBackTitle`** on the previous screen controls what text appears as the back label on the NEXT screen — but this is unreliable with empty strings; prefer `headerBackButtonDisplayMode`.
+
+### Offline Support
+
+Lightweight offline support via two services and store-level logic. No external library.
+
+#### Services
+- **`src/services/offlineCache.js`** — saves/loads AsyncStorage snapshots. Keys: `@cache_tx_{year}_{month}` (transactions), `@cache_goals`, `@cache_recurring`, `@cache_major_{year}`.
+- **`src/services/writeQueue.js`** — persists pending write operations to `@write_queue`. API: `enqueue(item)`, `dequeue(id)`, `getQueue()`.
+
+#### Store additions (`useBudgetStore.js`)
+- `isOffline: false` — set by NetInfo listener in `_layout.js`.
+- `flushWriteQueue()` — called on reconnect and app startup (if online). Drains the queue by calling the real Supabase service for each item, replaces temp items in the store with real ones, then re-fetches to sync.
+
+#### Fetch pattern (stale-while-revalidate)
+All four fetch methods (`fetchTransactions`, `fetchGoals`, `fetchRecurringExpenses`, `fetchMajorExpenses`) follow this pattern:
+1. Load cache from AsyncStorage → apply to store immediately (no spinner if cache exists)
+2. Fetch from Supabase in the background → update store and save new cache on success
+3. On network failure: silently swallow if cache was shown; surface error only if no cache
+- `fetchTransactions` includes a **stale-response guard**: checks `selectedMonth`/`selectedYear` still match before applying network data (discards result if user navigated away mid-fetch).
+
+#### Write queue (addExpense / addIncome only)
+When `isOffline` is true:
+- A temp item is created with ID `_offline_<timestamp>` (string, not a number — sort logic handles mixed types)
+- Applied to the store optimistically so the UI reflects it immediately
+- Enqueued to AsyncStorage for later sync
+- Returns without setting `isLoading` (the optimistic update is instant)
+
+Updates and deletes are NOT queued — they fail naturally with a network error when offline.
+
+#### NetInfo wiring (`app/_layout.js`)
+- One `useEffect` on mount calls `NetInfo.fetch()` and flushes the queue if already online (handles items queued in a previous offline session).
+- A second `useEffect` subscribes to `NetInfo.addEventListener`; tracks `prevConnected` to detect the offline→online transition and trigger a flush.
 
 ### Auth Flow
 Supabase session is bootstrapped in `app/_layout.js`. Session state drives redirect: unauthenticated → `/login`; authenticated on public route → `/(tabs)`. The splash screen is held until **both** fonts and the Supabase session are resolved to avoid a blank white flash on startup.
