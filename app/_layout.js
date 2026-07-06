@@ -15,6 +15,7 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [session, setSession] = useState(null);
   const [initialized, setInitialized] = useState(false);
+  const onboardingDone = useBudgetStore(s => s.onboardingDone);
   // 'hidden' | 'privacy' (screen shown, no auth) | 'auth' (screen shown, auth required)
   const [lockState, setLockState] = useState('hidden');
   const backgroundTimeRef = useRef(null);
@@ -43,8 +44,11 @@ export default function RootLayout() {
     Promise.all([
       supabase.auth.getSession(),
       AsyncStorage.getItem('@biometric_lock_enabled'),
-    ]).then(([{ data: { session } }, biometricPref]) => {
+      AsyncStorage.getItem('@onboarding_complete'),
+    ]).then(([{ data: { session } }, biometricPref, onboardingPref]) => {
       biometricEnabledRef.current = biometricPref === 'true';
+      // Existing users (already have a session) skip onboarding
+      useBudgetStore.setState({ onboardingDone: onboardingPref === 'true' || !!session });
       useBudgetStore.setState({ userId: session?.user?.id ?? null });
       setSession(session);
       if (biometricPref === 'true' && session) {
@@ -85,16 +89,18 @@ export default function RootLayout() {
     if (!initialized) return;
 
     const inAuthGroup = segments[0] === '(tabs)';
-    const isPublicRoute = segments[0] === 'login' || segments[0] === 'signup' || segments[0] === 'login-callback';
+    const isPublicRoute = ['login', 'signup', 'login-callback', 'onboarding'].includes(segments[0]);
 
-    if (!session && inAuthGroup) {
-      // Redirect to login if not authenticated
-      router.replace('/login');
+    if (!session) {
+      if (!onboardingDone && segments[0] !== 'onboarding') {
+        router.replace('/onboarding');
+      } else if (onboardingDone && inAuthGroup) {
+        router.replace('/login');
+      }
     } else if (session && isPublicRoute) {
-      // Redirect to tabs if authenticated but trying to access login/signup
       router.replace('/(tabs)');
     }
-  }, [session, initialized, segments]);
+  }, [session, initialized, segments, onboardingDone]);
 
   useEffect(() => {
     if ((fontsLoaded || fontError) && initialized) SplashScreen.hideAsync();
@@ -156,6 +162,7 @@ export default function RootLayout() {
         headerTitleStyle: { color: theme.text, fontFamily: typography.fonts.medium },
       }}
     >
+      <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false, title: '' }} />
       <Stack.Screen name="login" options={{ headerShown: false, title: '' }} />
       <Stack.Screen name="login-callback" options={{ headerShown: false }} />

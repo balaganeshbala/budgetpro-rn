@@ -9,6 +9,7 @@ import { transactionService } from '../services/transactionService';
 export const useBudgetStore = create((set, get) => ({
   userId: null,
   isOffline: false,
+  onboardingDone: false,
   expenses: [],
   incomes: [],
   budgets: [],

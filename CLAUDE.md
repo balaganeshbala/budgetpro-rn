@@ -85,6 +85,7 @@ A personal expense tracker mobile app built with Expo (React Native). It has a c
 app/               # Expo Router screens (file = route)
   (tabs)/          # Bottom tab navigator — index, transactions, more ONLY (3 tabs)
   profile.js       # Stack screen (NOT a tab); opened via router.push('/profile') from home header
+  onboarding.js                                # First-launch carousel (3 slides); shown once then skipped
   login.js, signup.js
   add-expense.js, edit-expense.js, expenses-detail.js
   add-income.js, edit-income.js, incomes-detail.js
@@ -252,6 +253,7 @@ Lightweight offline support via two services and store-level logic. No external 
 
 #### Store additions (`useBudgetStore.js`)
 - `isOffline: false` — set by NetInfo listener in `_layout.js`.
+- `onboardingDone: false` — set at startup from AsyncStorage; also set to `true` immediately by `onboarding.js` on finish/skip so the routing guard reacts without waiting for a re-mount.
 - `flushWriteQueue()` — called on reconnect and app startup (if online). Drains the queue by calling the real Supabase service for each item, replaces temp items in the store with real ones, then re-fetches to sync.
 
 #### Fetch pattern (stale-while-revalidate)
@@ -274,8 +276,18 @@ Updates and deletes are NOT queued — they fail naturally with a network error 
 - One `useEffect` on mount calls `NetInfo.fetch()` and flushes the queue if already online (handles items queued in a previous offline session).
 - A second `useEffect` subscribes to `NetInfo.addEventListener`; tracks `prevConnected` to detect the offline→online transition and trigger a flush.
 
+### Onboarding Flow (`app/onboarding.js`)
+
+Shown once to new users before the auth screens. Three full-screen slides (horizontal FlatList, pagingEnabled) with transparent PNG illustrations, title, and body text.
+
+- **Persistence**: `AsyncStorage` key `@onboarding_complete` — set to `'true'` on finish or skip.
+- **Store flag**: `onboardingDone` in `useBudgetStore` — set at startup (read from AsyncStorage) and updated immediately when the user taps Get Started / Skip so the routing guard in `_layout.js` sees it reactively. Existing users with an active session get `onboardingDone = true` automatically and bypass onboarding.
+- **Routing guard** (in `_layout.js`): if `!session && !onboardingDone && segments[0] !== 'onboarding'` → redirect to `/onboarding`. Public routes include `onboarding`, `login`, `signup`, `login-callback`.
+- **Per-slide image tuning**: each slide in the `SLIDES` array accepts optional `imageMarginTop` and `imageMarginBottom` to compensate for transparent padding in individual illustration files.
+- **Images**: stored in `src/assets/images/onboarding-1.png`, `onboarding-2.png`, `onboarding-3.png` — transparent PNGs so they work on both light and dark backgrounds.
+
 ### Auth Flow
-Supabase session is bootstrapped in `app/_layout.js`. Session state drives redirect: unauthenticated → `/login`; authenticated on public route → `/(tabs)`. The splash screen is held until **both** fonts and the Supabase session are resolved to avoid a blank white flash on startup.
+Supabase session is bootstrapped in `app/_layout.js`. Session state drives redirect: unauthenticated (onboarding done) → `/login`; unauthenticated (onboarding not done) → `/onboarding`; authenticated on public route → `/(tabs)`. The splash screen is held until **both** fonts and the Supabase session are resolved to avoid a blank white flash on startup.
 
 ### Run the App
 ```
