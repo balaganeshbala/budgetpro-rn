@@ -3,9 +3,8 @@ import { Stack, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CardView } from '../src/components/common/CardView';
 import EmptyDataIndicatorView from '../src/components/EmptyDataIndicatorView';
-import { colors, radius, spacing, typography } from '../src/constants/theme';
+import { colors, radius, shadows, spacing, typography } from '../src/constants/theme';
 import { useBudgetStore } from '../src/store/useBudgetStore';
 
 const STATUS_COLORS = { active: '#34C759', paused: '#FF9500', completed: '#216DF3' };
@@ -22,8 +21,7 @@ function GoalCard({ goal, onPress }) {
     const targetDateStr = new Date(goal.target_date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
     return (
-        <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-            <CardView>
+        <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={[styles.card, { backgroundColor: themeColors.cardBackground, ...shadows[scheme] }]}>
                 <View style={styles.cardHeader}>
                     <Text style={styles.cardIcon}>{goal.icon || '🎯'}</Text>
                     <Text style={[styles.cardTitle, { color: themeColors.text }]}>{goal.title}</Text>
@@ -51,7 +49,6 @@ function GoalCard({ goal, onPress }) {
                     <Ionicons name="calendar-outline" size={12} color={themeColors.secondaryText} />
                     <Text style={[styles.dateText, { color: themeColors.secondaryText }]}>Target: {targetDateStr}</Text>
                 </View>
-            </CardView>
         </TouchableOpacity>
     );
 }
@@ -126,6 +123,7 @@ const styles = StyleSheet.create({
     headerRight: { width: 37, alignItems: 'center', gap: spacing.sm },
     center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.sm, paddingHorizontal: spacing.xl },
     scroll: { padding: spacing.lg, gap: spacing.md },
+    card: { width: '100%', padding: 16, borderRadius: radius.lg },
     cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
     cardIcon: { fontSize: 28, marginRight: spacing.sm },
     cardTitle: { flex: 1, fontSize: typography.sizes.lg, fontFamily: typography.fonts.semibold },

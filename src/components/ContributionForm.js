@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
     KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView,
     StyleSheet, Text, TouchableOpacity, useColorScheme, View
@@ -10,7 +10,7 @@ import { toYMD } from '../services/goalService';
 import { AppButton } from './common/AppButton';
 import { AppTextField } from './common/AppTextField';
 
-export const ContributionForm = ({ initialData = null, goalTitle = '', onSave, isLoading = false }) => {
+export const ContributionForm = ({ initialData = null, goalTitle = '', onSave, isLoading = false, suggestions = [] }) => {
     const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
     const themeColors = colors[scheme];
 
@@ -22,6 +22,15 @@ export const ContributionForm = ({ initialData = null, goalTitle = '', onSave, i
     const [amount, setAmount] = useState(initialData?.amount?.toString() || '');
     const [date, setDate] = useState(defaultDate);
     const [showDatePicker, setShowDatePicker] = useState(false);
+
+    const matchingSuggestions = useMemo(() => {
+        if (!suggestions.length) return [];
+        const trimmed = name.trim().toLowerCase();
+        const all = trimmed === ''
+            ? suggestions
+            : suggestions.filter(s => s.toLowerCase().includes(trimmed) && s !== name.trim());
+        return all.slice(0, 10);
+    }, [suggestions, name]);
 
     const isFormValid = name.trim().length > 0 && Number(amount) > 0;
     const isDirty = initialData ? (
@@ -50,14 +59,34 @@ export const ContributionForm = ({ initialData = null, goalTitle = '', onSave, i
                 ) : null}
                 <Text style={[styles.formTitle, { color: themeColors.text }]}>Contribution Details</Text>
 
-                <AppTextField
-                    hint="Description"
-                    iconName="create-outline"
-                    value={name}
-                    onChangeText={setName}
-                    autoCapitalize="sentences"
-                    autoFocus={!initialData}
-                />
+                <View style={{ gap: spacing.xs }}>
+                    <AppTextField
+                        hint="Description"
+                        iconName="create-outline"
+                        value={name}
+                        onChangeText={setName}
+                        autoCapitalize="words"
+                        autoFocus={!initialData}
+                    />
+                    {matchingSuggestions.length > 0 && (
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.suggestRow}
+                        >
+                            {matchingSuggestions.map(s => (
+                                <TouchableOpacity
+                                    key={s}
+                                    onPress={() => setName(s)}
+                                    style={[styles.suggestChip, { backgroundColor: themeColors.primary + '15', borderColor: themeColors.primary + '40' }]}
+                                    activeOpacity={0.7}
+                                >
+                                    <Text style={[styles.suggestText, { color: themeColors.primary }]}>{s}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    )}
+                </View>
 
                 <AppTextField
                     hint="Amount"
@@ -140,4 +169,7 @@ const styles = StyleSheet.create({
     sheetTitle: { fontSize: typography.sizes.lg, fontFamily: typography.fonts.bold, textAlign: 'center', marginBottom: spacing.md },
     doneBtn: { borderRadius: radius.pill, paddingVertical: spacing.md, alignItems: 'center', marginTop: spacing.md },
     doneBtnText: { color: '#fff', fontSize: typography.sizes.md, fontFamily: typography.fonts.semibold },
+    suggestRow: { gap: spacing.xs, paddingVertical: 2 },
+    suggestChip: { paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: radius.pill, borderWidth: 1 },
+    suggestText: { fontSize: typography.sizes.sm, fontFamily: typography.fonts.medium },
 });

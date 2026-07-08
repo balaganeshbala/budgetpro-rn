@@ -48,20 +48,14 @@ export default function FinancialGoalDetailsScreen() {
     });
     const currentAmount = contributions.reduce((sum, c) => sum + c.amount, 0);
 
-    const monthGroups = (() => {
+    const nameGroups = (() => {
         const map = {};
         contributions.forEach(c => {
-            const key = c.date.slice(0, 7); // "2026-01"
-            if (!map[key]) map[key] = { key, contributions: [], total: 0 };
-            map[key].contributions.push(c);
-            map[key].total += c.amount;
+            if (!map[c.name]) map[c.name] = { name: c.name, count: 0, total: 0 };
+            map[c.name].count += 1;
+            map[c.name].total += c.amount;
         });
-        return Object.values(map)
-            .sort((a, b) => b.key.localeCompare(a.key))
-            .map(g => ({
-                ...g,
-                label: new Date(g.key + '-02').toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }),
-            }));
+        return Object.values(map).sort((a, b) => b.total - a.total);
     })();
     const remaining = Math.max(0, activeGoal.target_amount - currentAmount);
     const progress = activeGoal.target_amount > 0 ? Math.min(currentAmount / activeGoal.target_amount, 1) : 0;
@@ -190,18 +184,18 @@ export default function FinancialGoalDetailsScreen() {
                         </Text>
                     ) : (
                         <>
-                            {monthGroups.map((group, idx) => (
-                                <View key={group.key}>
+                            {nameGroups.map((group, idx) => (
+                                <View key={group.name}>
                                     <View style={styles.groupRow}>
                                         <View>
-                                            <Text style={[styles.groupMonth, { color: themeColors.text }]}>{group.label}</Text>
+                                            <Text style={[styles.groupMonth, { color: themeColors.text }]}>{group.name}</Text>
                                             <Text style={[styles.groupCount, { color: themeColors.secondaryText }]}>
-                                                {group.contributions.length} {group.contributions.length === 1 ? 'contribution' : 'contributions'}
+                                                {group.count} {group.count === 1 ? 'contribution' : 'contributions'}
                                             </Text>
                                         </View>
                                         <Text style={styles.groupAmount}>+{fmt(group.total)}</Text>
                                     </View>
-                                    {idx < monthGroups.length - 1 && (
+                                    {idx < nameGroups.length - 1 && (
                                         <View style={[styles.rowDivider, { backgroundColor: themeColors.separator }]} />
                                     )}
                                 </View>

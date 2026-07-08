@@ -11,7 +11,7 @@ import { SectionHeader } from '../../src/components/common/SectionHeader';
 import { SettingsRow } from '../../src/components/common/SettingsRow';
 import { getExpenseCategory, getIncomeCategory } from '../../src/constants/categories';
 import { shortMonthNames } from '../../src/constants/months';
-import { colors, radius, spacing, typography } from '../../src/constants/theme';
+import { colors, radius, shadows, spacing, typography } from '../../src/constants/theme';
 import { useBudgetStore } from '../../src/store/useBudgetStore';
 
 const START_YEAR = 2023;
@@ -22,13 +22,14 @@ function CategoryGridItem({ item, themeColors, onPress }) {
   const fmt = v => `₹${Math.round(v).toLocaleString('en-IN')}`;
   const showRemaining = status === 'on_track' || status === 'overspent';
   const remainingColor = status === 'overspent' ? themeColors.adaptiveRed : themeColors.adaptiveGreen;
+  const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
 
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
+      style={[styles.gridItemIconRow, styles.gridItemCard, { backgroundColor: themeColors.cardBackground, ...shadows[scheme] }]}
     >
-      <CardView style={styles.gridItemIconRow}>
         {/* <View style={[styles.gridItemIcon, { backgroundColor: categoryObj.color + '25' }]}>
           <Ionicons name={categoryObj.iconName} size={16} color={categoryObj.color} />
         </View> */}
@@ -66,7 +67,6 @@ function CategoryGridItem({ item, themeColors, onPress }) {
           size={15}
           color={themeColors.secondaryText}
         />
-      </CardView>
     </TouchableOpacity>
   );
 }
@@ -432,10 +432,15 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     marginTop: spacing.sm
   },
+  gridItemCard: {
+    width: '100%',
+    padding: 16,
+    borderRadius: radius.lg,
+  },
   gridItemIconRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
+    gap: spacing.md
   },
   gridItemIcon: {
     width: 32,
