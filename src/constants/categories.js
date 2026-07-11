@@ -3,20 +3,20 @@ import { colors } from './theme';
 const fallbackTheme = colors.light;
 
 export const EXPENSE_CATEGORIES = [
-    { value: 'emi', displayName: 'EMI', iconName: 'card', color: fallbackTheme.adaptiveRed },
-    { value: 'food', displayName: 'Food', iconName: 'restaurant', color: '#FFA500' }, // orange
-    { value: 'holidayTrip', displayName: 'Holiday/Trip', iconName: 'airplane', color: '#FFD700' }, // yellow
-    { value: 'housing', displayName: 'Housing', iconName: 'home', color: fallbackTheme.adaptiveGreen },
-    { value: 'shopping', displayName: 'Shopping', iconName: 'bag', color: '#98FF98' }, // mint
-    { value: 'travel', displayName: 'Travel', iconName: 'bus', color: '#00FFFF' }, // cyan
-    { value: 'family', displayName: 'Family', iconName: 'people', color: fallbackTheme.primary },
-    { value: 'chargesFees', displayName: 'Charges/Fees', iconName: 'cash-outline', color: '#4B0082' }, // indigo
-    { value: 'groceries', displayName: 'Groceries', iconName: 'cart', color: '#800080' }, // purple
-    { value: 'healthBeauty', displayName: 'Health/Beauty', iconName: 'heart', color: '#FFC0CB' }, // pink
-    { value: 'entertainment', displayName: 'Entertainment', iconName: 'tv', color: '#008080' }, // teal
-    { value: 'charityGift', displayName: 'Charity/Gift', iconName: 'gift', color: '#FF1493' }, // systemPink
-    { value: 'education', displayName: 'Education', iconName: 'book', color: '#A020F0' }, // systemPurple
-    { value: 'vehicle', displayName: 'Vehicle', iconName: 'car', color: '#FFA500' }, // systemOrange
+    { value: 'emi', displayName: 'EMI', iconName: 'card', color: '#FF9F0A' },
+    { value: 'food', displayName: 'Food', iconName: 'restaurant', color: '#FF9500' },
+    { value: 'holidayTrip', displayName: 'Holiday/Trip', iconName: 'airplane', color: '#FFCC00' },
+    { value: 'housing', displayName: 'Housing', iconName: 'home', color: '#34C759' },
+    { value: 'shopping', displayName: 'Shopping', iconName: 'bag', color: '#FF375F' },
+    { value: 'travel', displayName: 'Travel', iconName: 'bus', color: '#32ADE6' },
+    { value: 'family', displayName: 'Family', iconName: 'people', color: '#007AFF' },
+    { value: 'chargesFees', displayName: 'Charges/Fees', iconName: 'cash-outline', color: '#8E8E93' },
+    { value: 'groceries', displayName: 'Groceries', iconName: 'cart', color: '#00C7BE' },
+    { value: 'healthBeauty', displayName: 'Health/Beauty', iconName: 'heart', color: '#AF52DE' },
+    { value: 'entertainment', displayName: 'Entertainment', iconName: 'tv', color: '#30B0C7' },
+    { value: 'charityGift', displayName: 'Charity/Gift', iconName: 'gift', color: '#FF6348' },
+    { value: 'education', displayName: 'Education', iconName: 'book', color: '#5856D6' },
+    { value: 'vehicle', displayName: 'Vehicle', iconName: 'car', color: '#A2845E' },
 ];
 
 export const INCOME_CATEGORIES = [

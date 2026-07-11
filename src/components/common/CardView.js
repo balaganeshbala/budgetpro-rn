@@ -19,6 +19,7 @@ export const CardView = ({
         {
           padding,
           borderRadius: cornerRadius,
+          overflow: 'hidden',
           backgroundColor: themeColors.cardBackground,
           ...themeShadows,
         },

@@ -11,7 +11,7 @@ import { SectionHeader } from '../../src/components/common/SectionHeader';
 import { SettingsRow } from '../../src/components/common/SettingsRow';
 import { getExpenseCategory, getIncomeCategory } from '../../src/constants/categories';
 import { shortMonthNames } from '../../src/constants/months';
-import { colors, radius, shadows, spacing, typography } from '../../src/constants/theme';
+import { colors, radius, spacing, typography } from '../../src/constants/theme';
 import { useBudgetStore } from '../../src/store/useBudgetStore';
 
 const START_YEAR = 2023;
@@ -28,7 +28,7 @@ function CategoryGridItem({ item, themeColors, onPress }) {
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
-      style={[styles.gridItemIconRow, styles.gridItemCard, { backgroundColor: themeColors.cardBackground, ...shadows[scheme] }]}
+      style={[styles.gridItemIconRow, styles.gridItemCard]}
     >
         {/* <View style={[styles.gridItemIcon, { backgroundColor: categoryObj.color + '25' }]}>
           <Ionicons name={categoryObj.iconName} size={16} color={categoryObj.color} />
@@ -220,14 +220,20 @@ export default function HomeScreen() {
         {!isLoading && categoryBreakdown.length > 0 && (
           <View style={styles.categorySection}>
             <SectionHeader title="By Category" />
-            {categoryBreakdown.map((item) => (
-              <CategoryGridItem
-                key={item.cat}
-                item={item}
-                themeColors={themeColors}
-                onPress={() => router.push({ pathname: '/expense-category-detail', params: { cat: item.cat } })}
-              />
+            <CardView padding={0} style={{ marginTop: spacing.sm }}>
+            {categoryBreakdown.map((item, index) => (
+              <View key={item.cat}>
+                <CategoryGridItem
+                  item={item}
+                  themeColors={themeColors}
+                  onPress={() => router.push({ pathname: '/expense-category-detail', params: { cat: item.cat } })}
+                />
+                {index < categoryBreakdown.length - 1 && (
+                  <View style={[styles.categoryDivider, { backgroundColor: themeColors.separator }]} />
+                )}
+              </View>
             ))}
+            </CardView>
           </View>
         )}
 
@@ -425,9 +431,6 @@ const styles = StyleSheet.create({
   incomeCategoryAmountCol: { alignItems: 'flex-end' },
   incomeCategoryAmount: { fontSize: typography.sizes.md, fontFamily: typography.fonts.semibold },
   incomeCategoryPct: { fontSize: typography.sizes.sm, marginTop: 2 },
-  categorySection: {
-    gap: spacing.sm,
-  },
   insightsSection: {
     gap: spacing.sm,
     marginTop: spacing.sm
@@ -435,8 +438,8 @@ const styles = StyleSheet.create({
   gridItemCard: {
     width: '100%',
     padding: 16,
-    borderRadius: radius.lg,
   },
+  categoryDivider: { height: StyleSheet.hairlineWidth, marginLeft: 16 + 32 + 12 },
   gridItemIconRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -459,11 +462,13 @@ const styles = StyleSheet.create({
   },
   gridItemRemainingLabel: {
     fontSize: typography.sizes.xs,
+    lineHeight: 16,
     fontFamily: typography.fonts.medium,
     marginBottom: 2,
   },
   gridItemRemaining: {
     fontSize: typography.sizes.md,
+    lineHeight: 20,
     fontFamily: typography.fonts.bold,
   },
   sectionTitle: {

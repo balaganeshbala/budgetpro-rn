@@ -83,8 +83,8 @@ export function AllTransactionsList({ items = [], type = 'expense' }) {
                 amount={item.amount}
                 dateString={dateStr}
                 categoryIcon={category.iconName}
-                iconColor={themeColors.secondary}
-                backgroundColor={themeColors.primary + '20'}
+                iconColor={themeColors.secondary + 'AA'}
+                backgroundColor={themeColors.separator + '50'}
                 iconShape="roundedRectangle"
                 showChevron={true}
                 onPress={() => router.push({ pathname: editRoute, params: { transaction: JSON.stringify(item) } })}
