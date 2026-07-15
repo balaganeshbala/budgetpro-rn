@@ -6,8 +6,8 @@ import { CardView } from '../src/components/common/CardView';
 import { RowItemIcon } from '../src/components/common/RowItemIcon';
 import { SectionHeader } from '../src/components/common/SectionHeader';
 import EmptyDataIndicatorView from '../src/components/EmptyDataIndicatorView';
-import { colors, radius, spacing, typography } from '../src/constants/theme';
 import { shortMonthNames } from '../src/constants/months';
+import { colors, radius, spacing, typography } from '../src/constants/theme';
 import { useBudgetStore } from '../src/store/useBudgetStore';
 
 const CHART_HEIGHT = 150;
@@ -168,8 +168,8 @@ export default function SavingsAnalysisScreen() {
 
             <SummaryRow
               icon="briefcase-outline"
-              iconColor={tc.secondary}
-              iconBg={tc.primary + '20'}
+              iconColor={tc.secondary + 'AA'}
+              iconBg={tc.separator + '50'}
               title="Net Savings"
               value={fmtSigned(netSavings)}
               valueColor={savingsColor}
@@ -177,8 +177,8 @@ export default function SavingsAnalysisScreen() {
             />
             <SummaryRow
               icon="analytics-outline"
-              iconColor={tc.secondary}
-              iconBg={tc.primary + '20'}
+              iconColor={tc.secondary + 'AA'}
+              iconBg={tc.separator + '50'}
               title="Savings Rate"
               value={`${savingsRate.toFixed(1)}%`}
               valueColor={rc}
@@ -186,8 +186,8 @@ export default function SavingsAnalysisScreen() {
             />
             <SummaryRow
               icon="add-circle-outline"
-              iconColor={tc.secondary}
-              iconBg={tc.primary + '20'}
+              iconColor={tc.secondary + 'AA'}
+              iconBg={tc.separator + '50'}
               title="Income"
               value={`₹${fmt(totalIncome)}`}
               valueColor={tc.text}
@@ -195,8 +195,8 @@ export default function SavingsAnalysisScreen() {
             />
             <SummaryRow
               icon="remove-circle-outline"
-              iconColor={tc.secondary}
-              iconBg={tc.primary + '20'}
+              iconColor={tc.secondary + 'AA'}
+              iconBg={tc.separator + '50'}
               title="Expenses"
               value={`₹${fmt(effectiveExpenses)}`}
               valueColor={tc.text}

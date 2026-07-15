@@ -7,8 +7,8 @@ import { CardView } from '../src/components/common/CardView';
 import EmptyDataIndicatorView from '../src/components/EmptyDataIndicatorView';
 import { TransactionRow } from '../src/components/TransactionRow';
 import { getExpenseCategory } from '../src/constants/categories';
-import { colors, radius, spacing, typography } from '../src/constants/theme';
 import { shortMonthNames } from '../src/constants/months';
+import { colors, radius, spacing, typography } from '../src/constants/theme';
 import { useBudgetStore } from '../src/store/useBudgetStore';
 
 const SORT_OPTIONS = [
@@ -197,8 +197,8 @@ export default function ExpenseCategoryDetailScreen() {
                     amount={item.amount}
                     dateString={dateStr}
                     categoryIcon={categoryObj.iconName}
-                    iconColor={themeColors.secondary}
-                    backgroundColor={themeColors.primary + '20'}
+                    iconColor={themeColors.secondary + 'AA'}
+                    backgroundColor={themeColors.separator + '50'}
                     iconShape="roundedRectangle"
                     showChevron={true}
                     onPress={() => router.push({ pathname: '/edit-expense', params: { transaction: JSON.stringify(item) } })}

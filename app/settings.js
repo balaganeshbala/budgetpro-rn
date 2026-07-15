@@ -119,6 +119,7 @@ export default function SettingsScreen() {
               thumbColor={ '#FFF' }
               trackColor={{ false: themeColors.separator, true: themeColors.primary }}
               disabled={!biometricAvailable}
+              style={{ height: 30 }}
             />
           </View>
           {biometricEnabled && (
@@ -214,7 +215,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.lg,
     gap: spacing.md,
   },
   iconBg: {

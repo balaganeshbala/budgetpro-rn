@@ -83,16 +83,16 @@ export default function IncomesDetailScreen() {
           <Text style={[styles.totalAmount, { color: themeColors.text }]}>₹{fmt(totalIncome)}</Text>
 
           <View style={styles.splitRow}>
-            <View style={[styles.splitIcon, { backgroundColor: themeColors.primary + '15' }]}>
-              <Ionicons name="add-circle-outline" size={20} color={themeColors.secondary} />
+            <View style={[styles.splitIcon, { backgroundColor: themeColors.separator + '50' }]}>
+              <Ionicons name="add-circle-outline" size={20} color={themeColors.secondary + 'AA'} />
             </View>
             <Text style={[styles.splitLabel, { color: themeColors.text }]}>Primary</Text>
             <Text style={[styles.splitAmount, { color: themeColors.adaptiveGreen }]}>₹{fmt(primaryTotal)}</Text>
           </View>
 
           <View style={styles.splitRow}>
-            <View style={[styles.splitIcon, { backgroundColor: themeColors.primary + '15' }]}>
-              <Ionicons name="star-outline" size={20} color={themeColors.secondary} />
+            <View style={[styles.splitIcon, { backgroundColor: themeColors.separator + '50' }]}>
+              <Ionicons name="star-outline" size={20} color={themeColors.secondary + 'AA'} />
             </View>
             <Text style={[styles.splitLabel, { color: themeColors.text }]}>Secondary</Text>
             <Text style={[styles.splitAmount, { color: themeColors.warning }]}>₹{fmt(secondaryTotal)}</Text>
