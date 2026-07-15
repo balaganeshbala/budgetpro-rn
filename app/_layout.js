@@ -41,25 +41,47 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
+    // Fast local reads — no network, unblocks home screen immediately
     Promise.all([
-      supabase.auth.getSession(),
       AsyncStorage.getItem('@biometric_lock_enabled'),
       AsyncStorage.getItem('@onboarding_complete'),
-    ]).then(([{ data: { session } }, biometricPref, onboardingPref]) => {
+      AsyncStorage.getItem('@cached_user_id'),
+    ]).then(([biometricPref, onboardingPref, cachedUserId]) => {
       biometricEnabledRef.current = biometricPref === 'true';
-      // Existing users (already have a session) skip onboarding
-      useBudgetStore.setState({ onboardingDone: onboardingPref === 'true' || !!session });
-      useBudgetStore.setState({ userId: session?.user?.id ?? null });
-      setSession(session);
-      if (biometricPref === 'true' && session) {
-        requireAuthRef.current = true;
-        setLockState('auth');
+      if (cachedUserId) {
+        // Pre-warm: home screen can render cached data while session validates
+        useBudgetStore.setState({ userId: cachedUserId });
+        useBudgetStore.getState().fetchTransactions();
+        if (biometricPref === 'true') {
+          requireAuthRef.current = true;
+          setLockState('auth');
+        }
       }
-      setInitialized(true);
+
+      // Validate session in background (may do a network refresh if token expired)
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        useBudgetStore.setState({
+          onboardingDone: onboardingPref === 'true' || !!session,
+          userId: session?.user?.id ?? null,
+        });
+        setSession(session);
+        if (!session) {
+          AsyncStorage.removeItem('@cached_user_id');
+        } else if (biometricPref === 'true') {
+          requireAuthRef.current = true;
+          setLockState('auth');
+        }
+        setInitialized(true);
+      });
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session?.user?.id) {
+        AsyncStorage.setItem('@cached_user_id', session.user.id);
+      } else {
+        AsyncStorage.removeItem('@cached_user_id');
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -103,8 +125,8 @@ export default function RootLayout() {
   }, [session, initialized, segments, onboardingDone]);
 
   useEffect(() => {
-    if ((fontsLoaded || fontError) && initialized) SplashScreen.hideAsync();
-  }, [fontsLoaded, fontError, initialized]);
+    if (fontsLoaded || fontError) SplashScreen.hideAsync();
+  }, [fontsLoaded, fontError]);
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', async (nextState) => {
@@ -151,7 +173,7 @@ export default function RootLayout() {
     return () => sub.remove();
   }, []);
 
-  if (!initialized || (!fontsLoaded && !fontError)) return null;
+  if (!fontsLoaded && !fontError) return null;
 
   return (
     <>
