@@ -11,6 +11,7 @@ import { supabase } from '../src/services/supabase';
 import { useBudgetStore } from '../src/store/useBudgetStore';
 
 SplashScreen.preventAutoHideAsync();
+SplashScreen.setOptions({ fade: false });
 
 export default function RootLayout() {
   const [session, setSession] = useState(null);
