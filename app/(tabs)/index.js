@@ -18,10 +18,11 @@ const START_YEAR = 2023;
 const PRIMARY_INCOME_CATEGORIES = new Set(['salary', 'business', 'rental', 'pension']);
 
 function CategoryGridItem({ item, themeColors, onPress }) {
-  const { categoryObj, remaining, status } = item;
+  const { categoryObj, spent, remaining, status } = item;
   const fmt = v => `₹${Math.round(v).toLocaleString('en-IN')}`;
-  const showRemaining = status === 'on_track' || status === 'overspent';
-  const remainingColor = status === 'overspent' ? themeColors.adaptiveRed : themeColors.adaptiveGreen;
+  const isUnbudgetedSpend = status === 'no_budget' && spent > 0;
+  const showRemaining = status === 'on_track' || status === 'overspent' || isUnbudgetedSpend;
+  const remainingColor = (status === 'overspent' || isUnbudgetedSpend) ? themeColors.adaptiveRed : themeColors.adaptiveGreen;
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
 
   return (
@@ -47,7 +48,7 @@ function CategoryGridItem({ item, themeColors, onPress }) {
         {showRemaining ? (
           <View style={styles.gridItemRemainingBlock}>
             <Text style={[styles.gridItemRemainingLabel, { color: themeColors.secondaryText }]}>
-              {status === 'overspent' ? 'Overspent' : 'Remaining'}
+              {(status === 'overspent' || isUnbudgetedSpend) ? 'Overspent' : 'Remaining'}
             </Text>
             <Text style={[styles.gridItemRemaining, { color: remainingColor }]}>
               {fmt(Math.abs(remaining))}
@@ -130,8 +131,9 @@ export default function HomeScreen() {
       return { cat, categoryObj: getExpenseCategory(cat), spent, budget, remaining, status, progress: budget > 0 ? spent / budget : 0 };
     });
 
-    const priority = { unplanned: 0, overspent: 1, on_track: 2, no_budget: 3 };
-    items.sort((a, b) => priority[a.status] !== priority[b.status] ? priority[a.status] - priority[b.status] : b.spent - a.spent);
+    const priority = { unplanned: 0, overspent: 1, on_track: 3, no_budget: 4 };
+    const getPriority = item => (item.status === 'no_budget' && item.spent > 0) ? 2 : priority[item.status];
+    items.sort((a, b) => { const pa = getPriority(a), pb = getPriority(b); return pa !== pb ? pa - pb : b.spent - a.spent; });
     return items;
   }, [expenses, budgets]);
 
