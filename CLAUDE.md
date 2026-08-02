@@ -101,7 +101,7 @@ app/               # Expo Router screens (file = route)
   goal-contributions.js                       # "View All" contributions screen
   recurring-expenses.js                        # Recurring expense list + summary
   add-recurring-expense.js, edit-recurring-expense.js
-  year-comparison.js                           # Coming Soon placeholder
+  year-comparison.js                           # Year-over-Year comparison (grouped bar chart, any two years)
   settings.js
 src/
   components/      # Reusable UI (TransactionRow, TransactionForm, MajorExpenseForm, etc.)
@@ -135,9 +135,10 @@ Transactions are fetched per `selectedMonth` / `selectedYear` from the store. St
 - **monthly_budget_summaries** — user_id, year, month (1-indexed), total_amount
 - **category_monthly_summaries** — user_id, year, month (1-indexed), category_name, category_type (`expense | income | budget`), total_amount
 
-These mirror the Swift app's summary tables. `monthly-trends.js` reads from `monthly_expense_summaries` and `monthly_income_summaries` via `transactionService.fetchMonthlyTrends()`. Month values in these tables are **1-indexed** (1–12), unlike the JS `Date.getMonth()` which is 0-indexed.
+These mirror the Swift app's summary tables. Month values are **1-indexed** (1–12), unlike JS `Date.getMonth()` which is 0-indexed.
 
-`fetchMonthlyTrends` returns the **last 24 months excluding the current month** (oldest → newest). The current month is intentionally excluded since it's incomplete.
+- **`fetchMonthlyTrends(userId)`** — returns the last 24 months excluding the current month (oldest → newest). Used by `monthly-trends.js`. Current month excluded as it's incomplete.
+- **`fetchAllMonthlySummaries(userId)`** — returns every available year-month row with no time cap (oldest → newest). Used by `year-comparison.js`. Row count is tiny (12 rows/year) so fetching all years is always fast.
 
 ### Categories
 Defined in `src/constants/categories.js` as arrays of `{ value, displayName, iconName, color }`. Icons are from `@expo/vector-icons` (Ionicons). Helper functions: `getExpenseCategory(value)`, `getIncomeCategory(value)`, `getMajorExpenseCategory(value)`.
@@ -166,7 +167,7 @@ Defined in `src/constants/categories.js` as arrays of `{ value, displayName, ico
 - **Tracking** — Major Expenses (`/major-expenses`), Recurring Expenses (`/recurring-expenses`)
 - **Planning** — Financial Goals (`/financial-goals`)
 
-`year-comparison.js` is still a placeholder "Coming Soon" screen. Recurring Expenses and Financial Goals are fully implemented.
+Recurring Expenses, Financial Goals, and Year-over-Year Comparison are all fully implemented.
 
 ### Profile Screen (`app/profile.js`)
 Moved from `app/(tabs)/profile.js` to a root stack screen. Opened via the profile icon in the home screen header (`router.push('/profile')`). Has a native back button. Tab bar only has `index`, `transactions`, and `more`.
@@ -248,7 +249,7 @@ This app uses `@react-navigation/native-stack` (not the JS stack). Key differenc
 Lightweight offline support via two services and store-level logic. No external library.
 
 #### Services
-- **`src/services/offlineCache.js`** — saves/loads AsyncStorage snapshots. Keys: `@cache_tx_{year}_{month}` (transactions), `@cache_goals`, `@cache_recurring`, `@cache_major_{year}`.
+- **`src/services/offlineCache.js`** — saves/loads AsyncStorage snapshots. Keys: `@cache_tx_{year}_{month}` (transactions), `@cache_goals`, `@cache_recurring`, `@cache_major_{year}`, `@cache_summaries` (all-years monthly summaries for year-comparison).
 - **`src/services/writeQueue.js`** — persists pending write operations to `@write_queue`. API: `enqueue(item)`, `dequeue(id)`, `getQueue()`.
 
 #### Store additions (`useBudgetStore.js`)
@@ -257,10 +258,13 @@ Lightweight offline support via two services and store-level logic. No external 
 - `flushWriteQueue()` — called on reconnect and app startup (if online). Drains the queue by calling the real Supabase service for each item, replaces temp items in the store with real ones, then re-fetches to sync.
 
 #### Fetch pattern (stale-while-revalidate)
-All four fetch methods (`fetchTransactions`, `fetchGoals`, `fetchRecurringExpenses`, `fetchMajorExpenses`) follow this pattern:
-1. Load cache from AsyncStorage → apply to store immediately (no spinner if cache exists)
-2. Fetch from Supabase in the background → update store and save new cache on success
+All data fetches follow this pattern:
+1. Load cache from AsyncStorage → apply immediately (no spinner if cache exists)
+2. Fetch from Supabase in the background → update state and save new cache on success
 3. On network failure: silently swallow if cache was shown; surface error only if no cache
+
+Store-managed fetches: `fetchTransactions`, `fetchGoals`, `fetchRecurringExpenses`, `fetchMajorExpenses`.
+Screen-managed fetch: `year-comparison.js` manages its own `trendData` state using the same pattern (no Zustand involvement).
 - `fetchTransactions` includes a **stale-response guard**: checks `selectedMonth`/`selectedYear` still match before applying network data (discards result if user navigated away mid-fetch).
 
 #### Write queue (addExpense / addIncome only)
@@ -275,6 +279,33 @@ Updates and deletes are NOT queued — they fail naturally with a network error 
 #### NetInfo wiring (`app/_layout.js`)
 - One `useEffect` on mount calls `NetInfo.fetch()` and flushes the queue if already online (handles items queued in a previous offline session).
 - A second `useEffect` subscribes to `NetInfo.addEventListener`; tracks `prevConnected` to detect the offline→online transition and trigger a flush.
+
+### Year-over-Year Comparison (`app/year-comparison.js`)
+
+Compares expenses, income, and savings across any two calendar years via a grouped bar chart.
+
+#### Layout
+- **Mode tab bar** (Expenses / Income / Savings) + horizontal pager — same pattern as `monthly-trends.js`.
+- **Year picker bar** — sits between the tab bar and pager. Two pill dropdowns (`[2026 ▾] vs [2025 ▾]`), each opening a shared modal listing all available years. Selection is screen-level state and persists across tab switches.
+- **Chart card** — grouped bar chart (12 month groups, Jan–Dec). Left bar = prior year (muted, `color + '55'`), right bar = current year (solid). Pure RN `View` elements, no SVG or chart library.
+- **Summary card** — 3-column table (label | prior year | current year) for Total and Avg/Month rows, then a separator and two `StatRow`s (Difference + Percentage) with icons below.
+
+#### Data & caching
+- Calls `transactionService.fetchAllMonthlySummaries(userId)` — fetches all rows from `monthly_expense_summaries` and `monthly_income_summaries` with no year filter. Returns `{ year, month, totalExpense, totalIncome, savings }[]` ordered oldest → newest.
+- Row count is bounded (12 rows/year) so fetching all history is always fast.
+- Uses stale-while-revalidate via `offlineCache.loadSummaries()` / `offlineCache.saveSummaries()` (`@cache_summaries` key). Cache is shown instantly; network data replaces it in the background.
+- Screen manages its own `trendData` state — no Zustand store involvement.
+
+#### Chart interaction
+- `PanResponder` drag-to-inspect: determines touched group (month) and bar side (prior = left of group center, current = right) from `locationX`.
+- Only the touched bar is highlighted; all others (including the partner bar in the same group) dim to 0.25 opacity.
+- Single tooltip above the touched bar showing year label + amount. Positioned left-of-center for prior bar, right-of-center for current bar.
+- Touch guard: `x < Y_LABEL_WIDTH` returns early — prevents Jan tooltip appearing when tapping the y-axis label area.
+
+#### Year picker
+- Available years derived from data (`byYear` keys), sorted descending.
+- `selectedCurrentYear` / `selectedPriorYear` initialised to the two most recent years on data load.
+- Any two years can be compared independently — no constraint enforcing them to be adjacent.
 
 ### Onboarding Flow (`app/onboarding.js`)
 

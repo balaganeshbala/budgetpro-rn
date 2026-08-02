@@ -267,6 +267,49 @@ export const transactionService = {
         return result;
     },
 
+    /**
+     * Fetch all available monthly summaries across all years (no time cap).
+     * Returns an array ordered oldest → newest, each entry:
+     *   { month (1-indexed), year, totalExpense, totalIncome, savings }
+     */
+    async fetchAllMonthlySummaries(userId) {
+        if (!userId) throw new Error('User ID is required');
+
+        const [expensesRes, incomesRes] = await Promise.all([
+            supabase.from('monthly_expense_summaries')
+                .select('year, month, total_amount')
+                .eq('user_id', userId),
+            supabase.from('monthly_income_summaries')
+                .select('year, month, total_amount')
+                .eq('user_id', userId),
+        ]);
+
+        if (expensesRes.error) throw expensesRes.error;
+        if (incomesRes.error) throw incomesRes.error;
+
+        const expenseMap = {};
+        const incomeMap = {};
+
+        for (const { year, month, total_amount } of expensesRes.data) {
+            expenseMap[`${year}-${month}`] = Number(total_amount);
+        }
+        for (const { year, month, total_amount } of incomesRes.data) {
+            incomeMap[`${year}-${month}`] = Number(total_amount);
+        }
+
+        const keys = new Set([...Object.keys(expenseMap), ...Object.keys(incomeMap)]);
+        const result = [];
+        for (const key of keys) {
+            const [year, month] = key.split('-').map(Number);
+            const totalExpense = expenseMap[key] || 0;
+            const totalIncome = incomeMap[key] || 0;
+            result.push({ year, month, totalExpense, totalIncome, savings: totalIncome - totalExpense });
+        }
+
+        result.sort((a, b) => a.year !== b.year ? a.year - b.year : a.month - b.month);
+        return result;
+    },
+
     async fetchMajorExpenses(userId, year) {
         if (!userId) throw new Error('User ID is required');
         const startDate = new Date(Date.UTC(year, 0, 1)).toISOString();

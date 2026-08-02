@@ -4,6 +4,7 @@ const txKey = (month, year) => `@cache_tx_${year}_${month}`;
 const majorKey = (year) => `@cache_major_${year}`;
 const GOALS_KEY = '@cache_goals';
 const RECURRING_KEY = '@cache_recurring';
+const SUMMARIES_KEY = '@cache_summaries';
 
 async function save(key, data) {
   try { await AsyncStorage.setItem(key, JSON.stringify(data)); } catch (_) {}
@@ -25,4 +26,6 @@ export const offlineCache = {
   loadRecurring: () => load(RECURRING_KEY),
   saveMajorExpenses: (year, data) => save(majorKey(year), data),
   loadMajorExpenses: (year) => load(majorKey(year)),
+  saveSummaries: (data) => save(SUMMARIES_KEY, data),
+  loadSummaries: () => load(SUMMARIES_KEY),
 };
