@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CardView } from '../src/components/common/CardView';
 import { colors, spacing, typography } from '../src/constants/theme';
@@ -15,14 +16,23 @@ export default function GoalContributionsScreen() {
     const insets = useSafeAreaInsets();
     const router = useRouter();
 
+    const { filterName } = useLocalSearchParams();
     const activeGoal = useBudgetStore(state => state.activeGoal);
 
-    const contributions = (activeGoal?.goal_contributions || []).sort((a, b) => {
-        if (b.date !== a.date) return b.date.localeCompare(a.date);
-        return b.id - a.id;
-    });
+    const [ready, setReady] = useState(false);
+    useEffect(() => {
+        const task = InteractionManager.runAfterInteractions(() => setReady(true));
+        return () => task.cancel();
+    }, []);
 
-    const monthGroups = (() => {
+    const contributions = useMemo(() => (activeGoal?.goal_contributions || [])
+        .filter(c => !filterName || c.name === filterName)
+        .sort((a, b) => {
+            if (b.date !== a.date) return b.date.localeCompare(a.date);
+            return b.id - a.id;
+        }), [activeGoal, filterName]);
+
+    const monthGroups = useMemo(() => {
         const map = {};
         contributions.forEach(c => {
             const key = c.date.slice(0, 7);
@@ -36,13 +46,22 @@ export default function GoalContributionsScreen() {
                 label: new Date(g.key + '-02').toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }),
                 total: g.items.reduce((sum, c) => sum + c.amount, 0),
             }));
-    })();
+    }, [contributions]);
+
+    if (!ready) {
+        return (
+            <View style={[styles.container, styles.center, { backgroundColor: themeColors.groupedBackground, paddingBottom: insets.top + 44 }]}>
+                <Stack.Screen options={{ title: filterName || 'All Contributions', headerBackButtonDisplayMode: 'minimal', headerStyle: { backgroundColor: themeColors.cardBackground }, headerTitleStyle: { color: themeColors.text, fontFamily: typography.fonts.medium } }} />
+                <ActivityIndicator color={themeColors.primary} />
+            </View>
+        );
+    }
 
     return (
         <View style={[styles.container, { backgroundColor: themeColors.groupedBackground }]}>
             <Stack.Screen
                 options={{
-                    title: 'All Contributions',
+                    title: filterName || 'All Contributions',
                     headerBackButtonDisplayMode: 'minimal',
                     headerStyle: { backgroundColor: themeColors.cardBackground },
                     headerTitleStyle: { color: themeColors.text, fontFamily: typography.fonts.medium },
@@ -100,6 +119,7 @@ export default function GoalContributionsScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
+    center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
     scroll: { padding: spacing.lg, gap: spacing.md },
     monthHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm, paddingHorizontal: spacing.xs },
     monthLabel: { fontSize: typography.sizes.xs, fontFamily: typography.fonts.semibold, textTransform: 'uppercase', letterSpacing: 0.5 },

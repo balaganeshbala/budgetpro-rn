@@ -165,7 +165,6 @@ export default function FinancialGoalDetailsScreen() {
 
                 {/* Contributions section */}
                 <CardView padding={5}>
-                    {/* Header */}
                     <View style={styles.cardHeader}>
                         <SectionHeader title="Contributions" />
                         <TouchableOpacity
@@ -184,18 +183,25 @@ export default function FinancialGoalDetailsScreen() {
                         </Text>
                     ) : (
                         <>
-                            {nameGroups.map((group, idx) => (
-                                <View key={group.name}>
-                                    <View style={styles.groupRow}>
+                            {contributions.slice(0, 5).map((c, idx) => (
+                                <View key={c.id}>
+                                    <TouchableOpacity
+                                        style={styles.groupRow}
+                                        activeOpacity={0.7}
+                                        onPress={() => router.push({ pathname: '/edit-contribution', params: { contribution: JSON.stringify(c) } })}
+                                    >
                                         <View>
-                                            <Text style={[styles.groupMonth, { color: themeColors.text }]}>{group.name}</Text>
+                                            <Text style={[styles.groupMonth, { color: themeColors.text }]}>{c.name}</Text>
                                             <Text style={[styles.groupCount, { color: themeColors.secondaryText }]}>
-                                                {group.count} {group.count === 1 ? 'contribution' : 'contributions'}
+                                                {new Date(c.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             </Text>
                                         </View>
-                                        <Text style={styles.groupAmount}>+{fmt(group.total)}</Text>
-                                    </View>
-                                    {idx < nameGroups.length - 1 && (
+                                        <View style={styles.groupRowRight}>
+                                            <Text style={styles.groupAmount}>+{fmt(c.amount)}</Text>
+                                            <Ionicons name="chevron-forward" size={14} color={themeColors.tertiaryText} />
+                                        </View>
+                                    </TouchableOpacity>
+                                    {idx < Math.min(contributions.length, 5) - 1 && (
                                         <View style={[styles.rowDivider, { backgroundColor: themeColors.separator }]} />
                                     )}
                                 </View>
@@ -212,6 +218,38 @@ export default function FinancialGoalDetailsScreen() {
                         </>
                     )}
                 </CardView>
+
+                {/* By Name section */}
+                {nameGroups.length > 0 && (
+                    <CardView padding={5}>
+                        <View style={[styles.cardHeader, { paddingBottom: 0 }]}>
+                            <SectionHeader title="By Name" />
+                        </View>
+                        {nameGroups.map((group, idx) => (
+                            <View key={group.name}>
+                                <TouchableOpacity
+                                    style={styles.groupRow}
+                                    activeOpacity={0.7}
+                                    onPress={() => router.push({ pathname: '/goal-contributions', params: { filterName: group.name } })}
+                                >
+                                    <View>
+                                        <Text style={[styles.groupMonth, { color: themeColors.text }]}>{group.name}</Text>
+                                        <Text style={[styles.groupCount, { color: themeColors.secondaryText }]}>
+                                            {group.count} {group.count === 1 ? 'contribution' : 'contributions'}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.groupRowRight}>
+                                        <Text style={styles.groupAmount}>+{fmt(group.total)}</Text>
+                                        <Ionicons name="chevron-forward" size={14} color={themeColors.tertiaryText} />
+                                    </View>
+                                </TouchableOpacity>
+                                {idx < nameGroups.length - 1 && (
+                                    <View style={[styles.rowDivider, { backgroundColor: themeColors.separator }]} />
+                                )}
+                            </View>
+                        ))}
+                    </CardView>
+                )}
             </ScrollView>
         </View>
     );
@@ -250,8 +288,9 @@ const styles = StyleSheet.create({
     viewAllBtn: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', padding: spacing.lg, gap: 4 },
     viewAllText: { fontSize: typography.sizes.sm, fontFamily: typography.fonts.semibold },
     groupRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: spacing.md },
-    groupMonth: { fontSize: typography.sizes.md, fontFamily: typography.fonts.semibold, marginBottom: 2 },
+    groupRowRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    groupMonth: { fontSize: typography.sizes.sm, fontFamily: typography.fonts.semibold, marginBottom: 2 },
     groupCount: { fontSize: typography.sizes.xs, fontFamily: typography.fonts.regular },
-    groupAmount: { fontSize: typography.sizes.md, fontFamily: typography.fonts.semibold, color: '#34C759' },
+    groupAmount: { fontSize: typography.sizes.sm, fontFamily: typography.fonts.semibold, color: '#34C759' },
     rowDivider: { height: StyleSheet.hairlineWidth, marginLeft: spacing.md },
 });

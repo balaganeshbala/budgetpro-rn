@@ -222,9 +222,13 @@ Tracks standing subscriptions, EMIs, and regular bills. Items have no transactio
 
 #### Key patterns
 - **No re-fetch on return from sub-screens**: screens use `useEffect([userId/goalId])` (not `useFocusEffect`). All mutations go through store actions that patch both `activeGoal` and the matching entry in `goals[]` simultaneously.
-- **goal-contributions screen** reads `activeGoal` from the store — no API call, always in sync.
+- **goal-contributions screen** reads `activeGoal` from the store — no API call, always in sync. Accepts optional `filterName` route param to show contributions for a single name only (title updates to that name).
 - **Contributions grouped by month**: `date.slice(0, 7)` as key ("YYYY-MM"). Use `new Date(key + '-02')` for the display label to avoid timezone off-by-one with day 1.
 - **`toYMD(date)`** helper in `goalService.js` formats a JS Date → `"yyyy-MM-dd"` string.
+
+#### Goal detail screen (`financial-goal-details.js`) contribution layout
+- **Contributions card**: shows the 5 most recent individual contributions (name + date / amount). Each row is tappable → `/edit-contribution`. "View All" navigates to `/goal-contributions` (all contributions, grouped by month).
+- **By Name card**: name-grouped summary rows (name + count / total). Each row is tappable → `/goal-contributions?filterName=<name>` (filtered to that name only).
 
 #### Edit screen conventions
 - Delete button is in `headerRight` as a trash icon (same as `edit-expense.js`), NOT inside the form.
@@ -243,6 +247,26 @@ This app uses `@react-navigation/native-stack` (not the JS stack). Key differenc
 - **Hiding back button title**: Use `headerBackButtonDisplayMode: 'minimal'` on the current screen. This is the native-stack v7 API — `headerBackTitleVisible` is JS-stack only and has no effect here. `headerBackTitle: ''` (empty string) is unreliable (treated as falsy in some versions).
 - **Where to set it**: Set on the screen that *shows* the back button (the current screen), NOT on the previous screen. Also set it statically in `_layout.js` to avoid a race before component mount — dynamic `Stack.Screen` options in the component only apply after first render.
 - **`headerBackTitle`** on the previous screen controls what text appears as the back label on the NEXT screen — but this is unreliable with empty strings; prefer `headerBackButtonDisplayMode`.
+
+#### Navigation lag fix (deferred rendering)
+Screens that do heavy synchronous work on mount (sorting, grouping, `toLocaleDateString` calls) block the JS thread and cause the navigation slide animation to stutter. Fix: defer content rendering until after the animation completes using `InteractionManager`, and memoize expensive computations with `useMemo`:
+```js
+const [ready, setReady] = useState(false);
+useEffect(() => {
+    const task = InteractionManager.runAfterInteractions(() => setReady(true));
+    return () => task.cancel();
+}, []);
+if (!ready) return <LoadingView />;
+```
+Applied in `goal-contributions.js`.
+
+#### Centering a loader in a stack screen
+`flex: 1` + `justifyContent: 'center'` centers within the **content area** (below the header), not the full screen — the spinner appears visually below center. To land it at the true screen center, add `paddingBottom: insets.top + 44` (header height) to the loading container. `insets` comes from `useSafeAreaInsets()`.
+```js
+<View style={[styles.container, styles.center, { paddingBottom: insets.top + 44 }]}>
+    <ActivityIndicator />
+</View>
+```
 
 ### Offline Support
 
