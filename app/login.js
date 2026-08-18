@@ -136,7 +136,7 @@ export default function LoginScreen() {
               style={styles.image}
             />
             <Text style={[styles.googleButtonText, { color: themeColors.text }]}>
-              {isGoogleLoading ? 'Signing in…' : 'Sign in with Google'}
+              {isGoogleLoading ? 'Signing in…' : 'Continue with Google'}
             </Text>
           </TouchableOpacity>
         </View>
